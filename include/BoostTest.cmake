@@ -26,7 +26,7 @@ function(boost_test)
         add_library(${__NAME} EXCLUDE_FROM_ALL ${__SOURCES})
         target_link_libraries(${__NAME} ${__LIBRARIES})
 
-        add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME})
+        add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
 
         if(__TYPE STREQUAL "compile-fail")
             set_tests_properties(compile-${__NAME} PROPERTIES WILL_FAIL TRUE)
@@ -37,19 +37,19 @@ function(boost_test)
         add_executable(${__NAME} EXCLUDE_FROM_ALL ${__SOURCES})
         target_link_libraries(${__NAME} ${__LIBRARIES})
 
-        add_test(NAME link-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME})
+        add_test(NAME link-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
 
     elseif(__TYPE STREQUAL "link-fail")
 
         add_library(compile-${__NAME} EXCLUDE_FROM_ALL ${__SOURCES})
         target_link_libraries(compile-${__NAME} ${__LIBRARIES})
 
-        add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target compile-${__NAME})
+        add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target compile-${__NAME} --config $<CONFIG>)
 
         add_executable(${__NAME} EXCLUDE_FROM_ALL ${__SOURCES})
         target_link_libraries(${__NAME} ${__LIBRARIES})
 
-        add_test(NAME link-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME})
+        add_test(NAME link-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
         set_tests_properties(link-${__NAME} PROPERTIES WILL_FAIL TRUE)
 
     elseif(__TYPE STREQUAL "run" OR __TYPE STREQUAL "run-fail")
@@ -57,7 +57,7 @@ function(boost_test)
         add_executable(${__NAME} EXCLUDE_FROM_ALL ${__SOURCES})
         target_link_libraries(${__NAME} ${__LIBRARIES})
 
-        add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME})
+        add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
 
         add_test(NAME run-${__NAME} COMMAND ${__NAME} ${__ARGUMENTS})
         set_tests_properties(run-${__NAME} PROPERTIES DEPENDS compile-${__NAME})
