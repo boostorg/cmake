@@ -24,10 +24,28 @@ matrix:
 
   include:
 
-    - env: LIB=assert
+    - env: LIB=assert COMMENT=trusty
+      dist: trusty
       compiler: g++
 
-    - env: LIB=assert
+    - env: LIB=assert COMMENT=trusty
+      dist: trusty
+      compiler: clang++
+
+    - env: LIB=assert COMMENT=xenial
+      dist: xenial
+      compiler: g++
+
+    - env: LIB=assert COMMENT=xenial
+      dist: xenial
+      compiler: clang++
+
+    - env: LIB=assert COMMENT=bionic
+      dist: bionic
+      compiler: g++
+
+    - env: LIB=assert COMMENT=bionic
+      dist: bionic
       compiler: clang++
 
     - env: LIB=assert
