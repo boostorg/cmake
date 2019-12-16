@@ -17,7 +17,6 @@ set(BOOST_EXCLUDE_LIBRARIES beast;callable_traits;compute;gil;hana;hof;safe_nume
 if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR)
 
   include(CTest)
-  add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure -C $<CONFIG>)
 
   if(WIN32 AND NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
