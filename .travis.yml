@@ -1,0 +1,72 @@
+# Copyright 2016-2019 Peter Dimov
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE_1_0.txt or copy at http://boost.org/LICENSE_1_0.txt)
+
+language: cpp
+
+sudo: false
+
+dist: xenial
+
+branches:
+  only:
+    - master
+    - develop
+    - /feature\/.*/
+
+env:
+  matrix:
+    - BOGUS_JOB=true
+
+matrix:
+  exclude:
+    - env: BOGUS_JOB=true
+
+  include:
+
+    - env: LIB=assert
+      compiler: g++
+
+    - env: LIB=assert
+      compiler: clang++
+
+    - env: LIB=assert
+      os: osx
+
+    - env: LIB=timer
+      compiler: g++
+
+    - env: LIB=timer
+      compiler: clang++
+
+    - env: LIB=timer BUILD_SHARED_LIBS=ON
+      compiler: g++
+
+    - env: LIB=timer BUILD_SHARED_LIBS=ON
+      compiler: clang++
+
+    - env: LIB=timer
+      os: osx
+
+    - env: LIB=timer BUILD_SHARED_LIBS=ON
+      os: osx
+
+install:
+  - BOOST_BRANCH=develop && [ "$TRAVIS_BRANCH" == "master" ] && BOOST_BRANCH=master || true
+  - cd ..
+  - git clone -b $BOOST_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
+  - cd boost-root
+  - git submodule update --init --jobs 3 tools/boostdep libs/$LIB
+  - python tools/boostdep/depinst/depinst.py -g "--jobs 3" $LIB
+  - rm -rf tools/cmake/*
+  - cp -r $TRAVIS_BUILD_DIR/* tools/cmake
+
+script:
+  - mkdir __build__ && cd __build__
+  - cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
+  - cmake --build .
+  - ctest --output-on-failure -R boost_$LIB
+
+notifications:
+  email:
+    on_success: always
