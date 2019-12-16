@@ -28,7 +28,7 @@ if(BOOST_INCLUDE_LIBRARIES)
 
   foreach(__boost_lib IN LISTS BOOST_INCLUDE_LIBRARIES)
 
-    boost_message(VERBOSE "Adding library ${__boost_lib}")
+    boost_message(VERBOSE "Adding Boost library ${__boost_lib}")
     add_subdirectory("${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}" "${CMAKE_CURRENT_BINARY_DIR}/boostorg/${__boost_lib}")
 
   endforeach()
@@ -43,11 +43,11 @@ else()
 
     if(__boost_lib IN_LIST BOOST_EXCLUDE_LIBRARIES)
 
-      boost_message(VERBOSE "Ignoring excluded library ${__boost_lib}")
+      boost_message(VERBOSE "Ignoring excluded Boost library ${__boost_lib}")
 
     else()
 
-      boost_message(VERBOSE "Adding library ${__boost_lib}")
+      boost_message(VERBOSE "Adding Boost library ${__boost_lib}")
       add_subdirectory("${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}" "${CMAKE_CURRENT_BINARY_DIR}/boostorg/${__boost_lib}")
 
     endif()
