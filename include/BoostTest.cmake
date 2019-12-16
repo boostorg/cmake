@@ -23,7 +23,7 @@ function(boost_test)
 
     if(__TYPE STREQUAL "compile" OR __TYPE STREQUAL "compile-fail")
 
-        add_library(${__NAME} EXCLUDE_FROM_ALL ${__SOURCES})
+        add_library(${__NAME} STATIC EXCLUDE_FROM_ALL ${__SOURCES})
         target_link_libraries(${__NAME} ${__LIBRARIES})
 
         add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
@@ -41,7 +41,7 @@ function(boost_test)
 
     elseif(__TYPE STREQUAL "link-fail")
 
-        add_library(compile-${__NAME} EXCLUDE_FROM_ALL ${__SOURCES})
+        add_library(compile-${__NAME} STATIC EXCLUDE_FROM_ALL ${__SOURCES})
         target_link_libraries(compile-${__NAME} ${__LIBRARIES})
 
         add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target compile-${__NAME} --config $<CONFIG>)
