@@ -54,10 +54,16 @@ matrix:
     - env: LIB=timer
       compiler: g++
 
+    - env: LIB=timer BOOST_INCLUDE_LIBRARIES=timer
+      compiler: g++
+
     - env: LIB=timer
       compiler: clang++
 
     - env: LIB=timer BUILD_SHARED_LIBS=ON
+      compiler: g++
+
+    - env: LIB=timer BUILD_SHARED_LIBS=ON BOOST_INCLUDE_LIBRARIES=timer
       compiler: g++
 
     - env: LIB=timer BUILD_SHARED_LIBS=ON
@@ -66,7 +72,13 @@ matrix:
     - env: LIB=timer
       os: osx
 
+    - env: LIB=timer BOOST_INCLUDE_LIBRARIES=timer
+      os: osx
+
     - env: LIB=timer BUILD_SHARED_LIBS=ON
+      os: osx
+
+    - env: LIB=timer BUILD_SHARED_LIBS=ON BOOST_INCLUDE_LIBRARIES=timer
       os: osx
 
 install:
@@ -81,7 +93,7 @@ install:
 
 script:
   - mkdir __build__ && cd __build__
-  - cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
+  - cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ${BOOST_INCLUDE_LIBRARIES:+-DBOOST_INCLUDE_LIBRARIES=$BOOST_INCLUDE_LIBRARIES} ..
   - cmake --build .
   - ctest --output-on-failure -R boost_$LIB
 
