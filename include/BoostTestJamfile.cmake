@@ -27,7 +27,7 @@ function(boost_test_jamfile)
 
                     if(NOT lln EQUAL 2)
 
-                        boost_message(VERBOSE "Jamfile line ignored: ${line}")
+                        boost_message(DEBUG "Jamfile line ignored: ${line}")
 
                     else()
 

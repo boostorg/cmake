@@ -24,26 +24,22 @@ if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR)
 
 endif()
 
-if(BOOST_INCLUDE_LIBRARIES)
+file(GLOB __boost_libraries RELATIVE "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs" "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/*/CMakeLists.txt" "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/numeric/*/CMakeLists.txt")
 
-  foreach(__boost_lib IN LISTS BOOST_INCLUDE_LIBRARIES)
+foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
-    boost_message(VERBOSE "Adding Boost library ${__boost_lib}")
-    add_subdirectory("${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}" "${CMAKE_CURRENT_BINARY_DIR}/boostorg/${__boost_lib}")
+  get_filename_component(__boost_lib "${__boost_lib_cml}" DIRECTORY)
 
-  endforeach()
+  if(__boost_lib IN_LIST BOOST_EXCLUDE_LIBRARIES)
 
-else()
+    boost_message(DEBUG "Ignoring excluded Boost library ${__boost_lib}")
 
-  file(GLOB __boost_libraries RELATIVE "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs" "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/*/CMakeLists.txt" "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/numeric/*/CMakeLists.txt")
+  else()
 
-  foreach(__boost_lib_cml IN LISTS __boost_libraries)
+    if(BOOST_INCLUDE_LIBRARIES AND NOT __boost_lib IN_LIST BOOST_INCLUDE_LIBRARIES)
 
-    get_filename_component(__boost_lib "${__boost_lib_cml}" DIRECTORY)
-
-    if(__boost_lib IN_LIST BOOST_EXCLUDE_LIBRARIES)
-
-      boost_message(VERBOSE "Ignoring excluded Boost library ${__boost_lib}")
+      boost_message(DEBUG "Adding Boost library ${__boost_lib} (w/ EXCLUDE_FROM_ALL)")
+      add_subdirectory("${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}" "${CMAKE_CURRENT_BINARY_DIR}/boostorg/${__boost_lib}" EXCLUDE_FROM_ALL)
 
     else()
 
@@ -52,6 +48,6 @@ else()
 
     endif()
 
-  endforeach()
+  endif()
 
-endif()
+endforeach()
