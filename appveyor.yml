@@ -45,7 +45,7 @@ test_script:
   - mkdir __build__ && cd __build__
   - if "%BUILD_SHARED_LIBS%" == "" SET BUILD_SHARED_LIBS=0
   - if NOT "%BOOST_INCLUDE_LIBRARIES%" == "" SET BOOST_INCLUDE_LIBRARIES=-DBOOST_INCLUDE_LIBRARIES=%BOOST_INCLUDE_LIBRARIES%
-  - cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% %BOOST_INCLUDE_LIBRARIES% ..
+  - cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_DEBUG=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% %BOOST_INCLUDE_LIBRARIES% ..
   - cmake --build . --config Debug && ctest --output-on-failure -R boost_%LIB% -C Debug
   - cmake --build . --config Release && ctest --output-on-failure -R boost_%LIB% -C Release
   - cmake --build . --config MinSizeRel && ctest --output-on-failure -R boost_%LIB% -C MinSizeRel
