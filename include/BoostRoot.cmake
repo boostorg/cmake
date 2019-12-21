@@ -11,8 +11,9 @@ if(NOT BOOST_ENABLE_CMAKE)
     "(Boost.Build) to build and install Boost.")
 endif()
 
-set(BOOST_INCLUDE_LIBRARIES "" CACHE STRING "List of libraries to build (default: all but excluded)")
-set(BOOST_EXCLUDE_LIBRARIES beast;callable_traits;compute;gil;hana;hof;safe_numerics;serialization;yap CACHE STRING "List of libraries to exclude")
+set(BOOST_INCLUDE_LIBRARIES "" CACHE STRING "List of libraries to build (default: all but excluded and incompatible)")
+set(BOOST_EXCLUDE_LIBRARIES "" CACHE STRING "List of libraries to exclude from build")
+set(BOOST_INCOMPATIBLE_LIBRARIES beast;callable_traits;compute;gil;hana;hof;safe_numerics;serialization;yap CACHE STRING "List of libraries with incompatible CMakeLists.txt files")
 
 if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR)
 
@@ -30,9 +31,13 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
   get_filename_component(__boost_lib "${__boost_lib_cml}" DIRECTORY)
 
-  if(__boost_lib IN_LIST BOOST_EXCLUDE_LIBRARIES)
+  if(__boost_lib IN_LIST BOOST_INCOMPATIBLE_LIBRARIES)
 
-    boost_message(DEBUG "Ignoring excluded Boost library ${__boost_lib}")
+    boost_message(DEBUG "Skipping incompatible Boost library ${__boost_lib}")
+
+  elseif(__boost_lib IN_LIST BOOST_EXCLUDE_LIBRARIES)
+
+    boost_message(DEBUG "Skipping excluded Boost library ${__boost_lib}")
 
   else()
 
