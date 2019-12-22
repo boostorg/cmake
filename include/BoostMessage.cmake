@@ -8,29 +8,21 @@ endif()
 
 function(boost_message type)
 
-  if(type STREQUAL "VERBOSE")
-    if(Boost_VERBOSE OR Boost_DEBUG)
+  # For CMake 3.15+ use `cmake --log-level=VERBOSE|DEBUG|TRACE`
+  if(CMAKE_VERSION VERSION_LESS 3.15)
+    if(type STREQUAL "VERBOSE")
+      if(NOT Boost_VERBOSE AND NOT Boost_DEBUG)
+        return()
+      endif()
       set(type STATUS)
-    elseif(CMAKE_VERSION VERSION_LESS 3.15)
-      return()
+    elseif(type STREQUAL "DEBUG")
+      if(NOT Boost_DEBUG)
+        return()
+      endif()
+      set(type STATUS)
     endif()
   endif()
 
-  if(type STREQUAL "DEBUG")
-    if(Boost_DEBUG)
-      set(type STATUS)
-    elseif(CMAKE_VERSION VERSION_LESS 3.15)
-      return()
-    endif()
-  endif()
-
-  set(m "")
-  math(EXPR last "${ARGC}-1")
-
-  foreach(i RANGE 1 ${last})
-    set(m "${m}${ARGV${i}}")
-  endforeach()
-
-  message(${type} "${m}")
+  message(${type} ${ARGN})
 
 endfunction()
