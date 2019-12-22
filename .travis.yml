@@ -81,6 +81,16 @@ matrix:
     - env: LIB=timer BUILD_SHARED_LIBS=ON BOOST_INCLUDE_LIBRARIES=timer
       os: osx
 
+    - env: LIB=mp11 INSTALL=1 BOOST_INCLUDE_LIBRARIES=mp11
+      script:
+        - mkdir __build__ && cd __build__
+        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_DEBUG=ON ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ${BOOST_INCLUDE_LIBRARIES:+-DBOOST_INCLUDE_LIBRARIES=$BOOST_INCLUDE_LIBRARIES} ..
+        - cmake --build . --target install
+        - cd ../test/mp11 && mkdir __build__ && cd __build__
+        - cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
+        - cmake --build .
+        - cmake --build . --target check
+
 install:
   - BOOST_BRANCH=develop && [ "$TRAVIS_BRANCH" == "master" ] && BOOST_BRANCH=master || true
   - cd ..
