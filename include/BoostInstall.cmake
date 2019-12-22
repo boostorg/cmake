@@ -16,8 +16,6 @@ function(boost_install LIB)
     install(TARGETS ${LIB} EXPORT ${LIB}-targets)
     install(EXPORT ${LIB}-targets DESTINATION "${CONFIG_INSTALL_DIR}" NAMESPACE Boost:: FILE ${LIB}-targets.cmake)
 
-    install(DIRECTORY include/ DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
-
     get_target_property(INTERFACE_LINK_LIBRARIES ${LIB} INTERFACE_LINK_LIBRARIES)
     get_target_property(TYPE ${LIB} TYPE)
 
