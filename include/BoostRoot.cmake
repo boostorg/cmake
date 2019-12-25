@@ -35,21 +35,38 @@ set_property(CACHE BOOST_INSTALL_LAYOUT PROPERTY STRINGS versioned tagged system
 set(BOOST_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}" CACHE STRING "Installation directory for library files")
 
 # --includedir
+set(BOOST_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}" CACHE STRING "Installation directory for header files")
 
 if(BOOST_INSTALL_LAYOUT STREQUAL "versioned")
-  set(__boost_header_subdir "/${Boost_VERSION_MAJOR}_${Boost_VERSION_MINOR}")
-else()
-  set(__boost_header_subdir "")
+  string(APPEND BOOST_INSTALL_INCLUDEDIR "/${Boost_VERSION_MAJOR}_${Boost_VERSION_MINOR}")
 endif()
-
-set(BOOST_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}${__boost_header_subdir}" CACHE STRING "Installation directory for header files")
 
 # --cmakedir
 set(BOOST_INSTALL_CMAKEDIR "${BOOST_INSTALL_LIBDIR}/cmake" CACHE STRING "Installation directory for CMake configuration files")
 
+# runtime-link=static|shared
+
+set(BOOST_RUNTIME_LINK shared CACHE STRING "Runtime library selection for the MS ABI (shared or static)")
+set_property(CACHE BOOST_RUNTIME_LINK PROPERTY STRINGS shared static)
+
+if(NOT CMAKE_MSVC_RUNTIME_LIBRARY)
+
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+  if(NOT BOOST_RUNTIME_LINK STREQUAL "static")
+    string(APPEND CMAKE_MSVC_RUNTIME_LIBRARY "DLL")
+  endif()
+
+endif()
+
+#
+
 if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR)
 
   include(CTest)
+
+  # link=static|shared
+  option(BUILD_SHARED_LIBS "Build shared libraries")
 
   # --stagedir
   set(BOOST_STAGEDIR "${CMAKE_CURRENT_BINARY_DIR}/stage" CACHE STRING "Build output directory")
