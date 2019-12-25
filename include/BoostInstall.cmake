@@ -129,7 +129,9 @@ function(__boost_install_update_include_directory lib prop)
 
 endfunction()
 
-function(boost_install LIB)
+# Installs a single target
+
+function(boost_install_target LIB)
 
   if(NOT BOOST_INSTALL_LIBDIR)
     set(BOOST_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
@@ -227,5 +229,38 @@ function(boost_install LIB)
   endif()
 
   install(FILES "${CONFIG_VERSION_FILE_NAME}" DESTINATION "${CONFIG_INSTALL_DIR}")
+
+endfunction()
+
+# boost_install([TARGETS targets...] [HEADER_DIRECTORY directory])
+
+function(boost_install)
+
+  cmake_parse_arguments(_ "" HEADER_DIRECTORY TARGETS ${ARGN})
+
+  if(NOT __TARGETS AND NOT __HEADER_DIRECTORY) # boost_install(target), backcompat
+
+    boost_install_target(${__UNPARSED_ARGUMENTS})
+    return()
+
+  endif()
+
+  if(__UNPARSED_ARGUMENTS)
+
+    message(AUTHOR_WARNING "boost_install: extra arguments ignored: ${__UNPARSED_ARGUMENTS}")
+
+  endif()
+
+  if(__HEADER_DIRECTORY)
+
+    install(DIRECTORY ${__HEADER_DIRECTORY} DESTINATION "${BOOST_INSTALL_INCLUDEDIR}")
+
+  endif()
+
+  foreach(target IN LISTS __TARGETS)
+
+    boost_install_target(${target})
+
+  endforeach()
 
 endfunction()
