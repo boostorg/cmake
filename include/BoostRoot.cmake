@@ -38,7 +38,7 @@ set(BOOST_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}" CACHE STRING "Installation di
 set(BOOST_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}" CACHE STRING "Installation directory for header files")
 
 if(BOOST_INSTALL_LAYOUT STREQUAL "versioned")
-  string(APPEND BOOST_INSTALL_INCLUDEDIR "/${Boost_VERSION_MAJOR}_${Boost_VERSION_MINOR}")
+  string(APPEND BOOST_INSTALL_INCLUDEDIR "/boost-${Boost_VERSION_MAJOR}_${Boost_VERSION_MINOR}")
 endif()
 
 # --cmakedir
@@ -64,6 +64,12 @@ endif()
 if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR)
 
   include(CTest)
+
+  if(WIN32 AND CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+
+    set(CMAKE_INSTALL_PREFIX "C:/Boost" CACHE PATH "Installation path prefix, prepended to installation directories" FORCE)
+
+  endif()
 
   # link=static|shared
   option(BUILD_SHARED_LIBS "Build shared libraries")
