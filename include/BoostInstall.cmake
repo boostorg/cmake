@@ -9,6 +9,27 @@ endif()
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
+# Variables
+
+if(WIN32)
+  set(__boost_default_layout "versioned")
+else()
+  set(__boost_default_layout "system")
+endif()
+
+set(BOOST_INSTALL_LAYOUT ${__boost_default_layout} CACHE STRING "Installation layout (versioned, tagged, or system)")
+set_property(CACHE BOOST_INSTALL_LAYOUT PROPERTY STRINGS versioned tagged system)
+
+set(BOOST_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}" CACHE STRING "Installation directory for library files")
+set(BOOST_INSTALL_CMAKEDIR "${BOOST_INSTALL_LIBDIR}/cmake" CACHE STRING "Installation directory for CMake configuration files")
+set(BOOST_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}" CACHE STRING "Installation directory for header files")
+
+if(BOOST_INSTALL_LAYOUT STREQUAL "versioned")
+  set(BOOST_INSTALL_INCLUDEDIR "$CACHE{BOOST_INSTALL_INCLUDEDIR}/boost-${PROJECT_VERSION_MAJOR}_${PROJECT_VERSION_MINOR}")
+endif()
+
+#
+
 function(__boost_install_set_output_name LIB TYPE)
 
   set(name ${LIB})
@@ -89,7 +110,7 @@ function(__boost_install_set_output_name LIB TYPE)
   endif()
 
   if(BOOST_INSTALL_LAYOUT STREQUAL versioned)
-    string(APPEND name "-${Boost_VERSION_MAJOR}_${Boost_VERSION_MINOR}")
+    string(APPEND name "-${PROJECT_VERSION_MAJOR}_${PROJECT_VERSION_MINOR}")
   endif()
 
   set_target_properties(${LIB} PROPERTIES OUTPUT_NAME ${name})

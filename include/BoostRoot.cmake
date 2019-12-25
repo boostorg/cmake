@@ -20,29 +20,7 @@ set(BOOST_EXCLUDE_LIBRARIES "" CACHE STRING "List of libraries to exclude from b
 
 set(BOOST_INCOMPATIBLE_LIBRARIES beast;callable_traits;compute;gil;hana;hof;safe_numerics;serialization;yap CACHE STRING "List of libraries with incompatible CMakeLists.txt files")
 
-# --layout
-
-if(WIN32)
-  set(__boost_default_layout "versioned")
-else()
-  set(__boost_default_layout "system")
-endif()
-
-set(BOOST_INSTALL_LAYOUT ${__boost_default_layout} CACHE STRING "Installation layout (versioned, tagged, or system)")
-set_property(CACHE BOOST_INSTALL_LAYOUT PROPERTY STRINGS versioned tagged system)
-
-# --libdir
-set(BOOST_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}" CACHE STRING "Installation directory for library files")
-
-# --includedir
-set(BOOST_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}" CACHE STRING "Installation directory for header files")
-
-if(BOOST_INSTALL_LAYOUT STREQUAL "versioned")
-  string(APPEND BOOST_INSTALL_INCLUDEDIR "/boost-${Boost_VERSION_MAJOR}_${Boost_VERSION_MINOR}")
-endif()
-
-# --cmakedir
-set(BOOST_INSTALL_CMAKEDIR "${BOOST_INSTALL_LIBDIR}/cmake" CACHE STRING "Installation directory for CMake configuration files")
+# --layout, --libdir, --cmakedir, --includedir in BoostInstall
 
 # runtime-link=static|shared
 
