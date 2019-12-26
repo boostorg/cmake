@@ -39,6 +39,8 @@ boost_test(TYPE run SOURCES requires_variadic_templates.cpp COMPILE_FEATURES cxx
 boost_test(TYPE run SOURCES requires_no_rtti.cpp COMPILE_OPTIONS -fno-rtti LINK_LIBRARIES Boost::config)
 boost_test(TYPE run SOURCES requires_no_exceptions.cpp COMPILE_OPTIONS -fno-exceptions LINK_LIBRARIES Boost::config)
 
+boost_test(TYPE compile-fail SOURCES emits_warning.cpp COMPILE_OPTIONS -Wall -Werror)
+
 # boost_test_jamfile
 
 include(BoostTestJamfile)
