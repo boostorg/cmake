@@ -8,6 +8,28 @@ endif()
 
 include(BoostMessage)
 
+#
+
+function(__boost_test_list_replace list what with)
+
+  set(result "")
+
+  foreach(x IN LISTS ${list})
+
+    if(x STREQUAL what)
+
+      set(x ${with})
+
+    endif()
+
+    list(APPEND result ${x})
+
+  endforeach()
+
+  set(${list} ${result} PARENT_SCOPE)
+
+endfunction()
+
 # boost_test( [TYPE type] [PREFIX prefix] [NAME name]
 #   SOURCES sources...
 #   ARGUMENTS args...
@@ -46,6 +68,19 @@ function(boost_test)
 
     if(DEFINED BUILD_TESTING AND NOT BUILD_TESTING)
         return()
+    endif()
+
+    if(MSVC)
+
+      __boost_test_list_replace(__COMPILE_OPTIONS "-fno-exceptions" "/GX-")
+      __boost_test_list_replace(__COMPILE_OPTIONS "-fno-rtti" "/GR-")
+      __boost_test_list_replace(__COMPILE_OPTIONS "-w" "/W0")
+      __boost_test_list_replace(__COMPILE_OPTIONS "-Wall" "/W4")
+      __boost_test_list_replace(__COMPILE_OPTIONS "-Wextra" "")
+      __boost_test_list_replace(__COMPILE_OPTIONS "-pedantic" "")
+      __boost_test_list_replace(__COMPILE_OPTIONS "-Wpedantic" "")
+      __boost_test_list_replace(__COMPILE_OPTIONS "-Werror" "/WX")
+
     endif()
 
     if(__TYPE STREQUAL "compile" OR __TYPE STREQUAL "compile-fail")
