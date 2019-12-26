@@ -16,7 +16,7 @@ add_subdirectory(../../../../libs/core EXCLUDE_FROM_ALL boostorg/core)
 
 unset(BUILD_TESTING)
 
-list(APPEND CMAKE_MODULE_PATH ../../include)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../include)
 
 # boost_test
 
