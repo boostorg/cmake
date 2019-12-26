@@ -21,6 +21,10 @@ function(boost_test_jamfile)
         boost_message(DEBUG "boost_test_jamfile: LIBRARIES is deprecated, use LINK_LIBRARIES")
     endif()
 
+    if(DEFINED BUILD_TESTING AND NOT BUILD_TESTING)
+        return()
+    endif()
+
     file(STRINGS ${__FILE} data)
 
     set(types compile compile-fail link link-fail run run-fail)

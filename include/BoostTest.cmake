@@ -40,6 +40,10 @@ function(boost_test)
 
     set(__NAME ${__PREFIX}-${__NAME})
 
+    if(DEFINED BUILD_TESTING AND NOT BUILD_TESTING)
+        return()
+    endif()
+
     if(__TYPE STREQUAL "compile" OR __TYPE STREQUAL "compile-fail")
 
         add_library(${__NAME} STATIC EXCLUDE_FROM_ALL ${__SOURCES})
