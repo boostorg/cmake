@@ -11,7 +11,7 @@ include(BoostMessage)
 
 function(boost_test_jamfile)
 
-    cmake_parse_arguments(_ "" "FILE;PREFIX" "LIBRARIES" ${ARGN})
+    cmake_parse_arguments(_ "" "FILE;PREFIX" "LIBRARIES;LINK_LIBRARIES" ${ARGN})
 
     if(__UNPARSED_ARGUMENTS)
         message(AUTHOR_WARNING "boost_test_jamfile: extra arguments ignored: ${__UNPARSED_ARGUMENTS}")
@@ -40,7 +40,7 @@ function(boost_test_jamfile)
                     else()
 
                         list(GET ll 1 e1)
-                        boost_test(PREFIX ${__PREFIX} TYPE ${e0} SOURCES ${e1} LIBRARIES ${__LIBRARIES})
+                        boost_test(PREFIX ${__PREFIX} TYPE ${e0} SOURCES ${e1} LINK_LIBRARIES ${__LIBRARIES} ${__LINK_LIBRARIES})
 
                     endif()
                 endif()
