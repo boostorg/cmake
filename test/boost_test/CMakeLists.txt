@@ -29,7 +29,7 @@ boost_test(TYPE link-fail SOURCES link_fail.cpp)
 boost_test(TYPE run SOURCES run.cpp)
 boost_test(TYPE run-fail SOURCES run_fail.cpp)
 
-boost_test(TYPE run SOURCES arguments.cpp ARGUMENTS pumpkin LIBRARIES Boost::core)
+boost_test(TYPE run SOURCES arguments.cpp ARGUMENTS pumpkin LINK_LIBRARIES Boost::core)
 
 # boost_test_jamfile
 

@@ -6,6 +6,9 @@ if(NOT CMAKE_VERSION VERSION_LESS 3.10)
   include_guard()
 endif()
 
+# boost_test( [TYPE type] [PREFIX prefix] [NAME name]
+#    SOURCES sources... ARGUMENTS args... LINK_LIBRARIES libs... )
+
 function(boost_test)
 
     cmake_parse_arguments(_ "" "TYPE;PREFIX;NAME" "SOURCES;LIBRARIES;LINK_LIBRARIES;ARGUMENTS" ${ARGN})
@@ -32,7 +35,7 @@ function(boost_test)
     if(__TYPE STREQUAL "compile" OR __TYPE STREQUAL "compile-fail")
 
         add_library(${__NAME} STATIC EXCLUDE_FROM_ALL ${__SOURCES})
-        target_link_libraries(${__NAME} ${__LIBRARIES})
+        target_link_libraries(${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
 
         add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
 
@@ -43,19 +46,19 @@ function(boost_test)
     elseif(__TYPE STREQUAL "link")
 
         add_executable(${__NAME} EXCLUDE_FROM_ALL ${__SOURCES})
-        target_link_libraries(${__NAME} ${__LIBRARIES})
+        target_link_libraries(${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
 
         add_test(NAME link-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
 
     elseif(__TYPE STREQUAL "link-fail")
 
         add_library(compile-${__NAME} STATIC EXCLUDE_FROM_ALL ${__SOURCES})
-        target_link_libraries(compile-${__NAME} ${__LIBRARIES})
+        target_link_libraries(compile-${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
 
         add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target compile-${__NAME} --config $<CONFIG>)
 
         add_executable(${__NAME} EXCLUDE_FROM_ALL ${__SOURCES})
-        target_link_libraries(${__NAME} ${__LIBRARIES})
+        target_link_libraries(${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
 
         add_test(NAME link-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
         set_tests_properties(link-${__NAME} PROPERTIES WILL_FAIL TRUE)
@@ -63,7 +66,7 @@ function(boost_test)
     elseif(__TYPE STREQUAL "run" OR __TYPE STREQUAL "run-fail")
 
         add_executable(${__NAME} EXCLUDE_FROM_ALL ${__SOURCES})
-        target_link_libraries(${__NAME} ${__LIBRARIES})
+        target_link_libraries(${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
 
         add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
 
