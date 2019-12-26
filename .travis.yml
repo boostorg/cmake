@@ -81,6 +81,13 @@ matrix:
     - env: LIB=timer BUILD_SHARED_LIBS=ON BOOST_INCLUDE_LIBRARIES=timer
       os: osx
 
+    - env: LIB=core TEST_BOOST_TEST=1
+      script:
+        - cd tools/cmake/test/boost_test
+        - mkdir __build__ && cd __build__
+        - cmake -DBoost_DEBUG=ON ..
+        - ctest --output-on-failure
+
     - env: LIB=mp11 INSTALL=1 BOOST_INCLUDE_LIBRARIES=mp11
       script:
         - mkdir __build__ && cd __build__
