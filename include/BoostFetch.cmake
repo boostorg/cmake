@@ -48,7 +48,7 @@ function(boost_fetch)
 
     if(__UNPARSED_ARGUMENTS)
 
-        message(WARNING "boost_fetch: extra arguments ignored: ${__UNPARSED_ARGUMENTS}")
+        message(AUTHOR_WARNING "boost_fetch: extra arguments ignored: ${__UNPARSED_ARGUMENTS}")
 
     endif()
 
