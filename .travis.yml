@@ -88,6 +88,15 @@ matrix:
         - cmake -DBoost_DEBUG=ON ..
         - ctest --output-on-failure
 
+    - env: TEST_BOOST_FETCH=1
+      install: true
+      script:
+        - cd tools/cmake/test/boost_fetch
+        - mkdir __build__ && cd __build__
+        - cmake ..
+        - cmake --build .
+        - cmake --build . --target check
+
     - env: LIB=mp11 INSTALL=1 BOOST_INCLUDE_LIBRARIES=mp11
       script:
         - mkdir __build__ && cd __build__
