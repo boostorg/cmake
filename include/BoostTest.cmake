@@ -9,13 +9,17 @@ endif()
 include(BoostMessage)
 
 # boost_test( [TYPE type] [PREFIX prefix] [NAME name]
-#    SOURCES sources... ARGUMENTS args... LINK_LIBRARIES libs...
-#    COMPILE_DEFINITIONS defs...
+#   SOURCES sources...
+#   ARGUMENTS args...
+#   LINK_LIBRARIES libs...
+#   COMPILE_DEFINITIONS defs...
+#   COMPILE_OPTIONS opts...
+#   COMPILE_FEATURES features...
 # )
 
 function(boost_test)
 
-    cmake_parse_arguments(_ "" "TYPE;PREFIX;NAME" "SOURCES;ARGUMENTS;LIBRARIES;LINK_LIBRARIES;COMPILE_DEFINITIONS" ${ARGN})
+    cmake_parse_arguments(_ "" "TYPE;PREFIX;NAME" "SOURCES;ARGUMENTS;LIBRARIES;LINK_LIBRARIES;COMPILE_DEFINITIONS;COMPILE_OPTIONS;COMPILE_FEATURES" ${ARGN})
 
     if(__UNPARSED_ARGUMENTS)
         message(AUTHOR_WARNING "boost_test: extra arguments ignored: ${__UNPARSED_ARGUMENTS}")
@@ -49,6 +53,8 @@ function(boost_test)
         add_library(${__NAME} STATIC EXCLUDE_FROM_ALL ${__SOURCES})
         target_link_libraries(${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
         target_compile_definitions(${__NAME} PRIVATE ${__COMPILE_DEFINITIONS})
+        target_compile_options(${__NAME} PRIVATE ${__COMPILE_OPTIONS})
+        target_compile_features(${__NAME} PRIVATE ${__COMPILE_FEATURES})
 
         add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
 
@@ -61,6 +67,8 @@ function(boost_test)
         add_executable(${__NAME} EXCLUDE_FROM_ALL ${__SOURCES})
         target_link_libraries(${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
         target_compile_definitions(${__NAME} PRIVATE ${__COMPILE_DEFINITIONS})
+        target_compile_options(${__NAME} PRIVATE ${__COMPILE_OPTIONS})
+        target_compile_features(${__NAME} PRIVATE ${__COMPILE_FEATURES})
 
         add_test(NAME link-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
 
@@ -69,12 +77,16 @@ function(boost_test)
         add_library(compile-${__NAME} OBJECT EXCLUDE_FROM_ALL ${__SOURCES})
         target_link_libraries(compile-${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
         target_compile_definitions(compile-${__NAME} PRIVATE ${__COMPILE_DEFINITIONS})
+        target_compile_options(compile-${__NAME} PRIVATE ${__COMPILE_OPTIONS})
+        target_compile_features(compile-${__NAME} PRIVATE ${__COMPILE_FEATURES})
 
         add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target compile-${__NAME} --config $<CONFIG>)
 
         add_executable(${__NAME} EXCLUDE_FROM_ALL $<TARGET_OBJECTS:compile-${__NAME}>)
         target_link_libraries(${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
         target_compile_definitions(${__NAME} PRIVATE ${__COMPILE_DEFINITIONS})
+        target_compile_options(${__NAME} PRIVATE ${__COMPILE_OPTIONS})
+        target_compile_features(${__NAME} PRIVATE ${__COMPILE_FEATURES})
 
         add_test(NAME link-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
         set_tests_properties(link-${__NAME} PROPERTIES WILL_FAIL TRUE)
@@ -84,6 +96,8 @@ function(boost_test)
         add_executable(${__NAME} EXCLUDE_FROM_ALL ${__SOURCES})
         target_link_libraries(${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
         target_compile_definitions(${__NAME} PRIVATE ${__COMPILE_DEFINITIONS})
+        target_compile_options(${__NAME} PRIVATE ${__COMPILE_OPTIONS})
+        target_compile_features(${__NAME} PRIVATE ${__COMPILE_FEATURES})
 
         add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
 

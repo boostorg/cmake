@@ -34,6 +34,11 @@ boost_test(TYPE run SOURCES arguments.cpp ARGUMENTS pumpkin LINK_LIBRARIES Boost
 boost_test(TYPE run NAME return_exit_code_pass SOURCES return_exit_code.cpp COMPILE_DEFINITIONS EXIT_CODE=0)
 boost_test(TYPE run-fail NAME return_exit_code_fail SOURCES return_exit_code.cpp COMPILE_DEFINITIONS EXIT_CODE=1)
 
+boost_test(TYPE run SOURCES requires_variadic_templates.cpp COMPILE_FEATURES cxx_variadic_templates)
+
+boost_test(TYPE run SOURCES requires_no_rtti.cpp COMPILE_OPTIONS $<$<BOOL:${MSVC}>:/GR-> $<$<NOT:$<BOOL:${MSVC}>>:-fno-rtti> LINK_LIBRARIES Boost::config)
+boost_test(TYPE run SOURCES requires_no_exceptions.cpp COMPILE_OPTIONS $<$<BOOL:${MSVC}>:/GX-> $<$<NOT:$<BOOL:${MSVC}>>:-fno-exceptions> LINK_LIBRARIES Boost::config)
+
 # boost_test_jamfile
 
 include(BoostTestJamfile)
