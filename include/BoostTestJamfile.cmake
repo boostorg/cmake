@@ -13,6 +13,10 @@ function(boost_test_jamfile)
 
     cmake_parse_arguments(_ "" "FILE;PREFIX" "LIBRARIES" ${ARGN})
 
+    if(__UNPARSED_ARGUMENTS)
+        message(AUTHOR_WARNING "boost_test_jamfile: extra arguments ignored: ${__UNPARSED_ARGUMENTS}")
+    endif()
+
     file(STRINGS ${__FILE} data)
 
     set(types compile compile-fail link link-fail run run-fail)
@@ -31,7 +35,7 @@ function(boost_test_jamfile)
 
                     if(NOT lln EQUAL 2)
 
-                        boost_message(DEBUG "Jamfile line ignored: ${line}")
+                        boost_message(DEBUG "boost_test_jamfile: Jamfile line ignored: ${line}")
 
                     else()
 

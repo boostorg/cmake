@@ -8,7 +8,11 @@ endif()
 
 function(boost_test)
 
-    cmake_parse_arguments(_ "" "TYPE;PREFIX;NAME" "SOURCES;LIBRARIES;ARGUMENTS" ${ARGN})
+    cmake_parse_arguments(_ "" "TYPE;PREFIX;NAME" "SOURCES;LIBRARIES;LINK_LIBRARIES;ARGUMENTS" ${ARGN})
+
+    if(__UNPARSED_ARGUMENTS)
+        message(AUTHOR_WARNING "boost_test: extra arguments ignored: ${__UNPARSED_ARGUMENTS}")
+    endif()
 
     if(NOT __TYPE)
         set(__TYPE run)
@@ -69,6 +73,10 @@ function(boost_test)
         if(__TYPE STREQUAL "run-fail")
             set_tests_properties(run-${__NAME} PROPERTIES WILL_FAIL TRUE)
         endif()
+
+    else()
+
+        message(AUTHOR_WARNING "boost_test: unknown test type '${__TYPE}`")
 
     endif()
 
