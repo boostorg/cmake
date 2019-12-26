@@ -31,6 +31,9 @@ boost_test(TYPE run-fail SOURCES run_fail.cpp)
 
 boost_test(TYPE run SOURCES arguments.cpp ARGUMENTS pumpkin LINK_LIBRARIES Boost::core)
 
+boost_test(TYPE run NAME return_exit_code_pass SOURCES return_exit_code.cpp COMPILE_DEFINITIONS EXIT_CODE=0)
+boost_test(TYPE run-fail NAME return_exit_code_fail SOURCES return_exit_code.cpp COMPILE_DEFINITIONS EXIT_CODE=1)
+
 # boost_test_jamfile
 
 include(BoostTestJamfile)
