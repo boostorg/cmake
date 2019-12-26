@@ -6,6 +6,8 @@ if(NOT CMAKE_VERSION VERSION_LESS 3.10)
   include_guard()
 endif()
 
+include(BoostMessage)
+
 # boost_test( [TYPE type] [PREFIX prefix] [NAME name]
 #    SOURCES sources... ARGUMENTS args... LINK_LIBRARIES libs...
 #    COMPILE_DEFINITIONS defs...
@@ -17,6 +19,10 @@ function(boost_test)
 
     if(__UNPARSED_ARGUMENTS)
         message(AUTHOR_WARNING "boost_test: extra arguments ignored: ${__UNPARSED_ARGUMENTS}")
+    endif()
+
+    if(__LIBRARIES)
+        boost_message(DEBUG "boost_test: LIBRARIES is deprecated, use LINK_LIBRARIES")
     endif()
 
     if(NOT __TYPE)

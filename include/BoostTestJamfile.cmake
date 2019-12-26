@@ -17,6 +17,10 @@ function(boost_test_jamfile)
         message(AUTHOR_WARNING "boost_test_jamfile: extra arguments ignored: ${__UNPARSED_ARGUMENTS}")
     endif()
 
+    if(__LIBRARIES)
+        boost_message(DEBUG "boost_test_jamfile: LIBRARIES is deprecated, use LINK_LIBRARIES")
+    endif()
+
     file(STRINGS ${__FILE} data)
 
     set(types compile compile-fail link link-fail run run-fail)
