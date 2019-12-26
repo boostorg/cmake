@@ -17,9 +17,7 @@ function(__boost_test_list_replace list what with)
   foreach(x IN LISTS ${list})
 
     if(x STREQUAL what)
-
       set(x ${with})
-
     endif()
 
     list(APPEND result ${x})
@@ -41,112 +39,112 @@ endfunction()
 
 function(boost_test)
 
-    cmake_parse_arguments(_ "" "TYPE;PREFIX;NAME" "SOURCES;ARGUMENTS;LIBRARIES;LINK_LIBRARIES;COMPILE_DEFINITIONS;COMPILE_OPTIONS;COMPILE_FEATURES" ${ARGN})
+  cmake_parse_arguments(_ "" "TYPE;PREFIX;NAME" "SOURCES;ARGUMENTS;LIBRARIES;LINK_LIBRARIES;COMPILE_DEFINITIONS;COMPILE_OPTIONS;COMPILE_FEATURES" ${ARGN})
 
-    if(__UNPARSED_ARGUMENTS)
-        message(AUTHOR_WARNING "boost_test: extra arguments ignored: ${__UNPARSED_ARGUMENTS}")
+  if(__UNPARSED_ARGUMENTS)
+    message(AUTHOR_WARNING "boost_test: extra arguments ignored: ${__UNPARSED_ARGUMENTS}")
+  endif()
+
+  if(__LIBRARIES)
+    boost_message(DEBUG "boost_test: LIBRARIES is deprecated, use LINK_LIBRARIES")
+  endif()
+
+  if(NOT __TYPE)
+    set(__TYPE run)
+  endif()
+
+  if(NOT __PREFIX)
+    set(__PREFIX ${PROJECT_NAME})
+  endif()
+
+  if(NOT __NAME)
+    list(GET __SOURCES 0 __NAME)
+    string(MAKE_C_IDENTIFIER ${__NAME} __NAME)
+  endif()
+
+  set(__NAME ${__PREFIX}-${__NAME})
+
+  if(DEFINED BUILD_TESTING AND NOT BUILD_TESTING)
+    return()
+  endif()
+
+  if(MSVC)
+
+    __boost_test_list_replace(__COMPILE_OPTIONS "-fno-exceptions" "/GX-")
+    __boost_test_list_replace(__COMPILE_OPTIONS "-fno-rtti" "/GR-")
+    __boost_test_list_replace(__COMPILE_OPTIONS "-w" "/W0")
+    __boost_test_list_replace(__COMPILE_OPTIONS "-Wall" "/W4")
+    __boost_test_list_replace(__COMPILE_OPTIONS "-Wextra" "")
+    __boost_test_list_replace(__COMPILE_OPTIONS "-pedantic" "")
+    __boost_test_list_replace(__COMPILE_OPTIONS "-Wpedantic" "")
+    __boost_test_list_replace(__COMPILE_OPTIONS "-Werror" "/WX")
+
+  endif()
+
+  if(__TYPE STREQUAL "compile" OR __TYPE STREQUAL "compile-fail")
+
+    add_library(${__NAME} STATIC EXCLUDE_FROM_ALL ${__SOURCES})
+    target_link_libraries(${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
+    target_compile_definitions(${__NAME} PRIVATE ${__COMPILE_DEFINITIONS})
+    target_compile_options(${__NAME} PRIVATE ${__COMPILE_OPTIONS})
+    target_compile_features(${__NAME} PRIVATE ${__COMPILE_FEATURES})
+
+    add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
+
+    if(__TYPE STREQUAL "compile-fail")
+      set_tests_properties(compile-${__NAME} PROPERTIES WILL_FAIL TRUE)
     endif()
 
-    if(__LIBRARIES)
-        boost_message(DEBUG "boost_test: LIBRARIES is deprecated, use LINK_LIBRARIES")
+  elseif(__TYPE STREQUAL "link")
+
+    add_executable(${__NAME} EXCLUDE_FROM_ALL ${__SOURCES})
+    target_link_libraries(${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
+    target_compile_definitions(${__NAME} PRIVATE ${__COMPILE_DEFINITIONS})
+    target_compile_options(${__NAME} PRIVATE ${__COMPILE_OPTIONS})
+    target_compile_features(${__NAME} PRIVATE ${__COMPILE_FEATURES})
+
+    add_test(NAME link-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
+
+  elseif(__TYPE STREQUAL "link-fail")
+
+    add_library(compile-${__NAME} OBJECT EXCLUDE_FROM_ALL ${__SOURCES})
+    target_link_libraries(compile-${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
+    target_compile_definitions(compile-${__NAME} PRIVATE ${__COMPILE_DEFINITIONS})
+    target_compile_options(compile-${__NAME} PRIVATE ${__COMPILE_OPTIONS})
+    target_compile_features(compile-${__NAME} PRIVATE ${__COMPILE_FEATURES})
+
+    add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target compile-${__NAME} --config $<CONFIG>)
+
+    add_executable(${__NAME} EXCLUDE_FROM_ALL $<TARGET_OBJECTS:compile-${__NAME}>)
+    target_link_libraries(${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
+    target_compile_definitions(${__NAME} PRIVATE ${__COMPILE_DEFINITIONS})
+    target_compile_options(${__NAME} PRIVATE ${__COMPILE_OPTIONS})
+    target_compile_features(${__NAME} PRIVATE ${__COMPILE_FEATURES})
+
+    add_test(NAME link-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
+    set_tests_properties(link-${__NAME} PROPERTIES WILL_FAIL TRUE)
+
+  elseif(__TYPE STREQUAL "run" OR __TYPE STREQUAL "run-fail")
+
+    add_executable(${__NAME} EXCLUDE_FROM_ALL ${__SOURCES})
+    target_link_libraries(${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
+    target_compile_definitions(${__NAME} PRIVATE ${__COMPILE_DEFINITIONS})
+    target_compile_options(${__NAME} PRIVATE ${__COMPILE_OPTIONS})
+    target_compile_features(${__NAME} PRIVATE ${__COMPILE_FEATURES})
+
+    add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
+
+    add_test(NAME run-${__NAME} COMMAND ${__NAME} ${__ARGUMENTS})
+    set_tests_properties(run-${__NAME} PROPERTIES DEPENDS compile-${__NAME})
+
+    if(__TYPE STREQUAL "run-fail")
+      set_tests_properties(run-${__NAME} PROPERTIES WILL_FAIL TRUE)
     endif()
 
-    if(NOT __TYPE)
-        set(__TYPE run)
-    endif()
+  else()
 
-    if(NOT __PREFIX)
-        set(__PREFIX ${PROJECT_NAME})
-    endif()
+    message(AUTHOR_WARNING "boost_test: unknown test type '${__TYPE}`")
 
-    if(NOT __NAME)
-        list(GET __SOURCES 0 __NAME)
-        string(MAKE_C_IDENTIFIER ${__NAME} __NAME)
-    endif()
-
-    set(__NAME ${__PREFIX}-${__NAME})
-
-    if(DEFINED BUILD_TESTING AND NOT BUILD_TESTING)
-        return()
-    endif()
-
-    if(MSVC)
-
-      __boost_test_list_replace(__COMPILE_OPTIONS "-fno-exceptions" "/GX-")
-      __boost_test_list_replace(__COMPILE_OPTIONS "-fno-rtti" "/GR-")
-      __boost_test_list_replace(__COMPILE_OPTIONS "-w" "/W0")
-      __boost_test_list_replace(__COMPILE_OPTIONS "-Wall" "/W4")
-      __boost_test_list_replace(__COMPILE_OPTIONS "-Wextra" "")
-      __boost_test_list_replace(__COMPILE_OPTIONS "-pedantic" "")
-      __boost_test_list_replace(__COMPILE_OPTIONS "-Wpedantic" "")
-      __boost_test_list_replace(__COMPILE_OPTIONS "-Werror" "/WX")
-
-    endif()
-
-    if(__TYPE STREQUAL "compile" OR __TYPE STREQUAL "compile-fail")
-
-        add_library(${__NAME} STATIC EXCLUDE_FROM_ALL ${__SOURCES})
-        target_link_libraries(${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
-        target_compile_definitions(${__NAME} PRIVATE ${__COMPILE_DEFINITIONS})
-        target_compile_options(${__NAME} PRIVATE ${__COMPILE_OPTIONS})
-        target_compile_features(${__NAME} PRIVATE ${__COMPILE_FEATURES})
-
-        add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
-
-        if(__TYPE STREQUAL "compile-fail")
-            set_tests_properties(compile-${__NAME} PROPERTIES WILL_FAIL TRUE)
-        endif()
-
-    elseif(__TYPE STREQUAL "link")
-
-        add_executable(${__NAME} EXCLUDE_FROM_ALL ${__SOURCES})
-        target_link_libraries(${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
-        target_compile_definitions(${__NAME} PRIVATE ${__COMPILE_DEFINITIONS})
-        target_compile_options(${__NAME} PRIVATE ${__COMPILE_OPTIONS})
-        target_compile_features(${__NAME} PRIVATE ${__COMPILE_FEATURES})
-
-        add_test(NAME link-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
-
-    elseif(__TYPE STREQUAL "link-fail")
-
-        add_library(compile-${__NAME} OBJECT EXCLUDE_FROM_ALL ${__SOURCES})
-        target_link_libraries(compile-${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
-        target_compile_definitions(compile-${__NAME} PRIVATE ${__COMPILE_DEFINITIONS})
-        target_compile_options(compile-${__NAME} PRIVATE ${__COMPILE_OPTIONS})
-        target_compile_features(compile-${__NAME} PRIVATE ${__COMPILE_FEATURES})
-
-        add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target compile-${__NAME} --config $<CONFIG>)
-
-        add_executable(${__NAME} EXCLUDE_FROM_ALL $<TARGET_OBJECTS:compile-${__NAME}>)
-        target_link_libraries(${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
-        target_compile_definitions(${__NAME} PRIVATE ${__COMPILE_DEFINITIONS})
-        target_compile_options(${__NAME} PRIVATE ${__COMPILE_OPTIONS})
-        target_compile_features(${__NAME} PRIVATE ${__COMPILE_FEATURES})
-
-        add_test(NAME link-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
-        set_tests_properties(link-${__NAME} PROPERTIES WILL_FAIL TRUE)
-
-    elseif(__TYPE STREQUAL "run" OR __TYPE STREQUAL "run-fail")
-
-        add_executable(${__NAME} EXCLUDE_FROM_ALL ${__SOURCES})
-        target_link_libraries(${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
-        target_compile_definitions(${__NAME} PRIVATE ${__COMPILE_DEFINITIONS})
-        target_compile_options(${__NAME} PRIVATE ${__COMPILE_OPTIONS})
-        target_compile_features(${__NAME} PRIVATE ${__COMPILE_FEATURES})
-
-        add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
-
-        add_test(NAME run-${__NAME} COMMAND ${__NAME} ${__ARGUMENTS})
-        set_tests_properties(run-${__NAME} PROPERTIES DEPENDS compile-${__NAME})
-
-        if(__TYPE STREQUAL "run-fail")
-            set_tests_properties(run-${__NAME} PROPERTIES WILL_FAIL TRUE)
-        endif()
-
-    else()
-
-        message(AUTHOR_WARNING "boost_test: unknown test type '${__TYPE}`")
-
-    endif()
+  endif()
 
 endfunction(boost_test)
