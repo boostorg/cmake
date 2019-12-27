@@ -133,6 +133,13 @@ endfunction()
 
 function(boost_install_target LIB)
 
+  if(NOT PROJECT_VERSION)
+
+    message(AUTHOR_WARNING "boost_install_target(${LIB}): PROJECT_VERSION is not set, but is required for installation.")
+    set(PROJECT_VERSION 0.0.0)
+
+  endif()
+
   if(NOT BOOST_INSTALL_LIBDIR)
     set(BOOST_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
   endif()

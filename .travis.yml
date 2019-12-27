@@ -97,12 +97,22 @@ matrix:
         - cmake --build .
         - cmake --build . --target check
 
-    - env: LIB=mp11 INSTALL=1 BOOST_INCLUDE_LIBRARIES=mp11
+    - env: INSTALL=1 LIB=mp11 BOOST_INCLUDE_LIBRARIES=mp11
       script:
         - mkdir __build__ && cd __build__
         - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_DEBUG=ON ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ${BOOST_INCLUDE_LIBRARIES:+-DBOOST_INCLUDE_LIBRARIES=$BOOST_INCLUDE_LIBRARIES} ..
         - cmake --build . --target install
         - cd ../tools/cmake/test/mp11 && mkdir __build__ && cd __build__
+        - cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
+        - cmake --build .
+        - cmake --build . --target check
+
+    - env: INSTALL=1 LIB=assert BOOST_INCLUDE_LIBRARIES="assert;config"
+      script:
+        - mkdir __build__ && cd __build__
+        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_DEBUG=ON ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ${BOOST_INCLUDE_LIBRARIES:+-DBOOST_INCLUDE_LIBRARIES=$BOOST_INCLUDE_LIBRARIES} ..
+        - cmake --build . --target install
+        - cd ../tools/cmake/test/assert && mkdir __build__ && cd __build__
         - cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
         - cmake --build .
         - cmake --build . --target check
