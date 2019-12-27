@@ -16,9 +16,11 @@ image: Visual Studio 2017
 
 environment:
   matrix:
+
   - LIB: assert
   - LIB: assert
     BOOST_INCLUDE_LIBRARIES: assert
+
   - LIB: timer
   - LIB: timer
     BUILD_SHARED_LIBS: ON
@@ -27,6 +29,9 @@ environment:
   - LIB: timer
     BUILD_SHARED_LIBS: ON
     BOOST_INCLUDE_LIBRARIES: timer
+
+  - TEST_BOOST_TEST: 1
+    LIB: core
 
 install:
   - set BOOST_BRANCH=develop
@@ -42,11 +47,20 @@ install:
 build: off
 
 test_script:
-  - mkdir __build__ && cd __build__
   - if "%BUILD_SHARED_LIBS%" == "" SET BUILD_SHARED_LIBS=0
   - if NOT "%BOOST_INCLUDE_LIBRARIES%" == "" SET BOOST_INCLUDE_LIBRARIES=-DBOOST_INCLUDE_LIBRARIES=%BOOST_INCLUDE_LIBRARIES%
-  - cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_DEBUG=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% %BOOST_INCLUDE_LIBRARIES% ..
-  - cmake --build . --config Debug && ctest --output-on-failure -R boost_%LIB% -C Debug
-  - cmake --build . --config Release && ctest --output-on-failure -R boost_%LIB% -C Release
-  - cmake --build . --config MinSizeRel && ctest --output-on-failure -R boost_%LIB% -C MinSizeRel
-  - cmake --build . --config RelWithDebInfo && ctest --output-on-failure -R boost_%LIB% -C RelWithDebInfo
+
+  - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%" == ""  mkdir __build__ && cd __build__
+  - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%" == ""  cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_DEBUG=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% %BOOST_INCLUDE_LIBRARIES% ..
+  - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%" == ""  cmake --build . --config Debug && ctest --output-on-failure -R boost_%LIB% -C Debug
+  - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%" == ""  cmake --build . --config Release && ctest --output-on-failure -R boost_%LIB% -C Release
+  - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%" == ""  cmake --build . --config MinSizeRel && ctest --output-on-failure -R boost_%LIB% -C MinSizeRel
+  - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%" == ""  cmake --build . --config RelWithDebInfo && ctest --output-on-failure -R boost_%LIB% -C RelWithDebInfo
+
+  - if NOT "%TEST_BOOST_TEST%" == ""  cd tools/cmake/test/boost_test
+  - if NOT "%TEST_BOOST_TEST%" == ""  mkdir __build__ && cd __build__
+  - if NOT "%TEST_BOOST_TEST%" == ""  cmake -DBoost_DEBUG=ON ..
+  - if NOT "%TEST_BOOST_TEST%" == ""  ctest --output-on-failure -C Debug
+  - if NOT "%TEST_BOOST_TEST%" == ""  ctest --output-on-failure -C Release
+  - if NOT "%TEST_BOOST_TEST%" == ""  ctest --output-on-failure -C MinSizeRel
+  - if NOT "%TEST_BOOST_TEST%" == ""  ctest --output-on-failure -C RelWithDebInfo
