@@ -18,7 +18,7 @@ function(boost_test_jamfile)
   endif()
 
   if(__LIBRARIES)
-    boost_message(DEBUG "boost_test_jamfile: LIBRARIES is deprecated, use LINK_LIBRARIES")
+    boost_message(VERBOSE "boost_test_jamfile: LIBRARIES is deprecated, use LINK_LIBRARIES")
   endif()
 
   if(DEFINED BUILD_TESTING AND NOT BUILD_TESTING)

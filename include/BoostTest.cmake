@@ -46,7 +46,7 @@ function(boost_test)
   endif()
 
   if(__LIBRARIES)
-    boost_message(DEBUG "boost_test: LIBRARIES is deprecated, use LINK_LIBRARIES")
+    boost_message(VERBOSE "boost_test: LIBRARIES is deprecated, use LINK_LIBRARIES")
   endif()
 
   if(NOT __TYPE)
