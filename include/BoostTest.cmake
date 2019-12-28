@@ -50,14 +50,6 @@ function(boost_test)
 
   cmake_parse_arguments(_ "IGNORE_TEST_GLOBALS" "TYPE;PREFIX;NAME" "SOURCES;ARGUMENTS;LIBRARIES;LINK_LIBRARIES;COMPILE_DEFINITIONS;COMPILE_OPTIONS;COMPILE_FEATURES" ${ARGN})
 
-  if(__UNPARSED_ARGUMENTS)
-    message(AUTHOR_WARNING "boost_test: extra arguments ignored: ${__UNPARSED_ARGUMENTS}")
-  endif()
-
-  if(__LIBRARIES)
-    boost_message(VERBOSE "boost_test: LIBRARIES is deprecated, use LINK_LIBRARIES")
-  endif()
-
   if(NOT __TYPE)
     set(__TYPE run)
   endif()
@@ -72,6 +64,14 @@ function(boost_test)
   endif()
 
   set(__NAME ${__PREFIX}-${__NAME})
+
+  if(__UNPARSED_ARGUMENTS)
+    message(AUTHOR_WARNING "boost_test '${__NAME}': extra arguments ignored: ${__UNPARSED_ARGUMENTS}")
+  endif()
+
+  if(__LIBRARIES)
+    boost_message(VERBOSE "boost_test '${__NAME}': LIBRARIES is deprecated, use LINK_LIBRARIES")
+  endif()
 
   if(DEFINED BUILD_TESTING AND NOT BUILD_TESTING)
     return()
@@ -109,6 +109,15 @@ function(boost_test)
     __boost_test_list_replace(BOOST_TEST_COMPILE_OPTIONS "-Wno-error" "/WX-")
 
   endif()
+
+  foreach(feature IN LISTS BOOST_TEST_COMPILE_FEATURES)
+    if(NOT feature IN_LIST CMAKE_CXX_COMPILE_FEATURES)
+
+      boost_message(VERBOSE "boost_test '${__NAME}' skipped because feature '${feature}' is unknown to the compiler")
+      return()
+
+    endif()
+  endforeach()
 
   if(__TYPE STREQUAL "compile" OR __TYPE STREQUAL "compile-fail")
 
@@ -172,7 +181,7 @@ function(boost_test)
 
   else()
 
-    message(AUTHOR_WARNING "boost_test: unknown test type '${__TYPE}`")
+    message(AUTHOR_WARNING "boost_test '${__NAME}': unknown test type '${__TYPE}`")
 
   endif()
 
