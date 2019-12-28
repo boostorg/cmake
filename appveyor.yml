@@ -18,17 +18,10 @@ environment:
   matrix:
 
   - LIB: assert
-  - LIB: assert
-    BOOST_INCLUDE_LIBRARIES: assert
 
   - LIB: timer
   - LIB: timer
     BUILD_SHARED_LIBS: ON
-  - LIB: timer
-    BOOST_INCLUDE_LIBRARIES: timer
-  - LIB: timer
-    BUILD_SHARED_LIBS: ON
-    BOOST_INCLUDE_LIBRARIES: timer
 
   - TEST_BOOST_TEST: 1
     LIB: core
@@ -48,10 +41,10 @@ build: off
 
 test_script:
   - if "%BUILD_SHARED_LIBS%" == "" SET BUILD_SHARED_LIBS=0
-  - if NOT "%BOOST_INCLUDE_LIBRARIES%" == "" SET BOOST_INCLUDE_LIBRARIES=-DBOOST_INCLUDE_LIBRARIES=%BOOST_INCLUDE_LIBRARIES%
+  - if "%BOOST_INCLUDE_LIBRARIES%" == "" SET BOOST_INCLUDE_LIBRARIES=%LIB%
 
   - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%" == ""  mkdir __build__ && cd __build__
-  - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%" == ""  cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_DEBUG=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% %BOOST_INCLUDE_LIBRARIES% ..
+  - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%" == ""  cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_DEBUG=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DBOOST_INCLUDE_LIBRARIES=%BOOST_INCLUDE_LIBRARIES% ..
   - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%" == ""  cmake --build . --config Debug && ctest --output-on-failure -R boost_%LIB% -C Debug
   - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%" == ""  cmake --build . --config Release && ctest --output-on-failure -R boost_%LIB% -C Release
   - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%" == ""  cmake --build . --config MinSizeRel && ctest --output-on-failure -R boost_%LIB% -C MinSizeRel
