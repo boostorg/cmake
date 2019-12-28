@@ -36,7 +36,7 @@ function(__boost_install_set_output_name LIB TYPE)
 
   # prefix
   if(NOT (WIN32 AND TYPE STREQUAL "SHARED_LIBRARY"))
-    string(PREPEND name "lib")
+    set(name "lib${name}")
   endif()
 
   # toolset
@@ -93,11 +93,15 @@ function(__boost_install_set_output_name LIB TYPE)
 
     # ABI tag
 
-    string(APPEND tag "$<$<STREQUAL:$<TARGET_GENEX_EVAL:${LIB},$<TARGET_PROPERTY:${LIB},MSVC_RUNTIME_LIBRARY>>,MultiThreaded>:s>")
-    string(APPEND tag "$<$<STREQUAL:$<TARGET_GENEX_EVAL:${LIB},$<TARGET_PROPERTY:${LIB},MSVC_RUNTIME_LIBRARY>>,MultiThreadedDebug>:s>")
+    if(NOT CMAKE_VERSION VERSION_LESS 3.15)
 
-    string(APPEND tag "$<$<STREQUAL:$<TARGET_GENEX_EVAL:${LIB},$<TARGET_PROPERTY:${LIB},MSVC_RUNTIME_LIBRARY>>,MultiThreadedDebug>:g>")
-    string(APPEND tag "$<$<STREQUAL:$<TARGET_GENEX_EVAL:${LIB},$<TARGET_PROPERTY:${LIB},MSVC_RUNTIME_LIBRARY>>,MultiThreadedDebugDLL>:g>")
+      string(APPEND tag "$<$<STREQUAL:$<TARGET_GENEX_EVAL:${LIB},$<TARGET_PROPERTY:${LIB},MSVC_RUNTIME_LIBRARY>>,MultiThreaded>:s>")
+      string(APPEND tag "$<$<STREQUAL:$<TARGET_GENEX_EVAL:${LIB},$<TARGET_PROPERTY:${LIB},MSVC_RUNTIME_LIBRARY>>,MultiThreadedDebug>:s>")
+
+      string(APPEND tag "$<$<STREQUAL:$<TARGET_GENEX_EVAL:${LIB},$<TARGET_PROPERTY:${LIB},MSVC_RUNTIME_LIBRARY>>,MultiThreadedDebug>:g>")
+      string(APPEND tag "$<$<STREQUAL:$<TARGET_GENEX_EVAL:${LIB},$<TARGET_PROPERTY:${LIB},MSVC_RUNTIME_LIBRARY>>,MultiThreadedDebugDLL>:g>")
+
+    endif()
 
     string(APPEND tag "$<$<CONFIG:Debug>:d>")
 
