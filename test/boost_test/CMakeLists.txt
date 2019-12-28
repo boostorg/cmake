@@ -46,8 +46,8 @@ boost_test(TYPE compile-fail SOURCES emits_warning.cpp COMPILE_OPTIONS -Wall -We
 set(BOOST_TEST_COMPILE_OPTIONS -fno-rtti -fno-exceptions)
 set(BOOST_TEST_LINK_LIBRARIES Boost::config)
 
-boost_test(SOURCES requires_no_rtti.cpp)
-boost_test(SOURCES requires_no_exceptions.cpp)
+boost_test(SOURCES requires_no_rtti.cpp PREFIX boost_cmake_test_globals)
+boost_test(SOURCES requires_no_exceptions.cpp PREFIX boost_cmake_test_globals)
 
 # boost_test_jamfile
 
