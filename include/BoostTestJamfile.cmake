@@ -2,11 +2,13 @@
 # Distributed under the Boost Software License, Version 1.0.
 # See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt
 
+# Include BoostTest outside the include guard for it to clear its global variables
+include(BoostTest)
+
 if(NOT CMAKE_VERSION VERSION_LESS 3.10)
   include_guard()
 endif()
 
-include(BoostTest)
 include(BoostMessage)
 
 # boost_test_jamfile( FILE jamfile [PREFIX prefix]
