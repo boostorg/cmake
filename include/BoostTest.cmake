@@ -37,7 +37,7 @@ function(__boost_test_list_replace list what with)
 
 endfunction()
 
-# boost_test( [TYPE type] [PREFIX prefix] [NAME name]
+# boost_test( [TYPE type] [PREFIX prefix] [NAME name] [IGNORE_TEST_GLOBALS]
 #   SOURCES sources...
 #   ARGUMENTS args...
 #   LINK_LIBRARIES libs...
@@ -48,7 +48,7 @@ endfunction()
 
 function(boost_test)
 
-  cmake_parse_arguments(_ "" "TYPE;PREFIX;NAME" "SOURCES;ARGUMENTS;LIBRARIES;LINK_LIBRARIES;COMPILE_DEFINITIONS;COMPILE_OPTIONS;COMPILE_FEATURES" ${ARGN})
+  cmake_parse_arguments(_ "IGNORE_TEST_GLOBALS" "TYPE;PREFIX;NAME" "SOURCES;ARGUMENTS;LIBRARIES;LINK_LIBRARIES;COMPILE_DEFINITIONS;COMPILE_OPTIONS;COMPILE_FEATURES" ${ARGN})
 
   if(__UNPARSED_ARGUMENTS)
     message(AUTHOR_WARNING "boost_test: extra arguments ignored: ${__UNPARSED_ARGUMENTS}")
@@ -75,6 +75,15 @@ function(boost_test)
 
   if(DEFINED BUILD_TESTING AND NOT BUILD_TESTING)
     return()
+  endif()
+
+  if(__IGNORE_TEST_GLOBALS)
+
+    set(BOOST_TEST_LINK_LIBRARIES "")
+    set(BOOST_TEST_COMPILE_DEFINITIONS "")
+    set(BOOST_TEST_COMPILE_OPTIONS "")
+    set(BOOST_TEST_COMPILE_FEATURES "")
+
   endif()
 
   list(APPEND BOOST_TEST_LINK_LIBRARIES ${__LIBRARIES} ${__LINK_LIBRARIES})
