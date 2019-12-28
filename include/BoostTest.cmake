@@ -2,13 +2,22 @@
 # Distributed under the Boost Software License, Version 1.0.
 # See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt
 
+# Clear global variables on each `include(BoostTest)`
+
+set(BOOST_TEST_LINK_LIBRARIES "")
+set(BOOST_TEST_COMPILE_DEFINITIONS "")
+set(BOOST_TEST_COMPILE_OPTIONS "")
+set(BOOST_TEST_COMPILE_FEATURES "")
+
+# Include guard
+
 if(NOT CMAKE_VERSION VERSION_LESS 3.10)
   include_guard()
 endif()
 
 include(BoostMessage)
 
-#
+# Private helper functions
 
 function(__boost_test_list_replace list what with)
 
@@ -68,26 +77,37 @@ function(boost_test)
     return()
   endif()
 
+  list(APPEND BOOST_TEST_LINK_LIBRARIES ${__LIBRARIES} ${__LINK_LIBRARIES})
+  list(APPEND BOOST_TEST_COMPILE_DEFINITIONS ${__COMPILE_DEFINITIONS})
+  list(APPEND BOOST_TEST_COMPILE_OPTIONS ${__COMPILE_OPTIONS})
+  list(APPEND BOOST_TEST_COMPILE_FEATURES ${__COMPILE_FEATURES})
+
   if(MSVC)
 
-    __boost_test_list_replace(__COMPILE_OPTIONS "-fno-exceptions" "/GX-")
-    __boost_test_list_replace(__COMPILE_OPTIONS "-fno-rtti" "/GR-")
-    __boost_test_list_replace(__COMPILE_OPTIONS "-w" "/W0")
-    __boost_test_list_replace(__COMPILE_OPTIONS "-Wall" "/W4")
-    __boost_test_list_replace(__COMPILE_OPTIONS "-Wextra" "")
-    __boost_test_list_replace(__COMPILE_OPTIONS "-pedantic" "")
-    __boost_test_list_replace(__COMPILE_OPTIONS "-Wpedantic" "")
-    __boost_test_list_replace(__COMPILE_OPTIONS "-Werror" "/WX")
+    __boost_test_list_replace(BOOST_TEST_COMPILE_OPTIONS "-fexceptions" "/GX")
+    __boost_test_list_replace(BOOST_TEST_COMPILE_OPTIONS "-fno-exceptions" "/GX-")
+
+    __boost_test_list_replace(BOOST_TEST_COMPILE_OPTIONS "-frtti" "/GR")
+    __boost_test_list_replace(BOOST_TEST_COMPILE_OPTIONS "-fno-rtti" "/GR-")
+
+    __boost_test_list_replace(BOOST_TEST_COMPILE_OPTIONS "-w" "/W0")
+    __boost_test_list_replace(BOOST_TEST_COMPILE_OPTIONS "-Wall" "/W4")
+    __boost_test_list_replace(BOOST_TEST_COMPILE_OPTIONS "-Wextra" "")
+    __boost_test_list_replace(BOOST_TEST_COMPILE_OPTIONS "-pedantic" "")
+    __boost_test_list_replace(BOOST_TEST_COMPILE_OPTIONS "-Wpedantic" "")
+
+    __boost_test_list_replace(BOOST_TEST_COMPILE_OPTIONS "-Werror" "/WX")
+    __boost_test_list_replace(BOOST_TEST_COMPILE_OPTIONS "-Wno-error" "/WX-")
 
   endif()
 
   if(__TYPE STREQUAL "compile" OR __TYPE STREQUAL "compile-fail")
 
     add_library(${__NAME} STATIC EXCLUDE_FROM_ALL ${__SOURCES})
-    target_link_libraries(${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
-    target_compile_definitions(${__NAME} PRIVATE ${__COMPILE_DEFINITIONS})
-    target_compile_options(${__NAME} PRIVATE ${__COMPILE_OPTIONS})
-    target_compile_features(${__NAME} PRIVATE ${__COMPILE_FEATURES})
+    target_link_libraries(${__NAME} ${BOOST_TEST_LINK_LIBRARIES})
+    target_compile_definitions(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_DEFINITIONS})
+    target_compile_options(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
+    target_compile_features(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
 
     add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
 
@@ -98,28 +118,28 @@ function(boost_test)
   elseif(__TYPE STREQUAL "link")
 
     add_executable(${__NAME} EXCLUDE_FROM_ALL ${__SOURCES})
-    target_link_libraries(${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
-    target_compile_definitions(${__NAME} PRIVATE ${__COMPILE_DEFINITIONS})
-    target_compile_options(${__NAME} PRIVATE ${__COMPILE_OPTIONS})
-    target_compile_features(${__NAME} PRIVATE ${__COMPILE_FEATURES})
+    target_link_libraries(${__NAME} ${BOOST_TEST_LINK_LIBRARIES})
+    target_compile_definitions(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_DEFINITIONS})
+    target_compile_options(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
+    target_compile_features(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
 
     add_test(NAME link-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
 
   elseif(__TYPE STREQUAL "link-fail")
 
     add_library(compile-${__NAME} OBJECT EXCLUDE_FROM_ALL ${__SOURCES})
-    target_link_libraries(compile-${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
-    target_compile_definitions(compile-${__NAME} PRIVATE ${__COMPILE_DEFINITIONS})
-    target_compile_options(compile-${__NAME} PRIVATE ${__COMPILE_OPTIONS})
-    target_compile_features(compile-${__NAME} PRIVATE ${__COMPILE_FEATURES})
+    target_link_libraries(compile-${__NAME} ${BOOST_TEST_LINK_LIBRARIES})
+    target_compile_definitions(compile-${__NAME} PRIVATE ${BOOST_TEST_COMPILE_DEFINITIONS})
+    target_compile_options(compile-${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
+    target_compile_features(compile-${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
 
     add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target compile-${__NAME} --config $<CONFIG>)
 
     add_executable(${__NAME} EXCLUDE_FROM_ALL $<TARGET_OBJECTS:compile-${__NAME}>)
-    target_link_libraries(${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
-    target_compile_definitions(${__NAME} PRIVATE ${__COMPILE_DEFINITIONS})
-    target_compile_options(${__NAME} PRIVATE ${__COMPILE_OPTIONS})
-    target_compile_features(${__NAME} PRIVATE ${__COMPILE_FEATURES})
+    target_link_libraries(${__NAME} ${BOOST_TEST_LINK_LIBRARIES})
+    target_compile_definitions(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_DEFINITIONS})
+    target_compile_options(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
+    target_compile_features(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
 
     add_test(NAME link-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
     set_tests_properties(link-${__NAME} PROPERTIES WILL_FAIL TRUE)
@@ -127,10 +147,10 @@ function(boost_test)
   elseif(__TYPE STREQUAL "run" OR __TYPE STREQUAL "run-fail")
 
     add_executable(${__NAME} EXCLUDE_FROM_ALL ${__SOURCES})
-    target_link_libraries(${__NAME} ${__LIBRARIES} ${__LINK_LIBRARIES})
-    target_compile_definitions(${__NAME} PRIVATE ${__COMPILE_DEFINITIONS})
-    target_compile_options(${__NAME} PRIVATE ${__COMPILE_OPTIONS})
-    target_compile_features(${__NAME} PRIVATE ${__COMPILE_FEATURES})
+    target_link_libraries(${__NAME} ${BOOST_TEST_LINK_LIBRARIES})
+    target_compile_definitions(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_DEFINITIONS})
+    target_compile_options(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
+    target_compile_features(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
 
     add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
 
