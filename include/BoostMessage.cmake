@@ -6,6 +6,11 @@ if(NOT CMAKE_VERSION VERSION_LESS 3.10)
   include_guard()
 endif()
 
+# boost_message(
+#   [FATAL_ERROR|SEND_ERROR|WARNING|AUTHOR_WARNING|DEPRECATION|NOTICE|STATUS
+#     |VERBOSE|DEBUG]
+#   messages...)
+
 function(boost_message type)
 
   if(type STREQUAL "VERBOSE")
@@ -24,11 +29,15 @@ function(boost_message type)
     endif()
   endif()
 
+  if(type STREQUAL "NOTICE" AND CMAKE_VERSION VERSION_LESS 3.15)
+    set(type "")
+  endif()
+
   set(m "")
   math(EXPR last "${ARGC}-1")
 
   foreach(i RANGE 1 ${last})
-    set(m "${m}${ARGV${i}}")
+    string(APPEND m "${ARGV${i}}")
   endforeach()
 
   message(${type} "${m}")
