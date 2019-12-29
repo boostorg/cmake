@@ -66,11 +66,11 @@ function(boost_test)
   set(__NAME ${__PREFIX}-${__NAME})
 
   if(__UNPARSED_ARGUMENTS)
-    message(AUTHOR_WARNING "boost_test '${__NAME}': extra arguments ignored: ${__UNPARSED_ARGUMENTS}")
+    message(AUTHOR_WARNING "Extra arguments for test '${__NAME}' ignored: ${__UNPARSED_ARGUMENTS}")
   endif()
 
   if(__LIBRARIES)
-    boost_message(VERBOSE "boost_test '${__NAME}': LIBRARIES is deprecated, use LINK_LIBRARIES")
+    boost_message(VERBOSE "Test '${__NAME}' uses deprecated parameter LIBRARIES; use LINK_LIBRARIES")
   endif()
 
   if(DEFINED BUILD_TESTING AND NOT BUILD_TESTING)
@@ -113,7 +113,7 @@ function(boost_test)
   foreach(feature IN LISTS BOOST_TEST_COMPILE_FEATURES)
     if(NOT feature IN_LIST CMAKE_CXX_COMPILE_FEATURES)
 
-      boost_message(VERBOSE "boost_test '${__NAME}' skipped because feature '${feature}' is unknown to the compiler")
+      boost_message(VERBOSE "Test '${__NAME}' skipped, '${feature}' not supported")
       return()
 
     endif()
@@ -181,7 +181,7 @@ function(boost_test)
 
   else()
 
-    message(AUTHOR_WARNING "boost_test '${__NAME}': unknown test type '${__TYPE}`")
+    message(AUTHOR_WARNING "Unknown test type '${__TYPE}' for test '${__NAME}'")
 
   endif()
 
