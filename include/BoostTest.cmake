@@ -113,9 +113,27 @@ function(boost_test)
   foreach(feature IN LISTS BOOST_TEST_COMPILE_FEATURES)
     if(NOT feature IN_LIST CMAKE_CXX_COMPILE_FEATURES)
 
-      boost_message(VERBOSE "Test '${__NAME}' skipped, '${feature}' not supported")
+      boost_message(VERBOSE "Test '${__NAME}' skipped, '${feature}' is not supported")
       return()
 
+    endif()
+  endforeach()
+
+  foreach(library IN LISTS BOOST_TEST_LINK_LIBRARIES)
+
+    if(TARGET ${library})
+      get_target_property(features ${library} INTERFACE_COMPILE_FEATURES)
+
+      if(features) # need to check because features-NOTFOUND is a valid list
+        foreach(feature IN LISTS features)
+          if(NOT feature IN_LIST CMAKE_CXX_COMPILE_FEATURES)
+
+            boost_message(VERBOSE "Test '${__NAME}' skipped, '${feature}' required by '${library}' is not supported")
+            return()
+
+          endif()
+        endforeach()
+      endif()
     endif()
   endforeach()
 
