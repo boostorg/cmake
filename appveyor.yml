@@ -26,6 +26,19 @@ environment:
   - TEST_BOOST_TEST: 1
     LIB: core
 
+  - TEST_BOOST_INSTALL: 1
+    LIB: assert
+    BOOST_INCLUDE_LIBRARIES=assert;config
+
+  - TEST_BOOST_INSTALL: 1
+    LIB: atomic
+    BOOST_INCLUDE_LIBRARIES=assert;atomic;config;static_assert;type_traits
+
+  - TEST_BOOST_INSTALL: 1
+    LIB: atomic
+    BOOST_INCLUDE_LIBRARIES=assert;atomic;config;static_assert;type_traits
+    BUILD_SHARED_LIBS: ON
+
 install:
   - set BOOST_BRANCH=develop
   - if "%APPVEYOR_REPO_BRANCH%" == "master" set BOOST_BRANCH=master
@@ -44,15 +57,24 @@ test_script:
   - if "%BOOST_INCLUDE_LIBRARIES%" == "" SET BOOST_INCLUDE_LIBRARIES=%LIB%
 
   - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%" == ""  mkdir __build__ && cd __build__
-  - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%" == ""  cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_DEBUG=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DBOOST_INCLUDE_LIBRARIES=%BOOST_INCLUDE_LIBRARIES% ..
-  - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%" == ""  cmake --build . --config Debug && ctest --output-on-failure -R boost_%LIB% -C Debug
-  - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%" == ""  cmake --build . --config Release && ctest --output-on-failure -R boost_%LIB% -C Release
-  - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%" == ""  cmake --build . --config MinSizeRel && ctest --output-on-failure -R boost_%LIB% -C MinSizeRel
-  - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%" == ""  cmake --build . --config RelWithDebInfo && ctest --output-on-failure -R boost_%LIB% -C RelWithDebInfo
+  - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%" == ""  cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DBOOST_INCLUDE_LIBRARIES=%BOOST_INCLUDE_LIBRARIES% ..
+
+  - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%%TEST_BOOST_INSTALL%" == ""  cmake --build . --config Debug && ctest --output-on-failure -R boost_%LIB% -C Debug
+  - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%%TEST_BOOST_INSTALL%" == ""  cmake --build . --config Release && ctest --output-on-failure -R boost_%LIB% -C Release
+  - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%%TEST_BOOST_INSTALL%" == ""  cmake --build . --config MinSizeRel && ctest --output-on-failure -R boost_%LIB% -C MinSizeRel
+  - if "%TEST_BOOST_TEST%%TEST_BOOST_FETCH%%TEST_BOOST_INSTALL%" == ""  cmake --build . --config RelWithDebInfo && ctest --output-on-failure -R boost_%LIB% -C RelWithDebInfo
+
+  - if NOT "%TEST_BOOST_INSTALL%" == ""  cmake --build . --target install --config Debug
+  - if NOT "%TEST_BOOST_INSTALL%" == ""  cmake --build . --target install --config Release
+  - if NOT "%TEST_BOOST_INSTALL%" == ""  cd tools/cmake/test/%LIB%
+  - if NOT "%TEST_BOOST_INSTALL%" == ""  mkdir __build__ && cd __build__
+  - if NOT "%TEST_BOOST_INSTALL%" == ""  cmake ..
+  - if NOT "%TEST_BOOST_INSTALL%" == ""  cmake --build . --target check --config Debug
+  - if NOT "%TEST_BOOST_INSTALL%" == ""  cmake --build . --target check --config Release
 
   - if NOT "%TEST_BOOST_TEST%" == ""  cd tools/cmake/test/boost_test
   - if NOT "%TEST_BOOST_TEST%" == ""  mkdir __build__ && cd __build__
-  - if NOT "%TEST_BOOST_TEST%" == ""  cmake -DBoost_DEBUG=ON ..
+  - if NOT "%TEST_BOOST_TEST%" == ""  cmake -DBoost_VERBOSE=ON ..
   - if NOT "%TEST_BOOST_TEST%" == ""  ctest --output-on-failure -C Debug
   - if NOT "%TEST_BOOST_TEST%" == ""  ctest --output-on-failure -C Release
   - if NOT "%TEST_BOOST_TEST%" == ""  ctest --output-on-failure -C MinSizeRel
