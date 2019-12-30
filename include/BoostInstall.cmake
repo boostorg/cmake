@@ -168,6 +168,16 @@ function(boost_install_target LIB)
 
   endif()
 
+  if(TYPE STREQUAL "SHARED_LIBRARY" OR TYPE STREQUAL "EXECUTABLE")
+
+    get_target_property(VERSION ${LIB} VERSION)
+
+    if(NOT VERSION)
+      set_target_properties(${LIB} PROPERTIES VERSION ${PROJECT_VERSION})
+    endif()
+
+  endif()
+
   if(LIB MATCHES "^boost_(.*)$")
     set_target_properties(${LIB} PROPERTIES EXPORT_NAME ${CMAKE_MATCH_1})
   endif()
