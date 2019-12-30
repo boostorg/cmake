@@ -69,6 +69,7 @@ test_script:
   - if NOT "%TEST_BOOST_INSTALL%" == ""  cd ../tools/cmake/test/%LIB%
   - if NOT "%TEST_BOOST_INSTALL%" == ""  mkdir __build__ && cd __build__
   - if NOT "%TEST_BOOST_INSTALL%" == ""  cmake -DCMAKE_PREFIX_PATH=C:/Boost ..
+  - if NOT "%TEST_BOOST_INSTALL%" == ""  PATH C:\Boost\lib;%PATH%
   - if NOT "%TEST_BOOST_INSTALL%" == ""  cmake --build . --config Debug && ctest --output-on-failure -C Debug
   - if NOT "%TEST_BOOST_INSTALL%" == ""  cmake --build . --config Release && ctest --output-on-failure -C Release
 
