@@ -35,8 +35,8 @@ function(__boost_install_set_output_name LIB TYPE)
   set(name ${LIB})
 
   # prefix
-  if(NOT (WIN32 AND TYPE STREQUAL "SHARED_LIBRARY"))
-    set(name "lib${name}")
+  if(WIN32 AND TYPE STREQUAL "STATIC_LIBRARY")
+    set_target_properties(${LIB} PROPERTIES PREFIX "lib")
   endif()
 
   # toolset
@@ -176,7 +176,7 @@ function(boost_install_target LIB)
 
   install(TARGETS ${LIB} EXPORT ${LIB}-targets DESTINATION ${BOOST_INSTALL_LIBDIR})
 
-  if(TYPE STREQUAL "SHARED_LIBRARY")
+  if(WIN32 AND TYPE STREQUAL "SHARED_LIBRARY")
 
     install(FILES $<TARGET_PDB_FILE:${LIB}> DESTINATION ${BOOST_INSTALL_LIBDIR} OPTIONAL)
 
