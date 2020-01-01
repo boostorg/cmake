@@ -226,7 +226,7 @@ function(boost_install_target LIB)
 
   if(TYPE STREQUAL "INTERFACE_LIBRARY")
 
-    # Header-only libraries are arcitecture-independent
+    # Header-only libraries are architecture-independent
 
     if(NOT CMAKE_VERSION VERSION_LESS 3.14)
 
