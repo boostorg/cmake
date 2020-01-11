@@ -71,6 +71,17 @@ endif()
 
 file(GLOB __boost_libraries RELATIVE "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs" "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/*/CMakeLists.txt" "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/numeric/*/CMakeLists.txt")
 
+# Check for mistakes in BOOST_INCLUDE_LIBRARIES
+foreach(__boost_included_lib IN LISTS BOOST_INCLUDE_LIBRARIES)
+
+  if(NOT "${__boost_included_lib}/CMakeLists.txt" IN_LIST __boost_libraries)
+
+    message(WARNING "Library '${__boost_included_lib}' given in BOOST_INCLUDE_LIBRARIES has not been found.")
+
+  endif()
+
+endforeach()
+
 foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
   get_filename_component(__boost_lib "${__boost_lib_cml}" DIRECTORY)
