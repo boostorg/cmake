@@ -155,6 +155,19 @@ matrix:
         - cmake --build .
         - cmake --build . --target check
 
+    - env: TEST_BOOST_INSTALL=1 LIB=timer BOOST_INSTALL_LAYOUT=versioned
+      script:
+        - pip install --user cmake
+        - which cmake
+        - cmake --version
+        - mkdir __build__ && cd __build__
+        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${BOOST_INCLUDE_LIBRARIES:-$LIB} ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
+        - cmake --build . --target install
+        - cd ../tools/cmake/test/$LIB && mkdir __build__ && cd __build__
+        - cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
+        - cmake --build .
+        - cmake --build . --target check
+
 install:
   - BOOST_BRANCH=develop && [ "$TRAVIS_BRANCH" == "master" ] && BOOST_BRANCH=master || true
   - cd ..
