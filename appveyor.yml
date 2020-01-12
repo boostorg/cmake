@@ -12,7 +12,7 @@ branches:
     - develop
     - /feature\/.*/
 
-image: Visual Studio 2017
+image: Visual Studio 2019
 
 environment:
   matrix:
@@ -50,6 +50,9 @@ environment:
   - TEST_BOOST_INSTALL: 1
     LIB: atomic
     BUILD_SHARED_LIBS: ON
+
+  - TEST_BOOST_INSTALL: 1
+    LIB: timer
 
 install:
   - set BOOST_BRANCH=develop
