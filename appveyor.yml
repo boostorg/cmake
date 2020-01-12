@@ -17,9 +17,24 @@ image: Visual Studio 2017
 environment:
   matrix:
 
-  - LIB: assert
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+    LIB: assert
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    LIB: assert
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    LIB: assert
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    LIB: assert
 
-  - LIB: timer
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+    LIB: timer
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    LIB: timer
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    LIB: timer
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    LIB: timer
+
   - LIB: timer
     BUILD_SHARED_LIBS: ON
 
