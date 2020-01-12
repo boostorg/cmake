@@ -85,70 +85,70 @@ matrix:
         - cmake --build .
         - cmake --build . --target check
 
-    - env: TEST_BOOST_INSTALL=1 LIB=mp11 BOOST_INCLUDE_LIBRARIES=mp11
+    - env: TEST_BOOST_INSTALL=1 LIB=mp11
       script:
         - mkdir __build__ && cd __build__
-        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=$BOOST_INCLUDE_LIBRARIES ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
+        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${BOOST_INCLUDE_LIBRARIES:-$LIB} ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
         - cmake --build . --target install
         - cd ../tools/cmake/test/$LIB && mkdir __build__ && cd __build__
         - cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
         - cmake --build .
         - cmake --build . --target check
 
-    - env: TEST_BOOST_INSTALL=1 LIB=assert BOOST_INCLUDE_LIBRARIES="assert;config"
+    - env: TEST_BOOST_INSTALL=1 LIB=assert
       script:
         - mkdir __build__ && cd __build__
-        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=$BOOST_INCLUDE_LIBRARIES ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
+        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${BOOST_INCLUDE_LIBRARIES:-$LIB} ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
         - cmake --build . --target install
         - cd ../tools/cmake/test/$LIB && mkdir __build__ && cd __build__
         - cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
         - cmake --build .
         - cmake --build . --target check
 
-    - env: TEST_BOOST_INSTALL=1 LIB=assert BOOST_INCLUDE_LIBRARIES="assert;config" BOOST_INSTALL_LAYOUT=tagged
+    - env: TEST_BOOST_INSTALL=1 LIB=assert BOOST_INSTALL_LAYOUT=tagged
       script:
         - mkdir __build__ && cd __build__
-        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=$BOOST_INCLUDE_LIBRARIES ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
+        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${BOOST_INCLUDE_LIBRARIES:-$LIB} ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
         - cmake --build . --target install
         - cd ../tools/cmake/test/$LIB && mkdir __build__ && cd __build__
         - cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
         - cmake --build .
         - cmake --build . --target check
 
-    - env: TEST_BOOST_INSTALL=1 LIB=assert BOOST_INCLUDE_LIBRARIES="assert;config" BOOST_INSTALL_LAYOUT=versioned
+    - env: TEST_BOOST_INSTALL=1 LIB=assert BOOST_INSTALL_LAYOUT=versioned
       script:
         - mkdir __build__ && cd __build__
-        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=$BOOST_INCLUDE_LIBRARIES ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
+        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${BOOST_INCLUDE_LIBRARIES:-$LIB} ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
         - cmake --build . --target install
         - cd ../tools/cmake/test/$LIB && mkdir __build__ && cd __build__
         - cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
         - cmake --build .
         - cmake --build . --target check
 
-    - env: TEST_BOOST_INSTALL=1 LIB=atomic BOOST_INCLUDE_LIBRARIES="assert;atomic;config;static_assert;type_traits"
+    - env: TEST_BOOST_INSTALL=1 LIB=atomic
       script:
         - mkdir __build__ && cd __build__
-        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=$BOOST_INCLUDE_LIBRARIES ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
+        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${BOOST_INCLUDE_LIBRARIES:-$LIB} ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
         - cmake --build . --target install
         - cd ../tools/cmake/test/$LIB && mkdir __build__ && cd __build__
         - cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
         - cmake --build .
         - cmake --build . --target check
 
-    - env: TEST_BOOST_INSTALL=1 LIB=atomic BOOST_INCLUDE_LIBRARIES="assert;atomic;config;static_assert;type_traits" BOOST_INSTALL_LAYOUT=tagged BUILD_SHARED_LIBS=ON
+    - env: TEST_BOOST_INSTALL=1 LIB=atomic BOOST_INSTALL_LAYOUT=tagged BUILD_SHARED_LIBS=ON
       script:
         - mkdir __build__ && cd __build__
-        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=$BOOST_INCLUDE_LIBRARIES ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
+        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${BOOST_INCLUDE_LIBRARIES:-$LIB} ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
         - cmake --build . --target install
         - cd ../tools/cmake/test/$LIB && mkdir __build__ && cd __build__
         - cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
         - cmake --build .
         - cmake --build . --target check
 
-    - env: TEST_BOOST_INSTALL=1 LIB=atomic BOOST_INCLUDE_LIBRARIES="assert;atomic;config;static_assert;type_traits" BOOST_INSTALL_LAYOUT=versioned
+    - env: TEST_BOOST_INSTALL=1 LIB=atomic BOOST_INSTALL_LAYOUT=versioned
       script:
         - mkdir __build__ && cd __build__
-        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=$BOOST_INCLUDE_LIBRARIES ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
+        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${BOOST_INCLUDE_LIBRARIES:-$LIB} ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
         - cmake --build . --target install
         - cd ../tools/cmake/test/$LIB && mkdir __build__ && cd __build__
         - cmake -DCMAKE_INSTALL_PREFIX=~/.local ..

@@ -43,15 +43,12 @@ environment:
 
   - TEST_BOOST_INSTALL: 1
     LIB: assert
-    BOOST_INCLUDE_LIBRARIES: assert;config
 
   - TEST_BOOST_INSTALL: 1
     LIB: atomic
-    BOOST_INCLUDE_LIBRARIES: assert;atomic;config;static_assert;type_traits
 
   - TEST_BOOST_INSTALL: 1
     LIB: atomic
-    BOOST_INCLUDE_LIBRARIES: assert;atomic;config;static_assert;type_traits
     BUILD_SHARED_LIBS: ON
 
 install:
