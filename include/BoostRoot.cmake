@@ -135,7 +135,10 @@ endforeach()
 # Scan for dependencies
 
 set(__boost_include_libraries ${BOOST_INCLUDE_LIBRARIES})
-list(REMOVE_DUPLICATES __boost_include_libraries)
+
+if(__boost_include_libraries)
+  list(REMOVE_DUPLICATES __boost_include_libraries)
+endif()
 
 set(__boost_libs_to_scan ${__boost_include_libraries})
 
