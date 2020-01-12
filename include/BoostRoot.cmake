@@ -1,9 +1,9 @@
-# Copyright 2019 Peter Dimov
+# Copyright 2019, 2020 Peter Dimov
 # Distributed under the Boost Software License, Version 1.0.
 # See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt
 
 include(BoostMessage)
-include(GNUInstallDirs)
+include(BoostInstall)
 
 if(NOT BOOST_ENABLE_CMAKE)
   message(FATAL_ERROR
@@ -82,23 +82,30 @@ foreach(__boost_included_lib IN LISTS BOOST_INCLUDE_LIBRARIES)
 
 endforeach()
 
+# Installing targets created in other directories requires CMake 3.13
+if(CMAKE_VERSION VERSION_LESS 3.13)
+
+  boost_message(VERBOSE "Installation support is disabled on CMake ${CMAKE_VERSION} (need 3.13)")
+
+endif()
+
 foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
   get_filename_component(__boost_lib "${__boost_lib_cml}" DIRECTORY)
 
   if(__boost_lib IN_LIST BOOST_INCOMPATIBLE_LIBRARIES)
 
-    boost_message(DEBUG "Skipping incompatible Boost library ${__boost_lib}")
+    boost_message(DEBUG "Skipping incompatible Boost library '${__boost_lib}'")
 
   elseif(__boost_lib IN_LIST BOOST_EXCLUDE_LIBRARIES)
 
-    boost_message(DEBUG "Skipping excluded Boost library ${__boost_lib}")
+    boost_message(DEBUG "Skipping excluded Boost library '${__boost_lib}'")
 
   else()
 
     if(BOOST_INCLUDE_LIBRARIES AND NOT __boost_lib IN_LIST BOOST_INCLUDE_LIBRARIES)
 
-      boost_message(DEBUG "Adding Boost library ${__boost_lib} (w/ EXCLUDE_FROM_ALL)")
+      boost_message(DEBUG "Adding Boost library '${__boost_lib}' (w/ EXCLUDE_FROM_ALL)")
 
       set(BUILD_TESTING OFF) # hide cache variable
       add_subdirectory("${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}" "${CMAKE_CURRENT_BINARY_DIR}/boostorg/${__boost_lib}" EXCLUDE_FROM_ALL)
@@ -106,8 +113,31 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
     else()
 
-      boost_message(VERBOSE "Adding Boost library ${__boost_lib}")
+      boost_message(VERBOSE "Adding Boost library '${__boost_lib}'")
       add_subdirectory("${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}" "${CMAKE_CURRENT_BINARY_DIR}/boostorg/${__boost_lib}")
+
+      if(NOT CMAKE_VERSION VERSION_LESS 3.13)
+
+        string(MAKE_C_IDENTIFIER "${__boost_lib}" __boost_lib_target)
+
+        if(TARGET "Boost::${__boost_lib_target}" AND TARGET "boost_${__boost_lib_target}")
+
+          get_target_property(__boost_lib_incdir "boost_${__boost_lib_target}" INTERFACE_INCLUDE_DIRECTORIES)
+
+          if(__boost_lib_incdir STREQUAL "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}/include")
+
+            boost_message(DEBUG "Enabling installation for '${__boost_lib}'")
+            boost_install(TARGETS "boost_${__boost_lib_target}" VERSION "${BOOST_SUPERPROJECT_VERSION}" HEADER_DIRECTORY "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}/include")
+
+          else()
+            boost_message(DEBUG "Not enabling installation for '${__boost_lib}'; interface include directory '${__boost_lib_incdir}' does not equal '${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}/include'")
+          endif()
+
+        else()
+          boost_message(DEBUG "Not enabling installation for '${__boost_lib}'; targets 'Boost::${__boost_lib_target}' and 'boost_${__boost_lib_target}' weren't found")
+        endif()
+
+      endif()
 
     endif()
 
