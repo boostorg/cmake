@@ -186,7 +186,7 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
   elseif(NOT BOOST_INCLUDE_LIBRARIES OR __boost_lib IN_LIST BOOST_INCLUDE_LIBRARIES)
 
     boost_message(VERBOSE "Adding Boost library ${__boost_lib}")
-    add_subdirectory("${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}" "${CMAKE_CURRENT_BINARY_DIR}/boostorg/${__boost_lib}")
+    add_subdirectory(libs/${__boost_lib})
 
     __boost_auto_install(${__boost_lib})
 
@@ -195,7 +195,7 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
     set(BUILD_TESTING OFF) # hide cache variable
 
     boost_message(VERBOSE "Adding dependent Boost library ${__boost_lib}")
-    add_subdirectory("${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}" "${CMAKE_CURRENT_BINARY_DIR}/boostorg/${__boost_lib}")
+    add_subdirectory(libs/${__boost_lib})
 
     __boost_auto_install(${__boost_lib})
 
@@ -206,7 +206,7 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
     set(BUILD_TESTING OFF) # hide cache variable
 
     boost_message(DEBUG "Adding Boost library ${__boost_lib} with EXCLUDE_FROM_ALL")
-    add_subdirectory("${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}" "${CMAKE_CURRENT_BINARY_DIR}/boostorg/${__boost_lib} EXCLUDE_FROM_ALL")
+    add_subdirectory(libs/${__boost_lib} EXCLUDE_FROM_ALL)
 
     unset(BUILD_TESTING)
 
