@@ -155,7 +155,10 @@ while(__boost_libs_to_scan)
   list(REMOVE_DUPLICATES __boost_dependencies)
 
   set(__boost_libs_to_scan ${__boost_dependencies})
-  list(REMOVE_ITEM __boost_libs_to_scan ${__boost_include_libraries})
+
+  if(__boost_libs_to_scan)
+    list(REMOVE_ITEM __boost_libs_to_scan ${__boost_include_libraries})
+  endif()
 
   list(APPEND __boost_include_libraries ${__boost_libs_to_scan})
 
