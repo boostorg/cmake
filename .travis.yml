@@ -182,6 +182,36 @@ matrix:
         - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
         - cmake --build .
 
+    - env: INSTALL_BOOST=1
+      install:
+        - BOOST_BRANCH=develop && [ "$TRAVIS_BRANCH" == "master" ] && BOOST_BRANCH=master || true
+        - cd ..
+        - git clone -b $BOOST_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
+        - cd boost-root
+        - git submodule update --init --jobs 3
+        - rm -rf tools/cmake/*
+        - cp -r $TRAVIS_BUILD_DIR/* tools/cmake
+        - pip install --user cmake
+      script:
+        - mkdir __build__ && cd __build__
+        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
+        - cmake --build . --target install
+
+    - env: INSTALL_BOOST=1 BOOST_INSTALL_LAYOUT=versioned BUILD_SHARED_LIBS=ON
+      install:
+        - BOOST_BRANCH=develop && [ "$TRAVIS_BRANCH" == "master" ] && BOOST_BRANCH=master || true
+        - cd ..
+        - git clone -b $BOOST_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
+        - cd boost-root
+        - git submodule update --init --jobs 3
+        - rm -rf tools/cmake/*
+        - cp -r $TRAVIS_BUILD_DIR/* tools/cmake
+        - pip install --user cmake
+      script:
+        - mkdir __build__ && cd __build__
+        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
+        - cmake --build . --target install
+
 install:
   - BOOST_BRANCH=develop && [ "$TRAVIS_BRANCH" == "master" ] && BOOST_BRANCH=master || true
   - cd ..
