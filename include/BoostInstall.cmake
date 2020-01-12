@@ -278,21 +278,14 @@ function(boost_install)
     if(NOT PROJECT_VERSION)
 
       message(AUTHOR_WARNING "boost_install: VERSION not given, PROJECT_VERSION not set, but a version is required for installation.")
-      set(__VERSION 0.0.0)
+      return()
 
     else()
 
-      boost_message(VERBOSE "boost_install: VERSION not given, assuming PROJECT_VERSION ('${PROJECT_VERSION}')")
+      boost_message(DEBUG "boost_install: VERSION not given, assuming PROJECT_VERSION ('${PROJECT_VERSION}')")
       set(__VERSION ${PROJECT_VERSION})
 
     endif()
-
-  endif()
-
-  if(NOT __TARGETS AND NOT __HEADER_DIRECTORY) # boost_install(target), backcompat
-
-    boost_install_target(TARGET ${__UNPARSED_ARGUMENTS} VERSION ${__VERSION})
-    return()
 
   endif()
 
