@@ -37,11 +37,60 @@ if(NOT CMAKE_MSVC_RUNTIME_LIBRARY)
 
 endif()
 
+# Functions
+
+function(__boost_auto_install __boost_lib)
+  if(NOT CMAKE_VERSION VERSION_LESS 3.13)
+
+    string(MAKE_C_IDENTIFIER "${__boost_lib}" __boost_lib_target)
+
+    if(TARGET "Boost::${__boost_lib_target}" AND TARGET "boost_${__boost_lib_target}")
+
+      get_target_property(__boost_lib_incdir "boost_${__boost_lib_target}" INTERFACE_INCLUDE_DIRECTORIES)
+
+      if(__boost_lib_incdir STREQUAL "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}/include")
+
+        boost_message(DEBUG "Enabling installation for '${__boost_lib}'")
+        boost_install(TARGETS "boost_${__boost_lib_target}" VERSION "${BOOST_SUPERPROJECT_VERSION}" HEADER_DIRECTORY "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}/include")
+
+      else()
+        boost_message(DEBUG "Not enabling installation for '${__boost_lib}'; interface include directory '${__boost_lib_incdir}' does not equal '${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}/include'")
+      endif()
+
+    else()
+      boost_message(DEBUG "Not enabling installation for '${__boost_lib}'; targets 'Boost::${__boost_lib_target}' and 'boost_${__boost_lib_target}' weren't found")
+    endif()
+
+  endif()
+endfunction()
+
+function(__boost_scan_dependencies lib var)
+
+  file(STRINGS "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${lib}/CMakeLists.txt" data)
+
+  set(result "")
+
+  foreach(line IN LISTS data)
+
+    if(line MATCHES "^[ ]*Boost::([A-Za-z0-9_]+)[ ]*$")
+
+      string(REGEX REPLACE "^numeric_" "numeric/" dep ${CMAKE_MATCH_1})
+      list(APPEND result ${dep})
+
+    endif()
+
+  endforeach()
+
+  set(${var} ${result} PARENT_SCOPE)
+
+endfunction()
+
 #
 
 if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR)
 
   include(CTest)
+  add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure -C $<CONFIG>)
 
   if(WIN32 AND CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
@@ -72,6 +121,7 @@ endif()
 file(GLOB __boost_libraries RELATIVE "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs" "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/*/CMakeLists.txt" "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/numeric/*/CMakeLists.txt")
 
 # Check for mistakes in BOOST_INCLUDE_LIBRARIES
+
 foreach(__boost_included_lib IN LISTS BOOST_INCLUDE_LIBRARIES)
 
   if(NOT "${__boost_included_lib}/CMakeLists.txt" IN_LIST __boost_libraries)
@@ -81,6 +131,35 @@ foreach(__boost_included_lib IN LISTS BOOST_INCLUDE_LIBRARIES)
   endif()
 
 endforeach()
+
+# Scan for dependencies
+
+set(__boost_include_libraries ${BOOST_INCLUDE_LIBRARIES})
+list(REMOVE_DUPLICATES __boost_include_libraries)
+
+set(__boost_libs_to_scan ${__boost_include_libraries})
+
+while(__boost_libs_to_scan)
+
+  boost_message(DEBUG "Scanning dependencies: ${__boost_libs_to_scan}")
+
+  set(__boost_dependencies "")
+
+  foreach(__boost_lib IN LISTS __boost_libs_to_scan)
+
+    __boost_scan_dependencies(${__boost_lib} __boost_deps)
+    list(APPEND __boost_dependencies ${__boost_deps})
+
+  endforeach()
+
+  list(REMOVE_DUPLICATES __boost_dependencies)
+
+  set(__boost_libs_to_scan ${__boost_dependencies})
+  list(REMOVE_ITEM __boost_libs_to_scan ${__boost_include_libraries})
+
+  list(APPEND __boost_include_libraries ${__boost_libs_to_scan})
+
+endwhile()
 
 # Installing targets created in other directories requires CMake 3.13
 if(CMAKE_VERSION VERSION_LESS 3.13)
@@ -95,51 +174,38 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
   if(__boost_lib IN_LIST BOOST_INCOMPATIBLE_LIBRARIES)
 
-    boost_message(DEBUG "Skipping incompatible Boost library '${__boost_lib}'")
+    boost_message(DEBUG "Skipping incompatible Boost library ${__boost_lib}")
 
   elseif(__boost_lib IN_LIST BOOST_EXCLUDE_LIBRARIES)
 
-    boost_message(DEBUG "Skipping excluded Boost library '${__boost_lib}'")
+    boost_message(DEBUG "Skipping excluded Boost library ${__boost_lib}")
+
+  elseif(NOT BOOST_INCLUDE_LIBRARIES OR __boost_lib IN_LIST BOOST_INCLUDE_LIBRARIES)
+
+    boost_message(VERBOSE "Adding Boost library ${__boost_lib}")
+    add_subdirectory("${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}" "${CMAKE_CURRENT_BINARY_DIR}/boostorg/${__boost_lib}")
+
+    __boost_auto_install(${__boost_lib})
+
+  elseif(__boost_lib IN_LIST __boost_include_libraries)
+
+    set(BUILD_TESTING OFF) # hide cache variable
+
+    boost_message(VERBOSE "Adding dependent Boost library ${__boost_lib}")
+    add_subdirectory("${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}" "${CMAKE_CURRENT_BINARY_DIR}/boostorg/${__boost_lib}")
+
+    __boost_auto_install(${__boost_lib})
+
+    unset(BUILD_TESTING)
 
   else()
 
-    if(BOOST_INCLUDE_LIBRARIES AND NOT __boost_lib IN_LIST BOOST_INCLUDE_LIBRARIES)
+    set(BUILD_TESTING OFF) # hide cache variable
 
-      boost_message(DEBUG "Adding Boost library '${__boost_lib}' (w/ EXCLUDE_FROM_ALL)")
+    boost_message(DEBUG "Adding Boost library ${__boost_lib} with EXCLUDE_FROM_ALL")
+    add_subdirectory("${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}" "${CMAKE_CURRENT_BINARY_DIR}/boostorg/${__boost_lib} EXCLUDE_FROM_ALL")
 
-      set(BUILD_TESTING OFF) # hide cache variable
-      add_subdirectory("${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}" "${CMAKE_CURRENT_BINARY_DIR}/boostorg/${__boost_lib}" EXCLUDE_FROM_ALL)
-      unset(BUILD_TESTING)
-
-    else()
-
-      boost_message(VERBOSE "Adding Boost library '${__boost_lib}'")
-      add_subdirectory("${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}" "${CMAKE_CURRENT_BINARY_DIR}/boostorg/${__boost_lib}")
-
-      if(NOT CMAKE_VERSION VERSION_LESS 3.13)
-
-        string(MAKE_C_IDENTIFIER "${__boost_lib}" __boost_lib_target)
-
-        if(TARGET "Boost::${__boost_lib_target}" AND TARGET "boost_${__boost_lib_target}")
-
-          get_target_property(__boost_lib_incdir "boost_${__boost_lib_target}" INTERFACE_INCLUDE_DIRECTORIES)
-
-          if(__boost_lib_incdir STREQUAL "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}/include")
-
-            boost_message(DEBUG "Enabling installation for '${__boost_lib}'")
-            boost_install(TARGETS "boost_${__boost_lib_target}" VERSION "${BOOST_SUPERPROJECT_VERSION}" HEADER_DIRECTORY "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}/include")
-
-          else()
-            boost_message(DEBUG "Not enabling installation for '${__boost_lib}'; interface include directory '${__boost_lib_incdir}' does not equal '${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}/include'")
-          endif()
-
-        else()
-          boost_message(DEBUG "Not enabling installation for '${__boost_lib}'; targets 'Boost::${__boost_lib_target}' and 'boost_${__boost_lib_target}' weren't found")
-        endif()
-
-      endif()
-
-    endif()
+    unset(BUILD_TESTING)
 
   endif()
 
