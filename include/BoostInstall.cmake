@@ -213,11 +213,17 @@ function(boost_install_target)
 
   get_target_property(INTERFACE_LINK_LIBRARIES ${LIB} INTERFACE_LINK_LIBRARIES)
 
-  if(INTERFACE_LINK_LIBRARIES)
+  set(LINK_LIBRARIES "")
+
+  if(TYPE STREQUAL "STATIC_LIBRARY" OR TYPE STREQUAL "SHARED_LIBRARY")
+    get_target_property(LINK_LIBRARIES ${LIB} LINK_LIBRARIES)
+  endif()
+
+  if(INTERFACE_LINK_LIBRARIES OR LINK_LIBRARIES)
 
     string(APPEND CONFIG_FILE_CONTENTS "include(CMakeFindDependencyMacro)\n\n")
 
-    foreach(dep IN LISTS INTERFACE_LINK_LIBRARIES)
+    foreach(dep IN LISTS INTERFACE_LINK_LIBRARIES LINK_LIBRARIES)
 
       if(${dep} MATCHES "^Boost::(.*)$")
 
