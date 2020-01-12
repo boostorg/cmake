@@ -30,12 +30,11 @@ environment:
     LIB: timer
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     LIB: timer
+    BUILD_SHARED_LIBS: ON
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     LIB: timer
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     LIB: timer
-
-  - LIB: timer
     BUILD_SHARED_LIBS: ON
 
   - TEST_BOOST_TEST: 1
@@ -53,6 +52,10 @@ environment:
 
   - TEST_BOOST_INSTALL: 1
     LIB: timer
+
+  - TEST_BOOST_INSTALL: 1
+    LIB: timer
+    BUILD_SHARED_LIBS: ON
 
 install:
   - set BOOST_BRANCH=develop
