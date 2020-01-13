@@ -34,6 +34,8 @@ endif()
 function(__boost_install_set_output_name LIB TYPE VERSION)
 
   set(name ${LIB})
+  set(compile_pdb_name_debug ${LIB})
+  set(compile_pdb_name_release ${LIB})
 
   # prefix
   if(WIN32 AND TYPE STREQUAL "STATIC_LIBRARY")
@@ -84,6 +86,8 @@ function(__boost_install_set_output_name LIB TYPE VERSION)
     endif()
 
     string(APPEND name "-${toolset}")
+    string(APPEND compile_pdb_name_debug "-${toolset}")
+    string(APPEND compile_pdb_name_release "-${toolset}")
 
   endif()
 
@@ -91,6 +95,8 @@ function(__boost_install_set_output_name LIB TYPE VERSION)
 
     # threading
     string(APPEND name "-mt")
+    string(APPEND compile_pdb_name_debug "-mt")
+    string(APPEND compile_pdb_name_release "-mt")
 
     # ABI tag
 
@@ -102,26 +108,48 @@ function(__boost_install_set_output_name LIB TYPE VERSION)
       string(APPEND tag "$<$<STREQUAL:$<TARGET_GENEX_EVAL:${LIB},$<TARGET_PROPERTY:${LIB},MSVC_RUNTIME_LIBRARY>>,MultiThreadedDebug>:g>")
       string(APPEND tag "$<$<STREQUAL:$<TARGET_GENEX_EVAL:${LIB},$<TARGET_PROPERTY:${LIB},MSVC_RUNTIME_LIBRARY>>,MultiThreadedDebugDLL>:g>")
 
+      string(APPEND tag "$<$<CONFIG:Debug>:d>")
+      string(APPEND name "$<$<BOOL:${tag}>:->${tag}")
+
+    elseif(MSVC)
+
+      string(APPEND name "$<$<CONFIG:Debug>:-gd>")
+
+    else()
+
+      string(APPEND name "$<$<CONFIG:Debug>:-d>")
+
     endif()
 
-    string(APPEND tag "$<$<CONFIG:Debug>:d>")
-
-    string(APPEND name "$<$<BOOL:${tag}>:->${tag}")
+    string(APPEND compile_pdb_name_debug "-gd")
 
     # Arch and model
     math(EXPR bits ${CMAKE_SIZEOF_VOID_P}*8)
+
     string(APPEND name "-x${bits}") # x86 only for now
+    string(APPEND compile_pdb_name_debug "-x${bits}")
+    string(APPEND compile_pdb_name_release "-x${bits}")
 
   endif()
 
   if(BOOST_INSTALL_LAYOUT STREQUAL versioned)
 
     string(REGEX REPLACE "^([0-9]+)[.]([0-9]+).*" "\\1_\\2" __ver ${VERSION})
+
     string(APPEND name "-${__ver}")
+    string(APPEND compile_pdb_name_debug "-${__ver}")
+    string(APPEND compile_pdb_name_release "-${__ver}")
 
   endif()
 
   set_target_properties(${LIB} PROPERTIES OUTPUT_NAME ${name})
+
+  if(TYPE STREQUAL "STATIC_LIBRARY")
+
+    set_target_properties(${LIB} PROPERTIES COMPILE_PDB_NAME_DEBUG "${compile_pdb_name_debug}")
+    set_target_properties(${LIB} PROPERTIES COMPILE_PDB_NAME "${compile_pdb_name_release}")
+
+  endif()
 
 endfunction()
 
