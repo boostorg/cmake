@@ -234,6 +234,12 @@ function(boost_install_target)
 
   endif()
 
+  if(WIN32 AND TYPE STREQUAL "STATIC_LIBRARY" AND NOT CMAKE_VERSION VERSION_LESS 3.15)
+
+    install(FILES "$<TARGET_FILE_DIR:${LIB}>/$<TARGET_FILE_PREFIX:${LIB}>$<TARGET_FILE_BASE_NAME:${LIB}>.pdb" DESTINATION ${BOOST_INSTALL_LIBDIR} OPTIONAL)
+
+  endif()
+
   install(EXPORT ${LIB}-targets DESTINATION "${CONFIG_INSTALL_DIR}" NAMESPACE Boost:: FILE ${LIB}-targets.cmake)
 
   set(CONFIG_FILE_NAME "${CMAKE_CURRENT_BINARY_DIR}/tmpinst/${LIB}-config.cmake")
