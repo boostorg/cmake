@@ -33,9 +33,8 @@ endif()
 
 function(__boost_install_set_output_name LIB TYPE VERSION)
 
-  set(name ${LIB})
-  set(compile_pdb_name_debug ${LIB})
-  set(compile_pdb_name_release ${LIB})
+  set(name_debug ${LIB})
+  set(name_release ${LIB})
 
   # prefix
   if(WIN32 AND TYPE STREQUAL "STATIC_LIBRARY")
@@ -85,18 +84,16 @@ function(__boost_install_set_output_name LIB TYPE VERSION)
 
     endif()
 
-    string(APPEND name "-${toolset}")
-    string(APPEND compile_pdb_name_debug "-${toolset}")
-    string(APPEND compile_pdb_name_release "-${toolset}")
+    string(APPEND name_debug "-${toolset}")
+    string(APPEND name_release "-${toolset}")
 
   endif()
 
   if(BOOST_INSTALL_LAYOUT STREQUAL versioned OR BOOST_INSTALL_LAYOUT STREQUAL tagged)
 
     # threading
-    string(APPEND name "-mt")
-    string(APPEND compile_pdb_name_debug "-mt")
-    string(APPEND compile_pdb_name_release "-mt")
+    string(APPEND name_debug "-mt")
+    string(APPEND name_release "-mt")
 
     # ABI tag
 
@@ -106,30 +103,26 @@ function(__boost_install_set_output_name LIB TYPE VERSION)
 
       if(MSVC_RUNTIME_LIBRARY STREQUAL "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-        string(APPEND name "-s$<$<CONFIG:Debug>:gd>")
-        string(APPEND compile_pdb_name_debug "-sgd")
-        string(APPEND compile_pdb_name_release "-s")
+        string(APPEND name_debug "-sgd")
+        string(APPEND name_release "-s")
 
       else()
 
-        string(APPEND name "$<$<CONFIG:Debug>:-gd>")
-        string(APPEND compile_pdb_name_debug "-gd")
+        string(APPEND name_debug "-gd")
 
       endif()
 
     else()
 
-      string(APPEND name "$<$<CONFIG:Debug>:-d>")
-      string(APPEND compile_pdb_name_debug "-d")
+      string(APPEND name_debug "-d")
 
     endif()
 
     # Arch and model
     math(EXPR bits ${CMAKE_SIZEOF_VOID_P}*8)
 
-    string(APPEND name "-x${bits}") # x86 only for now
-    string(APPEND compile_pdb_name_debug "-x${bits}")
-    string(APPEND compile_pdb_name_release "-x${bits}")
+    string(APPEND name_debug "-x${bits}") # x86 only for now
+    string(APPEND name_release "-x${bits}")
 
   endif()
 
@@ -137,18 +130,18 @@ function(__boost_install_set_output_name LIB TYPE VERSION)
 
     string(REGEX REPLACE "^([0-9]+)[.]([0-9]+).*" "\\1_\\2" __ver ${VERSION})
 
-    string(APPEND name "-${__ver}")
-    string(APPEND compile_pdb_name_debug "-${__ver}")
-    string(APPEND compile_pdb_name_release "-${__ver}")
+    string(APPEND name_debug "-${__ver}")
+    string(APPEND name_release "-${__ver}")
 
   endif()
 
-  set_target_properties(${LIB} PROPERTIES OUTPUT_NAME ${name})
+  set_target_properties(${LIB} PROPERTIES OUTPUT_NAME_DEBUG ${name_debug})
+  set_target_properties(${LIB} PROPERTIES OUTPUT_NAME ${name_release})
 
   if(TYPE STREQUAL "STATIC_LIBRARY")
 
-    set_target_properties(${LIB} PROPERTIES COMPILE_PDB_NAME_DEBUG "${compile_pdb_name_debug}")
-    set_target_properties(${LIB} PROPERTIES COMPILE_PDB_NAME "${compile_pdb_name_release}")
+    set_target_properties(${LIB} PROPERTIES COMPILE_PDB_NAME_DEBUG "${name_debug}")
+    set_target_properties(${LIB} PROPERTIES COMPILE_PDB_NAME "${name_release}")
 
   endif()
 
