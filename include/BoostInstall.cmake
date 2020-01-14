@@ -100,34 +100,22 @@ function(__boost_install_set_output_name LIB TYPE VERSION)
 
     # ABI tag
 
-    if(NOT CMAKE_VERSION VERSION_LESS 3.15)
-
-      string(APPEND tag "$<$<STREQUAL:$<TARGET_GENEX_EVAL:${LIB},$<TARGET_PROPERTY:${LIB},MSVC_RUNTIME_LIBRARY>>,MultiThreaded>:s>")
-      string(APPEND tag "$<$<STREQUAL:$<TARGET_GENEX_EVAL:${LIB},$<TARGET_PROPERTY:${LIB},MSVC_RUNTIME_LIBRARY>>,MultiThreadedDebug>:s>")
-
-      string(APPEND tag "$<$<STREQUAL:$<TARGET_GENEX_EVAL:${LIB},$<TARGET_PROPERTY:${LIB},MSVC_RUNTIME_LIBRARY>>,MultiThreadedDebug>:g>")
-      string(APPEND tag "$<$<STREQUAL:$<TARGET_GENEX_EVAL:${LIB},$<TARGET_PROPERTY:${LIB},MSVC_RUNTIME_LIBRARY>>,MultiThreadedDebugDLL>:g>")
-
-      string(APPEND tag "$<$<CONFIG:Debug>:d>")
-      string(APPEND name "$<$<BOOL:${tag}>:->${tag}")
+    if(MSVC)
 
       get_target_property(MSVC_RUNTIME_LIBRARY ${LIB} MSVC_RUNTIME_LIBRARY)
 
       if(MSVC_RUNTIME_LIBRARY STREQUAL "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
+        string(APPEND name "-s$<$<CONFIG:Debug>:gd>")
         string(APPEND compile_pdb_name_debug "-sgd")
         string(APPEND compile_pdb_name_release "-s")
 
       else()
 
+        string(APPEND name "$<$<CONFIG:Debug>:-gd>")
         string(APPEND compile_pdb_name_debug "-gd")
 
       endif()
-
-    elseif(MSVC)
-
-      string(APPEND name "$<$<CONFIG:Debug>:-gd>")
-      string(APPEND compile_pdb_name_debug "-gd")
 
     else()
 
