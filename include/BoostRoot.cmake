@@ -2,15 +2,23 @@
 # Distributed under the Boost Software License, Version 1.0.
 # See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt
 
-include(BoostMessage)
-include(BoostInstall)
+if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR AND WIN32 AND CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+
+    set(CMAKE_INSTALL_PREFIX "C:/Boost" CACHE PATH "Installation path prefix, prepended to installation directories" FORCE)
+
+endif()
 
 if(NOT BOOST_ENABLE_CMAKE)
+
   message(FATAL_ERROR
     "CMake support in Boost is experimental and part of an ongoing "
     "development effort. It's not ready for use yet. Please use b2 "
     "(Boost.Build) to build and install Boost.")
+
 endif()
+
+include(BoostMessage)
+include(BoostInstall)
 
 # --with-<library>
 set(BOOST_INCLUDE_LIBRARIES "" CACHE STRING "List of libraries to build (default: all but excluded and incompatible)")
@@ -91,12 +99,6 @@ if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR)
 
   include(CTest)
   add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure -C $<CONFIG>)
-
-  if(WIN32 AND CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-
-    set(CMAKE_INSTALL_PREFIX "C:/Boost" CACHE PATH "Installation path prefix, prepended to installation directories" FORCE)
-
-  endif()
 
   # link=static|shared
   option(BUILD_SHARED_LIBS "Build shared libraries")
