@@ -111,17 +111,30 @@ function(__boost_install_set_output_name LIB TYPE VERSION)
       string(APPEND tag "$<$<CONFIG:Debug>:d>")
       string(APPEND name "$<$<BOOL:${tag}>:->${tag}")
 
+      get_target_property(MSVC_RUNTIME_LIBRARY ${LIB} MSVC_RUNTIME_LIBRARY)
+
+      if(MSVC_RUNTIME_LIBRARY STREQUAL "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+        string(APPEND compile_pdb_name_debug "-sgd")
+        string(APPEND compile_pdb_name_release "-s")
+
+      else()
+
+        string(APPEND compile_pdb_name_debug "-gd")
+
+      endif()
+
     elseif(MSVC)
 
       string(APPEND name "$<$<CONFIG:Debug>:-gd>")
+      string(APPEND compile_pdb_name_debug "-gd")
 
     else()
 
       string(APPEND name "$<$<CONFIG:Debug>:-d>")
+      string(APPEND compile_pdb_name_debug "-d")
 
     endif()
-
-    string(APPEND compile_pdb_name_debug "-gd")
 
     # Arch and model
     math(EXPR bits ${CMAKE_SIZEOF_VOID_P}*8)
