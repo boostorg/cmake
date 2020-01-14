@@ -8,6 +8,10 @@ project(boost_timer_install_test LANGUAGES CXX)
 
 find_package(boost_timer REQUIRED)
 
+if(BOOST_RUNTIME_LINK STREQUAL "static")
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
 add_executable(main main.cpp)
 target_link_libraries(main Boost::timer)
 
