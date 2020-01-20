@@ -127,6 +127,7 @@ matrix:
 
     - env: TEST_BOOST_INSTALL=1 LIB=atomic
       script:
+        - pip install --user cmake
         - mkdir __build__ && cd __build__
         - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${BOOST_INCLUDE_LIBRARIES:-$LIB} ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
         - cmake --build . --target install
@@ -137,6 +138,7 @@ matrix:
 
     - env: TEST_BOOST_INSTALL=1 LIB=atomic BOOST_INSTALL_LAYOUT=tagged BUILD_SHARED_LIBS=ON
       script:
+        - pip install --user cmake
         - mkdir __build__ && cd __build__
         - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${BOOST_INCLUDE_LIBRARIES:-$LIB} ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
         - cmake --build . --target install
@@ -147,6 +149,7 @@ matrix:
 
     - env: TEST_BOOST_INSTALL=1 LIB=atomic BOOST_INSTALL_LAYOUT=versioned
       script:
+        - pip install --user cmake
         - mkdir __build__ && cd __build__
         - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${BOOST_INCLUDE_LIBRARIES:-$LIB} ${BOOST_INSTALL_LAYOUT:+-DBOOST_INSTALL_LAYOUT=$BOOST_INSTALL_LAYOUT} ${BUILD_SHARED_LIBS:+-DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS} ..
         - cmake --build . --target install
