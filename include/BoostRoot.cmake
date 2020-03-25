@@ -172,7 +172,7 @@ endwhile()
 # Installing targets created in other directories requires CMake 3.13
 if(CMAKE_VERSION VERSION_LESS 3.13)
 
-  boost_message(VERBOSE "Installation support is disabled on CMake ${CMAKE_VERSION} (need 3.13)")
+  boost_message(VERBOSE "Boost installation support is limited on CMake ${CMAKE_VERSION} (need 3.13)")
 
 endif()
 
