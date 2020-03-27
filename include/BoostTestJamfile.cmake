@@ -46,9 +46,10 @@ function(boost_test_jamfile)
   foreach(line IN LISTS data)
     if(line)
 
+      string(REGEX MATCH "^#.+" is_comment ${line})
       string(REGEX MATCHALL "[^ ]+" ll ${line})
 
-      if(ll)
+      if(ll AND NOT is_comment)
         list(GET ll 0 e0)
 
         if(e0 IN_LIST types)
