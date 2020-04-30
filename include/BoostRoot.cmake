@@ -26,7 +26,7 @@ set(BOOST_INCLUDE_LIBRARIES "" CACHE STRING "List of libraries to build (default
 # --without-<library>
 set(BOOST_EXCLUDE_LIBRARIES "" CACHE STRING "List of libraries to exclude from build")
 
-set(BOOST_INCOMPATIBLE_LIBRARIES beast;callable_traits;compute;gil;hana;hof;safe_numerics;serialization;static_string;yap CACHE STRING "List of libraries with incompatible CMakeLists.txt files")
+set(BOOST_INCOMPATIBLE_LIBRARIES beast;callable_traits;compute;gil;hana;hof;safe_numerics;serialization;static_string;stl_interfaces;yap CACHE STRING "List of libraries with incompatible CMakeLists.txt files")
 
 # --layout, --libdir, --cmakedir, --includedir in BoostInstall
 
