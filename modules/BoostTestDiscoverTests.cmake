@@ -273,6 +273,7 @@ function(boosttest_discover_tests TARGET)
       "  if(\"$<TARGET_FILE:${TARGET}>\" IS_NEWER_THAN \"${ctest_tests_file}\")"   "\n"
       "    include(\"${__BOOSTTEST_DISCOVER_TESTS_SCRIPT}\")"                      "\n"
       "    boosttest_discover_tests_impl("                                         "\n"
+      "      TEST_TARGET"            " [==[" "${TARGET}"                  "]==]"   "\n"
       "      TEST_EXECUTABLE"        " [==[" "$<TARGET_FILE:${TARGET}>"   "]==]"   "\n"
       "      TEST_EXECUTOR"          " [==[" "${crosscompiling_emulator}" "]==]"   "\n"
       "      TEST_WORKING_DIR"       " [==[" "${__WORKING_DIRECTORY}"     "]==]"   "\n"

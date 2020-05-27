@@ -111,8 +111,8 @@ function(boosttest_discover_tests_impl)
   cmake_parse_arguments(
     "_"
     ""
-    "TEST_EXECUTABLE;TEST_WORKING_DIR;TEST_PREFIX;TEST_SUFFIX;TEST_NAME_SEPARATOR;TEST_LIST;TEST_SKIP_DISABLED;CTEST_FILE;TEST_DISCOVERY_TIMEOUT"
-    "TEST_EXTRA_ARGS;TEST_PROPERTIES;TEST_EXECUTOR;"
+    "TEST_TARGET;TEST_EXECUTABLE;TEST_WORKING_DIR;TEST_PREFIX;TEST_SUFFIX;TEST_NAME_SEPARATOR;TEST_LIST;TEST_SKIP_DISABLED;CTEST_FILE;TEST_DISCOVERY_TIMEOUT"
+    "TEST_EXTRA_ARGS;TEST_PROPERTIES;TEST_EXECUTOR"
     ${ARGN}
   )
 
@@ -157,9 +157,9 @@ function(boosttest_discover_tests_impl)
   string(REPLACE "\n" ";" output "${output}")
 
   # The hierarchy and its depth-level of the test of the former line.
-  set(hierarchy "")
+  set(hierarchy "${TEST_TARGET}_MISSING_TESTS")
   set(former_level NaN)
-  set(test_is_enabled 1)
+  set(test_is_enabled 0)
 
   # Parse output
   foreach(line ${output})
@@ -180,6 +180,9 @@ function(boosttest_discover_tests_impl)
       foreach(i RANGE ${diff})
         list(POP_BACK hierarchy)
       endforeach()
+    endif()
+    if (former_level STREQUAL NaN)
+      set(hierarchy "")  # Clear hierarchy, as we have at least one test.
     endif()
     set(former_level ${next_level})  # Store depth-level for next loop-run.
 
@@ -213,7 +216,9 @@ function(boosttest_discover_tests_impl)
   # Create a list of all discovered tests, which users may use to e.g. set
   # properties on the tests.
   flush_tests_buffer()
-  add_command(set ${__TEST_LIST} ${tests})
+  if (NOT former_level STREQUAL "NaN")
+    add_command(set ${__TEST_LIST} ${tests})
+  endif()
 
   # Write CTest script
   file(WRITE "${__CTEST_FILE}" "${script}")
@@ -241,6 +246,7 @@ if(CMAKE_SCRIPT_MODE_FILE)
   remove_outer_quotes(TEST_DISCOVERY_TIMEOUT)
 
   boosttest_discover_tests_impl(
+    TEST_TARGET ${TEST_TARGET}
     TEST_EXECUTABLE ${TEST_EXECUTABLE}
     TEST_EXECUTOR ${TEST_EXECUTOR}
     TEST_WORKING_DIR ${TEST_WORKING_DIR}
