@@ -74,20 +74,24 @@ endfunction()
 
 function(__boost_scan_dependencies lib var)
 
-  file(STRINGS "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${lib}/CMakeLists.txt" data)
-
   set(result "")
 
-  foreach(line IN LISTS data)
+  if(EXISTS "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${lib}/CMakeLists.txt")
 
-    if(line MATCHES "^[ ]*Boost::([A-Za-z0-9_]+)[ ]*$")
+    file(STRINGS "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${lib}/CMakeLists.txt" data)
 
-      string(REGEX REPLACE "^numeric_" "numeric/" dep ${CMAKE_MATCH_1})
-      list(APPEND result ${dep})
+    foreach(line IN LISTS data)
 
-    endif()
+      if(line MATCHES "^[ ]*Boost::([A-Za-z0-9_]+)[ ]*$")
 
-  endforeach()
+        string(REGEX REPLACE "^numeric_" "numeric/" dep ${CMAKE_MATCH_1})
+        list(APPEND result ${dep})
+
+      endif()
+
+    endforeach()
+
+  endif()
 
   set(${var} ${result} PARENT_SCOPE)
 
