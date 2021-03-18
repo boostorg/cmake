@@ -97,6 +97,7 @@ endfunction()
 
 if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR)
 
+  option(BUILD_TESTING "Build the tests." OFF)
   include(CTest)
   add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure -C $<CONFIG>)
 
