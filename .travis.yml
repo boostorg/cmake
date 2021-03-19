@@ -24,31 +24,48 @@ matrix:
 
   include:
 
-    - env: LIB=assert COMMENT=trusty
+    - env: LIB=assert
       dist: trusty
       compiler: g++
 
-    - env: LIB=assert COMMENT=trusty
+    - env: LIB=assert
       dist: trusty
       compiler: clang++
 
-    - env: LIB=assert COMMENT=xenial
+    - env: LIB=assert
       dist: xenial
       compiler: g++
 
-    - env: LIB=assert COMMENT=xenial
+    - env: LIB=assert
       dist: xenial
       compiler: clang++
 
-    - env: LIB=assert COMMENT=bionic
+    - env: LIB=assert
       dist: bionic
       compiler: g++
 
-    - env: LIB=assert COMMENT=bionic
+    - env: LIB=assert
       dist: bionic
       compiler: clang++
 
     - env: LIB=assert
+      dist: focal
+      compiler: g++
+
+    - env: LIB=assert
+      dist: focal
+      compiler: clang++
+
+    - env: LIB=assert
+      os: osx
+
+    - env: LIB=mp11
+      compiler: g++
+
+    - env: LIB=mp11
+      compiler: clang++
+
+    - env: LIB=mp11
       os: osx
 
     - env: LIB=timer

@@ -44,6 +44,9 @@ environment:
     LIB: assert
 
   - TEST_BOOST_INSTALL: 1
+    LIB: mp11
+
+  - TEST_BOOST_INSTALL: 1
     LIB: atomic
 
   - TEST_BOOST_INSTALL: 1
