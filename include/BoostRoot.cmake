@@ -218,8 +218,6 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
     boost_message(DEBUG "Adding Boost library ${__boost_lib} with EXCLUDE_FROM_ALL")
     add_subdirectory(libs/${__boost_lib} EXCLUDE_FROM_ALL)
 
-    __boost_auto_install(${__boost_lib})
-
     unset(BUILD_TESTING)
 
   endif()
