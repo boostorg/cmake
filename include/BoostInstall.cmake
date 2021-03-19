@@ -180,6 +180,15 @@ function(boost_install_target)
 
   endif()
 
+  get_directory_property(excluded_from_all EXCLUDE_FROM_ALL)
+
+  if(excluded_from_all)
+
+    boost_message(DEBUG "boost_install_target: not installing target '${__TARGET}' due to EXCLUDE_FROM_ALL")
+    return()
+
+  endif()
+
   set(LIB ${__TARGET})
 
   if(NOT __HEADER_DIRECTORY)
@@ -326,6 +335,15 @@ function(boost_install)
   if(__UNPARSED_ARGUMENTS)
 
     message(AUTHOR_WARNING "boost_install: extra arguments ignored: ${__UNPARSED_ARGUMENTS}")
+
+  endif()
+
+  get_directory_property(excluded_from_all EXCLUDE_FROM_ALL)
+
+  if(excluded_from_all)
+
+    boost_message(DEBUG "boost_install: not installing targets '${__TARGETS}' due to EXCLUDE_FROM_ALL")
+    return()
 
   endif()
 
