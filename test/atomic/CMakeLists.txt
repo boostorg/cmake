@@ -6,11 +6,11 @@ cmake_minimum_required(VERSION 3.5...3.16)
 
 project(boost_atomic_install_test LANGUAGES CXX)
 
-find_package(boost_atomic REQUIRED)
-
 if(BOOST_RUNTIME_LINK STREQUAL "static")
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
+
+find_package(boost_atomic REQUIRED)
 
 add_executable(main main.cpp)
 target_link_libraries(main Boost::atomic)
