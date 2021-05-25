@@ -266,6 +266,23 @@ function(boost_install_target)
 
         string(APPEND CONFIG_FILE_CONTENTS "find_dependency(boost_${CMAKE_MATCH_1} ${__VERSION} EXACT)\n")
 
+      elseif(${dep} STREQUAL "Threads::Threads")
+
+        string(APPEND CONFIG_FILE_CONTENTS "set(THREADS_PREFER_PTHREAD_FLAG ON)\n")
+        string(APPEND CONFIG_FILE_CONTENTS "find_dependency(Threads)\n")
+
+      elseif(${dep} STREQUAL "ZLIB::ZLIB")
+
+        string(APPEND CONFIG_FILE_CONTENTS "find_dependency(ZLIB)\n")
+
+      elseif(${dep} STREQUAL "BZip2::BZip2")
+
+        string(APPEND CONFIG_FILE_CONTENTS "find_dependency(BZip2)\n")
+
+      elseif(${dep} STREQUAL "LibLZMA::LibLZMA")
+
+        string(APPEND CONFIG_FILE_CONTENTS "find_dependency(LibLZMA)\n")
+
       endif()
 
     endforeach()
