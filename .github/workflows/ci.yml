@@ -47,9 +47,10 @@ jobs:
           cd ..
           git clone -b $BOOST_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
           cd boost-root
-          cp -r $GITHUB_WORKSPACE/* tools/cmake
           git submodule update --init tools/boostdep
           python tools/boostdep/depinst/depinst.py --git_args "--jobs 3" -u ${{matrix.library}}
+          rm -rf tools/cmake/*
+          cp -r $GITHUB_WORKSPACE/* tools/cmake
 
       - name: Build and install Boost with CMake
         run: |
@@ -90,9 +91,10 @@ jobs:
           cd ..
           git clone -b %BOOST_BRANCH% --depth 1 https://github.com/boostorg/boost.git boost-root
           cd boost-root
-          xcopy /s /e /q %GITHUB_WORKSPACE% tools\cmake\
           git submodule update --init tools/boostdep
           python tools/boostdep/depinst/depinst.py --git_args "--jobs 3" -u ${{matrix.library}}
+          rd /s/q tools\cmake
+          xcopy /s /e /q %GITHUB_WORKSPACE% tools\cmake\
 
       - name: Build and install Boost with CMake
         shell: cmd
