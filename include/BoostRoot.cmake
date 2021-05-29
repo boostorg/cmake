@@ -21,12 +21,20 @@ include(BoostMessage)
 include(BoostInstall)
 
 # --with-<library>
-set(BOOST_INCLUDE_LIBRARIES "" CACHE STRING "List of libraries to build (default: all but excluded and incompatible)")
+set(BOOST_INCLUDE_LIBRARIES "" CACHE STRING
+  "List of libraries to build (default: all but excluded and incompatible)")
 
 # --without-<library>
-set(BOOST_EXCLUDE_LIBRARIES "" CACHE STRING "List of libraries to exclude from build")
+set(BOOST_EXCLUDE_LIBRARIES "" CACHE STRING
+  "List of libraries to exclude from build")
 
-set(BOOST_INCOMPATIBLE_LIBRARIES beast;callable_traits;compute;gil;hana;hof;safe_numerics;static_string;stl_interfaces;yap CACHE STRING "List of libraries with incompatible CMakeLists.txt files")
+set(BOOST_INCOMPATIBLE_LIBRARIES
+  "beast;callable_traits;compute;gil;hana;hof;safe_numerics;static_string;stl_interfaces;yap"
+  CACHE STRING
+  "List of libraries with incompatible CMakeLists.txt files")
+
+option(BOOST_ENABLE_MPI OFF
+  "Build and enable installation of Boost.MPI and its dependents (requires MPI)")
 
 # --layout, --libdir, --cmakedir, --includedir in BoostInstall
 
@@ -181,6 +189,8 @@ if(CMAKE_VERSION VERSION_LESS 3.13)
 
 endif()
 
+set(__boost_mpi_libs mpi graph_parallel property_map_parallel)
+
 foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
   get_filename_component(__boost_lib "${__boost_lib_cml}" DIRECTORY)
@@ -193,6 +203,17 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
     boost_message(DEBUG "Skipping excluded Boost library ${__boost_lib}")
 
+  elseif(NOT BOOST_ENABLE_MPI AND __boost_lib IN_LIST __boost_mpi_libs)
+
+    boost_message(DEBUG "Adding disabled Boost library ${__boost_lib} with EXCLUDE_FROM_ALL")
+
+    set(BUILD_TESTING OFF) # hide cache variable
+
+    boost_message(DEBUG "Adding Boost library ${__boost_lib} with EXCLUDE_FROM_ALL")
+    add_subdirectory(libs/${__boost_lib} EXCLUDE_FROM_ALL)
+
+    unset(BUILD_TESTING)
+
   elseif(NOT BOOST_INCLUDE_LIBRARIES OR __boost_lib IN_LIST BOOST_INCLUDE_LIBRARIES)
 
     boost_message(VERBOSE "Adding Boost library ${__boost_lib}")
@@ -204,7 +225,7 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
     set(BUILD_TESTING OFF) # hide cache variable
 
-    boost_message(VERBOSE "Adding dependent Boost library ${__boost_lib}")
+    boost_message(VERBOSE "Adding dependency Boost library ${__boost_lib}")
     add_subdirectory(libs/${__boost_lib})
 
     __boost_auto_install(${__boost_lib})
