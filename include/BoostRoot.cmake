@@ -33,7 +33,7 @@ set(BOOST_INCOMPATIBLE_LIBRARIES
   CACHE STRING
   "List of libraries with incompatible CMakeLists.txt files")
 
-option(BOOST_ENABLE_MPI OFF
+option(BOOST_ENABLE_MPI
   "Build and enable installation of Boost.MPI and its dependents (requires MPI)")
 
 # --layout, --libdir, --cmakedir, --includedir in BoostInstall
