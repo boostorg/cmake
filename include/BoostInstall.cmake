@@ -283,6 +283,10 @@ function(boost_install_target)
 
         string(APPEND CONFIG_FILE_CONTENTS "find_dependency(LibLZMA)\n")
 
+      elseif(${dep} STREQUAL "MPI::MPI_CXX")
+
+        string(APPEND CONFIG_FILE_CONTENTS "find_dependency(MPI)\n")
+
       endif()
 
     endforeach()
