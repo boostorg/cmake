@@ -26,7 +26,7 @@ jobs:
           - os: ubuntu-latest
             shared: ON
             layout: system
-            include: mpi
+            mpi: ON
           - os: macos-latest
             shared: OFF
             layout: versioned
@@ -63,7 +63,7 @@ jobs:
         run: |
           cd ../boost-root
           mkdir __build__ && cd __build__
-          cmake -DBOOST_ENABLE_CMAKE=1 -DCMAKE_INSTALL_PREFIX=~/.local -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${{matrix.include}} -DBUILD_SHARED_LIBS=${{matrix.shared}} -DBOOST_INSTALL_LAYOUT=${{matrix.layout}} ..
+          cmake -DBOOST_ENABLE_CMAKE=1 -DCMAKE_INSTALL_PREFIX=~/.local -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${{matrix.include}} -DBUILD_SHARED_LIBS=${{matrix.shared}} -DBOOST_INSTALL_LAYOUT=${{matrix.layout}} -DBOOST_ENABLE_MPI=${{matrix.mpi}} ..
           cmake --build .
           cmake --build . --target install
 
