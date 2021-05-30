@@ -27,6 +27,7 @@ jobs:
             shared: ON
             layout: system
             mpi: ON
+            install: libopenmpi-dev
           - os: macos-latest
             shared: OFF
             layout: versioned
