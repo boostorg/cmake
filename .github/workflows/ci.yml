@@ -18,19 +18,19 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            library: iostreams
             shared: OFF
             layout: tagged
           - os: ubuntu-latest
-            library: graph
             shared: ON
             layout: versioned
+          - os: ubuntu-latest
+            shared: ON
+            layout: system
+            include: mpi
           - os: macos-latest
-            library: iostreams
             shared: OFF
             layout: versioned
           - os: macos-latest
-            library: graph
             shared: ON
             layout: tagged
 
@@ -55,8 +55,7 @@ jobs:
           cd ..
           git clone -b $BOOST_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
           cd boost-root
-          git submodule update --init tools/boostdep
-          python tools/boostdep/depinst/depinst.py --git_args "--jobs 3" -u ${{matrix.library}}
+          git submodule update --init --jobs 3
           rm -rf tools/cmake/*
           cp -r $GITHUB_WORKSPACE/* tools/cmake
 
@@ -64,7 +63,7 @@ jobs:
         run: |
           cd ../boost-root
           mkdir __build__ && cd __build__
-          cmake -DBOOST_ENABLE_CMAKE=1 -DCMAKE_INSTALL_PREFIX=~/.local -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${{matrix.library}} -DBUILD_SHARED_LIBS=${{matrix.shared}} -DBOOST_INSTALL_LAYOUT=${{matrix.layout}} ..
+          cmake -DBOOST_ENABLE_CMAKE=1 -DCMAKE_INSTALL_PREFIX=~/.local -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${{matrix.include}} -DBUILD_SHARED_LIBS=${{matrix.shared}} -DBOOST_INSTALL_LAYOUT=${{matrix.layout}} ..
           cmake --build .
           cmake --build . --target install
 
@@ -74,19 +73,15 @@ jobs:
       matrix:
         include:
           - os: windows-2016
-            library: iostreams
             shared: ON
             layout: tagged
           - os: windows-2016
-            library: graph
             shared: OFF
             layout: versioned
           - os: windows-2019
-            library: iostreams
             shared: OFF
             layout: tagged
           - os: windows-2019
-            library: graph
             shared: ON
             layout: versioned
 
@@ -107,8 +102,7 @@ jobs:
           cd ..
           git clone -b %BOOST_BRANCH% --depth 1 https://github.com/boostorg/boost.git boost-root
           cd boost-root
-          git submodule update --init tools/boostdep
-          python tools/boostdep/depinst/depinst.py --git_args "--jobs 3" -u ${{matrix.library}}
+          git submodule update --init --jobs 3
           rd /s/q tools\cmake
           xcopy /s /e /q %GITHUB_WORKSPACE% tools\cmake\
 
@@ -117,7 +111,7 @@ jobs:
         run: |
           cd ../boost-root
           mkdir __build__ && cd __build__
-          cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${{matrix.library}} -DBUILD_SHARED_LIBS=${{matrix.shared}} -DBOOST_INSTALL_LAYOUT=${{matrix.layout}} ..
+          cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${{matrix.include}} -DBUILD_SHARED_LIBS=${{matrix.shared}} -DBOOST_INSTALL_LAYOUT=${{matrix.layout}} ..
           cmake --build . --config Debug
           cmake --build . --config Release
           cmake --build . --target install --config Debug
