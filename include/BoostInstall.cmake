@@ -308,14 +308,14 @@ function(boost_install_target)
 
     if(NOT CMAKE_VERSION VERSION_LESS 3.14)
 
-      write_basic_package_version_file("${CONFIG_VERSION_FILE_NAME}" COMPATIBILITY AnyNewerVersion ARCH_INDEPENDENT)
+      write_basic_package_version_file("${CONFIG_VERSION_FILE_NAME}" COMPATIBILITY SameMajorVersion ARCH_INDEPENDENT)
 
     else()
 
       set(OLD_CMAKE_SIZEOF_VOID_P ${CMAKE_SIZEOF_VOID_P})
       set(CMAKE_SIZEOF_VOID_P "")
 
-      write_basic_package_version_file("${CONFIG_VERSION_FILE_NAME}" COMPATIBILITY AnyNewerVersion)
+      write_basic_package_version_file("${CONFIG_VERSION_FILE_NAME}" COMPATIBILITY SameMajorVersion)
 
       set(CMAKE_SIZEOF_VOID_P ${OLD_CMAKE_SIZEOF_VOID_P})
 
@@ -323,7 +323,7 @@ function(boost_install_target)
 
   else()
 
-    write_basic_package_version_file("${CONFIG_VERSION_FILE_NAME}" COMPATIBILITY AnyNewerVersion)
+    write_basic_package_version_file("${CONFIG_VERSION_FILE_NAME}" COMPATIBILITY SameMajorVersion)
 
   endif()
 
