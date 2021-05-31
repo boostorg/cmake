@@ -110,9 +110,9 @@ Boost version (such as `1.77.0`.)
 
 If your library is included directly in a user project with
 `add_subdirectory`, `BOOST_SUPERPROJECT_VERSION` will not be set and
-the project version will be empty, as if it wasn't given:
+the project version will be empty, as if it weren't given:
 ```
-project(boost_core VERSION LANGUAGES CXX)
+project(boost_core LANGUAGES CXX)
 ```
 This is usually what one wants. Since manually maintaining a version
 is time consuming and doesn't bring much, most libraries that do
@@ -149,10 +149,10 @@ on disk named f.ex. `libboost_core.so`.
 target_include_directories(boost_core INTERFACE include)
 ```
 
-This directive declares the include path of the library, which for Boost
-libraries are the `include` subdirectory. (A relative path is interpreted
-as relative to `CMAKE_CURRENT_SOURCE_DIR`, that is, to the location of the
-current `CMakeLists.txt` file.)
+This directive declares the directory containing the library headers, which
+for Boost libraries is the `include` subdirectory. (A relative path is
+interpreted as relative to `CMAKE_CURRENT_SOURCE_DIR`, that is, to the
+location of the current `CMakeLists.txt` file.)
 
 If you are familiar with CMake, your first impulse would be to declare this
 line wrong, and replace it with
@@ -205,7 +205,7 @@ explicitly declare a dependency on A. In CMake, this is accomplished by
 
 This is the purpose of the `target_link_libraries` directive above. In
 this specific case, it declares that `boost_core` depends on `Boost::assert`,
-`Boost::config` and `Boost::static_assert`, and will result into
+`Boost::config`, and `Boost::static_assert`, and will result into
 `libs/assert/include`, `libs/config/include`, and `libs/static_assert/include`
 being added to the include path of Core. (More precisely, they will be added
 to the include paths of the users of `Boost::core`. Core itself needs no
