@@ -102,7 +102,7 @@ version and the languages (C, C++) that the source files will use.
 
 Boost projects by convention are named `boost_libname`, in lowercase,
 as in the above. (Libraries in `numeric` such as `numeric/conversion`
-use `_` in place of the `/`: `boost_numeric_conversion`.)
+use an underscore in place of the slash: `boost_numeric_conversion`.)
 
 The version is set to match the variable `BOOST_SUPERPROJECT_VERSION`,
 which the Boost superproject `CMakeLists.txt` file sets to the current
@@ -232,4 +232,88 @@ if(BUILD_TESTING AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/CMakeLists.txt")
 endif()
 ```
 
+The final portion of the generated `CMakeLists.txt` file adds support for
+invoking the library tests from the Boost superproject. Since not all
+libraries have one, this is only enabled when
+`libs/libname/test/CMakeLists.txt` exists.
+
+In principle, since you know whether this file exists for your library or
+not, you can either remove this condition or remove this entire section; but
+doing so will make your `CMakeLists.txt` file not match the generated output,
+which has its downsides.
+
+`BUILD_TESTING` is the standard CMake option (typically defined by the `CTest`
+CMake module) that allows the user to enable or disable tests for a project.
+It's used here to skip the inclusion of the `test` subproject in order to
+speed up the configure and build phases of Boost when testing is not required
+or desired.
+
+If your library has a `test/CMakeLists.txt` file that is not intended to be
+used from the Boost superproject, and is incompatible with it, replace this
+block with either
+```
+if(BUILD_TESTING AND CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+
+  add_subdirectory(test)
+
+endif()
+```
+when your test suite is only intended to be used when your library is the
+root project (that's usually the case, so this option is the recommended one),
+or
+```
+if(BUILD_TESTING AND NOT BOOST_SUPERPROJECT_VERSION)
+
+  add_subdirectory(test)
+
+endif()
+```
+when your test suite is also intended to be invoked when your library is
+a subproject of a user project. (This case is rare and user projects are
+typically not interested in running their subprojects' tests, so you
+probably don't want this.)
+
 ### Installation Support
+
+You may have noticed by now that no installation support is declared in the
+`CMakeLists.txt` file. Nevertheless, the library can in fact be installed.
+The Boost superproject automatically adds the necessary support to libraries
+which declare a target `boost_libname` that matches the directory of the
+`CMakeLists.txt` file (`libs/libname`) and whose `target_include_directories`
+directive matches the one above.
+
+It is recommended that you don't attempt to add your own installation support.
+Let the superproject handle it.
+
+### Required C++ Standard
+
+If your library needs C++11 or above, you can declare this requirement by
+adding the following directive:
+```
+target_compile_features(boost_libname INTERFACE cxx_std_11)
+```
+(use `cxx_std_14` for C++14, `cxx_std_17` for C++17, and so on.)
+
+### Additional Functionality
+
+This is all you need to have a header-only library that integrates into the
+Boost CMake infrastructure. It is also a well-behaved suproject that can be
+included into user CMake projects via `add_subdirectory`. Avoid the urge to
+add more functionality unless it's really necessary, as it will compromise
+the usability of your library as a subproject.
+
+Many library authors who use CMake, however, add development-centric
+functionality to their `CMakeLists.txt` file; you might already have. In this
+case, try to keep the `CMakeLists.txt` portions described so far as close to
+unchanged as possible, and at the end, add a section guarded with
+```
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+
+  # Functionality enabled only when we're the root project
+
+endif()
+```
+and put all your current developer-centric functionality there. This way,
+subproject use will be unaffected, and you can still use CMake from your
+library directory for development-related activities such as generating
+Visual Studio workspaces, or testing outside the Boost tree.
