@@ -516,4 +516,4 @@ library will lack install support.
 
 For more examples of `CMakeLists.txt` files building and installing more than
 one library, see [Test](https://github.com/boostorg/test/blob/efaa7018bf19826ca282e28a11a2f7db72af7930/CMakeLists.txt)
-and [Stacktrace](https://github.com/boostorg/stacktrace/blob/76f902f366eeb3446b039a6698ad4585176801a9/CMakeLists.txt).
+and [Stacktrace](https://github.com/boostorg/stacktrace/blob/18012f81da29ac3b0f20a511eb3869a372066121/CMakeLists.txt).
