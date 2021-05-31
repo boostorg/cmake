@@ -492,3 +492,28 @@ and you look at how
 [the Timer library uses them](https://github.com/boostorg/timer/blob/e9387e4d9956074dffcc15bf15bd6d2625e91ebf/include/boost/timer/config.hpp)
 as an example.
 
+### Building More Than One Library Target
+
+If your build results in more than one library being built, or if the name
+of your library target does not match your directory name, you need to invoke
+the installation support manually. As an example, Serialization builds two
+library targets, `boost_serialization` and `boost_wserialization`, and the
+procedure to install them entails adding
+[the following section](https://github.com/boostorg/serialization/blob/337b3fbc7c4648d6f95f863546b9482500c8dec5/CMakeLists.txt#L116-L118)
+to `CMakeLists.txt`:
+```
+if(BOOST_SUPERPROJECT_VERSION AND NOT CMAKE_VERSION VERSION_LESS 3.13)
+  boost_install(TARGETS boost_serialization boost_wserialization
+    VERSION ${BOOST_SUPERPROJECT_VERSION} HEADER_DIRECTORY include)
+endif()
+```
+The check for `BOOST_SUPERPROJECT_VERSION` is necessary because without the
+superproject, `boost_install` is not available. The check for the CMake
+version is needed because the automatic Boost installation support requires
+CMake 3.13. Even though `boost_install` will work on earlier CMake versions,
+you will likely get errors at generate time because the dependencies of your
+library will lack install support.
+
+For more examples of `CMakeLists.txt` files building and installing more than
+one library, see [Test](https://github.com/boostorg/test/blob/efaa7018bf19826ca282e28a11a2f7db72af7930/CMakeLists.txt)
+and [Stacktrace](https://github.com/boostorg/stacktrace/blob/76f902f366eeb3446b039a6698ad4585176801a9/CMakeLists.txt).
