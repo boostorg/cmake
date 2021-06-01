@@ -514,6 +514,5 @@ CMake 3.13. Even though `boost_install` will work on earlier CMake versions,
 you will likely get errors at generate time because the dependencies of your
 library will lack install support.
 
-For more examples of `CMakeLists.txt` files building and installing more than
-one library, see [Test](https://github.com/boostorg/test/blob/efaa7018bf19826ca282e28a11a2f7db72af7930/CMakeLists.txt)
-and [Stacktrace](https://github.com/boostorg/stacktrace/blob/99b7015508c70d81bfb37fc1d3e9cbeb7d3b5762/CMakeLists.txt).
+For another example of `CMakeLists.txt` files building and installing more than
+one library, see [Boost.Test](https://github.com/boostorg/test/blob/efaa7018bf19826ca282e28a11a2f7db72af7930/CMakeLists.txt).
