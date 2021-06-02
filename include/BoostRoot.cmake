@@ -29,7 +29,7 @@ set(BOOST_EXCLUDE_LIBRARIES "" CACHE STRING
   "List of libraries to exclude from build")
 
 set(BOOST_INCOMPATIBLE_LIBRARIES
-  "beast;callable_traits;compute;gil;hana;hof;safe_numerics;static_string;stl_interfaces;yap"
+  "beast;callable_traits;compute;gil;hana;hof;safe_numerics;stl_interfaces;yap"
   CACHE STRING
   "List of libraries with incompatible CMakeLists.txt files")
 
