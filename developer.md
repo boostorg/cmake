@@ -526,4 +526,21 @@ than one library, see [Boost.Test](https://github.com/boostorg/test/blob/efaa701
 ## TODO
 
 - Guidelines and Best Practices
-- Usage Scenarios (Boost build, add_subdirectory)
+  - avoiding unnecessary options (options times libraries)
+  - detect default - add option - check option pattern
+  - avoid unnecessary status output (lines times libraries)
+  - single line status output w/ relevant build options
+  - do not encode runtime environment (e.g. statx syscall)
+  - avoid breaking the configure phase for no good reason
+  - prefix target names
+  - do not add tests unless BUILD_TESTING
+  - do not overuse generator expressions
+- Usage Scenarios
+  - Building and Installing Boost
+  - Using Boost libraries as Subprojects
+  - Sole Boost Library as Subproject
+  - "Standalone" Installation
+  - "Standalone" Development and Testing
+    - Creating IDE Projects
+- CI Quick Testing
+- Testing
