@@ -34,7 +34,10 @@ set(BOOST_INCOMPATIBLE_LIBRARIES
   "List of libraries with incompatible CMakeLists.txt files")
 
 option(BOOST_ENABLE_MPI
-  "Build and enable installation of Boost.MPI and its dependents (requires MPI)")
+  "Build and enable installation of Boost.MPI and its dependents (requires MPI, CMake 3.9)")
+
+option(BOOST_ENABLE_PYTHON
+  "Build and enable installation of Boost.Python and its dependents (requires Python, CMake 3.14)")
 
 # --layout, --libdir, --cmakedir, --includedir in BoostInstall
 
@@ -130,6 +133,32 @@ if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR)
   if(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${BOOST_STAGEDIR}/lib")
   endif()
+
+  set(_msg "")
+
+  if(NOT CMAKE_CONFIGURATION_TYPES AND CMAKE_BUILD_TYPE)
+    string(APPEND _msg "${CMAKE_BUILD_TYPE} build, ")
+  endif()
+
+  if(BUILD_SHARED_LIBS)
+    string(APPEND _msg "shared libraries, ")
+  else()
+    string(APPEND _msg "static libraries, ")
+  endif()
+
+  if(MSVC)
+    if(CMAKE_MSVC_RUNTIME_LIBRARY STREQUAL "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+      string(APPEND _msg "static runtime, ")
+    elseif(CMAKE_MSVC_RUNTIME_LIBRARY STREQUAL "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+      string(APPEND _msg "shared runtime, ")
+    endif()
+  endif()
+
+  string(APPEND _msg "MPI ${BOOST_ENABLE_MPI}, Python ${BOOST_ENABLE_PYTHON}, testing ${BUILD_TESTING}")
+
+  message(STATUS "Boost: ${_msg}")
+
+  unset(_msg)
 
 endif()
 
