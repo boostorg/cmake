@@ -30,6 +30,10 @@ endif()
 
 #
 
+message(STATUS "Boost: using ${BOOST_INSTALL_LAYOUT} layout: ${CMAKE_INSTALL_INCLUDEDIR}, ${CMAKE_INSTALL_BINDIR}, ${CMAKE_INSTALL_LIBDIR}, ${BOOST_INSTALL_CMAKEDIR}")
+
+#
+
 function(__boost_install_set_output_name LIB TYPE VERSION)
 
   set(name_debug ${LIB})
