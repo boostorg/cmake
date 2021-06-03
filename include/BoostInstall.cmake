@@ -22,10 +22,10 @@ set(BOOST_INSTALL_LAYOUT ${__boost_default_layout} CACHE STRING "Installation la
 set_property(CACHE BOOST_INSTALL_LAYOUT PROPERTY STRINGS versioned tagged system)
 
 set(BOOST_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake" CACHE STRING "Installation directory for CMake configuration files")
-set(BOOST_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}" CACHE STRING "Installation directory for header files")
+set(BOOST_INSTALL_INCLUDE_SUBDIR "/boost-${PROJECT_VERSION_MAJOR}_${PROJECT_VERSION_MINOR}" CACHE STRING "Header subdirectory when layout is versioned")
 
 if(BOOST_INSTALL_LAYOUT STREQUAL "versioned")
-  set(BOOST_INSTALL_INCLUDEDIR "$CACHE{BOOST_INSTALL_INCLUDEDIR}/boost-${PROJECT_VERSION_MAJOR}_${PROJECT_VERSION_MINOR}")
+  string(APPEND CMAKE_INSTALL_INCLUDEDIR "${BOOST_INSTALL_INCLUDE_SUBDIR}")
 endif()
 
 #
@@ -152,7 +152,7 @@ function(__boost_install_update_include_directory lib incdir prop)
 
   if(value STREQUAL incdir)
 
-    set_target_properties(${lib} PROPERTIES ${prop} "$<BUILD_INTERFACE:${incdir}>;$<INSTALL_INTERFACE:${BOOST_INSTALL_INCLUDEDIR}>")
+    set_target_properties(${lib} PROPERTIES ${prop} "$<BUILD_INTERFACE:${incdir}>;$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 
   endif()
 
@@ -368,7 +368,7 @@ function(boost_install)
   if(__HEADER_DIRECTORY)
 
     get_filename_component(__HEADER_DIRECTORY "${__HEADER_DIRECTORY}" ABSOLUTE)
-    install(DIRECTORY "${__HEADER_DIRECTORY}/" DESTINATION "${BOOST_INSTALL_INCLUDEDIR}")
+    install(DIRECTORY "${__HEADER_DIRECTORY}/" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 
   endif()
 
