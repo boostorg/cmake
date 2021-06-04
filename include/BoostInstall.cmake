@@ -1,4 +1,4 @@
-# Copyright 2019, 2020 Peter Dimov
+# Copyright 2019, 2020, 2021 Peter Dimov
 # Distributed under the Boost Software License, Version 1.0.
 # See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -271,32 +271,44 @@ function(boost_install_target)
 
     string(APPEND CONFIG_FILE_CONTENTS "include(CMakeFindDependencyMacro)\n\n")
 
-    foreach(dep IN LISTS INTERFACE_LINK_LIBRARIES LINK_LIBRARIES)
+    set(link_libraries ${INTERFACE_LINK_LIBRARIES} ${LINK_LIBRARIES})
+    list(REMOVE_DUPLICATES link_libraries)
 
-      if(${dep} MATCHES "^Boost::(.*)$")
+    foreach(dep IN LISTS link_libraries)
+
+      if(dep MATCHES "^Boost::(.*)$")
 
         string(APPEND CONFIG_FILE_CONTENTS "find_dependency(boost_${CMAKE_MATCH_1} ${__VERSION} EXACT)\n")
 
-      elseif(${dep} STREQUAL "Threads::Threads")
+      elseif(dep STREQUAL "Threads::Threads")
 
         string(APPEND CONFIG_FILE_CONTENTS "set(THREADS_PREFER_PTHREAD_FLAG ON)\n")
         string(APPEND CONFIG_FILE_CONTENTS "find_dependency(Threads)\n")
 
-      elseif(${dep} STREQUAL "ZLIB::ZLIB")
+      elseif(dep STREQUAL "ZLIB::ZLIB")
 
         string(APPEND CONFIG_FILE_CONTENTS "find_dependency(ZLIB)\n")
 
-      elseif(${dep} STREQUAL "BZip2::BZip2")
+      elseif(dep STREQUAL "BZip2::BZip2")
 
         string(APPEND CONFIG_FILE_CONTENTS "find_dependency(BZip2)\n")
 
-      elseif(${dep} STREQUAL "LibLZMA::LibLZMA")
+      elseif(dep STREQUAL "LibLZMA::LibLZMA")
 
         string(APPEND CONFIG_FILE_CONTENTS "find_dependency(LibLZMA)\n")
 
-      elseif(${dep} STREQUAL "MPI::MPI_CXX")
+      elseif(dep STREQUAL "MPI::MPI_CXX")
 
-        string(APPEND CONFIG_FILE_CONTENTS "find_dependency(MPI)\n")
+        # COMPONENTS requires 3.9, but the imported target also requires 3.9
+        string(APPEND CONFIG_FILE_CONTENTS "find_dependency(MPI COMPONENTS CXX)\n")
+
+      elseif(dep STREQUAL "Python::Module")
+
+        string(APPEND CONFIG_FILE_CONTENTS "find_dependency(Python COMPONENTS Development)\n")
+
+      elseif(dep STREQUAL "Python::NumPy")
+
+        string(APPEND CONFIG_FILE_CONTENTS "find_dependency(Python COMPONENTS NumPy)\n")
 
       endif()
 
