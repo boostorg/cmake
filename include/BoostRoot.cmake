@@ -160,6 +160,14 @@ if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR)
 
   unset(_msg)
 
+  if(BOOST_INCLUDE_LIBRARIES)
+    message(STATUS "Boost: included libraries ${BOOST_INCLUDE_LIBRARIES}")
+  endif()
+
+  if(BOOST_EXCLUDE_LIBRARIES)
+    message(STATUS "Boost: excluded libraries ${BOOST_EXCLUDE_LIBRARIES}")
+  endif()
+
 endif()
 
 file(GLOB __boost_libraries RELATIVE "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs" "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/*/CMakeLists.txt" "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/numeric/*/CMakeLists.txt")
