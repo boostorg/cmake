@@ -219,6 +219,7 @@ if(CMAKE_VERSION VERSION_LESS 3.13)
 endif()
 
 set(__boost_mpi_libs mpi graph_parallel property_map_parallel)
+set(__boost_python_libs python parameter_python)
 
 foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
@@ -234,14 +235,11 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
   elseif(NOT BOOST_ENABLE_MPI AND __boost_lib IN_LIST __boost_mpi_libs)
 
-    boost_message(DEBUG "Adding disabled Boost library ${__boost_lib} with EXCLUDE_FROM_ALL")
+    boost_message(DEBUG "Skipping Boost library ${__boost_lib}, BOOST_ENABLE_MPI is OFF")
 
-    set(BUILD_TESTING OFF) # hide cache variable
+  elseif(NOT BOOST_ENABLE_PYTHON AND __boost_lib IN_LIST __boost_python_libs)
 
-    boost_message(DEBUG "Adding Boost library ${__boost_lib} with EXCLUDE_FROM_ALL")
-    add_subdirectory(libs/${__boost_lib} EXCLUDE_FROM_ALL)
-
-    unset(BUILD_TESTING)
+    boost_message(DEBUG "Skipping Boost library ${__boost_lib}, BOOST_ENABLE_PYTHON is OFF")
 
   elseif(NOT BOOST_INCLUDE_LIBRARIES OR __boost_lib IN_LIST BOOST_INCLUDE_LIBRARIES)
 
