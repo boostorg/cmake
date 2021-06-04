@@ -20,20 +20,25 @@ jobs:
           - os: ubuntu-latest
             shared: OFF
             layout: tagged
+            python: ON
           - os: ubuntu-latest
             shared: ON
             layout: versioned
+            python: ON
           - os: ubuntu-latest
             shared: ON
             layout: system
+            python: ON
             mpi: ON
             install: libopenmpi-dev
           - os: macos-latest
             shared: OFF
             layout: versioned
+            python: ON
           - os: macos-latest
             shared: ON
             layout: tagged
+            python: ON
 
     runs-on: ${{matrix.os}}
 
@@ -64,7 +69,7 @@ jobs:
         run: |
           cd ../boost-root
           mkdir __build__ && cd __build__
-          cmake -DBOOST_ENABLE_CMAKE=1 -DCMAKE_INSTALL_PREFIX=~/.local -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${{matrix.include}} -DBUILD_SHARED_LIBS=${{matrix.shared}} -DBOOST_INSTALL_LAYOUT=${{matrix.layout}} -DBOOST_ENABLE_MPI=${{matrix.mpi}} ..
+          cmake -DBOOST_ENABLE_CMAKE=1 -DCMAKE_INSTALL_PREFIX=~/.local -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${{matrix.include}} -DBUILD_SHARED_LIBS=${{matrix.shared}} -DBOOST_INSTALL_LAYOUT=${{matrix.layout}} -DBOOST_ENABLE_MPI=${{matrix.mpi}} -DBOOST_ENABLE_PYTHON=${{matrix.python}} ..
           cmake --build .
           cmake --build . --target install
 
@@ -76,15 +81,19 @@ jobs:
           - os: windows-2016
             shared: ON
             layout: tagged
+            python: ON
           - os: windows-2016
             shared: OFF
             layout: versioned
+            python: ON
           - os: windows-2019
             shared: OFF
             layout: tagged
+            python: ON
           - os: windows-2019
             shared: ON
             layout: versioned
+            python: ON
 
     runs-on: ${{matrix.os}}
 
@@ -112,7 +121,7 @@ jobs:
         run: |
           cd ../boost-root
           mkdir __build__ && cd __build__
-          cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${{matrix.include}} -DBUILD_SHARED_LIBS=${{matrix.shared}} -DBOOST_INSTALL_LAYOUT=${{matrix.layout}} ..
+          cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${{matrix.include}} -DBUILD_SHARED_LIBS=${{matrix.shared}} -DBOOST_INSTALL_LAYOUT=${{matrix.layout}} -DBOOST_ENABLE_PYTHON=${{matrix.python}} ..
           cmake --build . --config Debug
           cmake --build . --config Release
           cmake --build . --target install --config Debug
