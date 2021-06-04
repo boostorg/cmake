@@ -78,7 +78,7 @@ jobs:
         run: |
           cd ../boost-root
           mkdir __build__ && cd __build__
-          cmake -DBOOST_ENABLE_CMAKE=ON -DCMAKE_INSTALL_PREFIX=~/.local -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${{matrix.include}} -DBOOST_EXCLUDE_LIBRARIES=${{matrix.exclude}} -DBUILD_SHARED_LIBS=${{matrix.shared}} -DBOOST_INSTALL_LAYOUT=${{matrix.layout}} -DBOOST_ENABLE_MPI=${{matrix.mpi}} -DBOOST_ENABLE_PYTHON=${{matrix.python}} ..
+          cmake -DBOOST_ENABLE_CMAKE=ON -DCMAKE_INSTALL_PREFIX=~/.local -DBoost_VERBOSE=${{matrix.verbose}} -DBOOST_INCLUDE_LIBRARIES=${{matrix.include}} -DBOOST_EXCLUDE_LIBRARIES=${{matrix.exclude}} -DBUILD_SHARED_LIBS=${{matrix.shared}} -DBOOST_INSTALL_LAYOUT=${{matrix.layout}} -DBOOST_ENABLE_MPI=${{matrix.mpi}} -DBOOST_ENABLE_PYTHON=${{matrix.python}} ..
           cmake --build .
           cmake --build . --target install
 
@@ -138,7 +138,7 @@ jobs:
         run: |
           cd ../boost-root
           mkdir __build__ && cd __build__
-          cmake -DBOOST_ENABLE_CMAKE=ON -DBoost_VERBOSE=ON -DBOOST_INCLUDE_LIBRARIES=${{matrix.include}} -DBOOST_EXCLUDE_LIBRARIES=${{matrix.exclude}} -DBUILD_SHARED_LIBS=${{matrix.shared}} -DBOOST_INSTALL_LAYOUT=${{matrix.layout}} -DBOOST_ENABLE_PYTHON=${{matrix.python}} ..
+          cmake -DBOOST_ENABLE_CMAKE=ON -DBoost_VERBOSE=${{matrix.verbose}} -DBOOST_INCLUDE_LIBRARIES=${{matrix.include}} -DBOOST_EXCLUDE_LIBRARIES=${{matrix.exclude}} -DBUILD_SHARED_LIBS=${{matrix.shared}} -DBOOST_INSTALL_LAYOUT=${{matrix.layout}} -DBOOST_ENABLE_MPI=${{matrix.mpi}} -DBOOST_ENABLE_PYTHON=${{matrix.python}} ..
           cmake --build . --config Debug
           cmake --build . --config Release
           cmake --build . --target install --config Debug
