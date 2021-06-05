@@ -137,7 +137,11 @@ function(boost_test)
     endif()
   endforeach()
 
-  if(__TYPE STREQUAL "compile" OR __TYPE STREQUAL "compile-fail")
+  if(NOT TARGET tests)
+    add_custom_target(tests)
+  endif()
+
+  if(__TYPE STREQUAL "compile")
 
     add_library(${__NAME} STATIC EXCLUDE_FROM_ALL ${__SOURCES})
     target_link_libraries(${__NAME} ${BOOST_TEST_LINK_LIBRARIES})
@@ -145,11 +149,19 @@ function(boost_test)
     target_compile_options(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
     target_compile_features(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
 
-    add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
+    add_dependencies(tests ${__NAME})
 
-    if(__TYPE STREQUAL "compile-fail")
-      set_tests_properties(compile-${__NAME} PROPERTIES WILL_FAIL TRUE)
-    endif()
+  elseif(__TYPE STREQUAL "compile-fail")
+
+    add_library(${__NAME} STATIC EXCLUDE_FROM_ALL ${__SOURCES})
+    target_link_libraries(${__NAME} ${BOOST_TEST_LINK_LIBRARIES})
+    target_compile_definitions(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_DEFINITIONS})
+    target_compile_options(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
+    target_compile_features(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
+
+    add_test(NAME ${__TYPE}-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
+
+    set_tests_properties(${__TYPE}-${__NAME} PROPERTIES WILL_FAIL TRUE RUN_SERIAL TRUE)
 
   elseif(__TYPE STREQUAL "link")
 
@@ -159,7 +171,7 @@ function(boost_test)
     target_compile_options(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
     target_compile_features(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
 
-    add_test(NAME link-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
+    add_dependencies(tests ${__NAME})
 
   elseif(__TYPE STREQUAL "link-fail")
 
@@ -169,7 +181,7 @@ function(boost_test)
     target_compile_options(compile-${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
     target_compile_features(compile-${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
 
-    add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target compile-${__NAME} --config $<CONFIG>)
+    add_dependencies(tests compile-${__NAME})
 
     add_executable(${__NAME} EXCLUDE_FROM_ALL $<TARGET_OBJECTS:compile-${__NAME}>)
     target_link_libraries(${__NAME} ${BOOST_TEST_LINK_LIBRARIES})
@@ -177,8 +189,8 @@ function(boost_test)
     target_compile_options(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
     target_compile_features(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
 
-    add_test(NAME link-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
-    set_tests_properties(link-${__NAME} PROPERTIES WILL_FAIL TRUE)
+    add_test(NAME ${__TYPE}-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
+    set_tests_properties(${__TYPE}-${__NAME} PROPERTIES WILL_FAIL TRUE RUN_SERIAL TRUE)
 
   elseif(__TYPE STREQUAL "run" OR __TYPE STREQUAL "run-fail")
 
@@ -188,13 +200,12 @@ function(boost_test)
     target_compile_options(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
     target_compile_features(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
 
-    add_test(NAME compile-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
+    add_dependencies(tests ${__NAME})
 
-    add_test(NAME run-${__NAME} COMMAND ${__NAME} ${__ARGUMENTS})
-    set_tests_properties(run-${__NAME} PROPERTIES DEPENDS compile-${__NAME})
+    add_test(NAME ${__TYPE}-${__NAME} COMMAND ${__NAME} ${__ARGUMENTS})
 
     if(__TYPE STREQUAL "run-fail")
-      set_tests_properties(run-${__NAME} PROPERTIES WILL_FAIL TRUE)
+      set_tests_properties(${__TYPE}-${__NAME} PROPERTIES WILL_FAIL TRUE)
     endif()
 
   else()
