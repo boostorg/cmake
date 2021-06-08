@@ -524,30 +524,207 @@ library will lack install support.
 For another example of a `CMakeLists.txt` file building and installing more
 than one library, see [Boost.Test](https://github.com/boostorg/test/blob/bce2d24c8b32f47f0403766fe4fee3e2e93af0a0/CMakeLists.txt#L102-L114).
 
-### TODO
+### Using Threads
 
-- Threads::Threads
-- ZLIB::ZLIB
-- Build Options
+If your library uses multiple threads or threading primitives, you need to
+add the following snippet to your `CMakeLists.txt` file:
+```
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+```
+and then link to the target `Threads::Threads` in your
+`target_link_libraries` directive. Typically, this would go in the `PUBLIC`
+section (or `INTERFACE` if your library is header-only.)
 
-## TODO
+(`PRIVATE` would imply that your library needs threading, but the clients
+of your library do not, which is rarely the case.)
 
-- Guidelines and Best Practices
-  - avoiding unnecessary options (options times libraries)
-  - detect default - add option - check option pattern
-  - avoid unnecessary status output (lines times libraries)
-  - single line status output w/ relevant build options
-  - do not encode runtime environment (e.g. statx syscall)
-  - avoid breaking the configure phase for no good reason
-  - prefix target names
-  - do not add tests unless BUILD_TESTING
-  - do not overuse generator expressions
-- Usage Scenarios
-  - Building and Installing Boost
-  - Using Boost libraries as Subprojects
-  - Sole Boost Library as Subproject
-  - "Standalone" Installation
-  - "Standalone" Development and Testing
+Note that this will abort the CMake configure phase with an error if
+threading support can't be enabled. This is usually acceptable, but it's also
+possible to omit the `REQUIRED` in `find_package(Threads REQUIRED)` and then
+check `Threads_FOUND` and take some appropriate action when it's FALSE, such
+as setting a preprocessor definition via `target_compile_definitions`.
+
+### Build Options
+
+Some libraries allow different functionality or backends. For example,
+Iostreams has optional support for compressed streams and can use one or more
+of the compression libraries ZLib, BZip2, LibLZMA, or Zstd, if these are
+present on the system when the library is built. Locale, for another example,
+can use Iconv, ICU, POSIX `newlocale`, or the Windows API, again depending on
+availability at build time.
+
+The recommended way to provide such optional functionality is to allow user
+configuration with sensible defaults, as shown in the following example that
+allows optional use of ZLib:
+
+```
+find_package(ZLIB QUIET) # Look for ZLib
+
+option(BOOST_MYLIB_ENABLE_ZLIB "Boost.MyLib: enable ZLib support" ${ZLIB_FOUND})
+
+if(BOOST_MYLIB_ENABLE_ZLIB)
+
+  find_package(ZLIB REQUIRED) # For real this time
+
+  target_compile_definitions(boost_mylib BOOST_MYLIB_ENABLE_ZLIB=1)
+  target_add_sources(boost_mylib PRIVATE src/zlib.cpp)
+  target_link_libraries(boost_mylib PRIVATE ZLIB::ZLIB)
+
+endif()
+```
+
+The general pattern is
+
+* determine a sensible default
+* add a CMake option to allow user control and override
+* if the option is ON, enable functionality
+
+Avoid silently enabling functionality on the basis of autodetection; it's
+better to allow user control, in both directions. That is, the user should
+be allowed to disable the functionality even if it's possible to incorporate
+it, and the user should also be allowed to enable the functionality even if
+autodetection says it won't work.
+
+`find_package` in quiet mode is not the only possible way to determine the
+default. You can also use platform detection (`if(WIN32)`), the result of a
+configure check (`cxx_check_source_compiles`), and other measures.
+
+After all the build options have been declared and taken into account, the
+library should output a single line of status output that shows the selected
+configuration. For Iostreams, this output is of the form
+```
+-- Boost.Iostreams: ZLIB OFF, BZip2 OFF, LZMA OFF, Zstd OFF
+```
+
+Other Boost libraries that allow configuration are Context, Fiber, Locale,
+Python, Stacktrace, Thread. For reference, their corresponding output is
+```
+-- Boost.Context: architecture x86_64, binary format pe, ABI ms, assembler masm, suffix .asm, implementation fcontext
+-- Boost.Fiber: NUMA target OS is windows
+-- Boost.Locale: iconv OFF, ICU OFF, POSIX OFF, std ON, winapi ON
+-- Boost.Python: using Python 3.9.5 with NumPy at C:/Python39/Lib/site-packages/numpy/core/include
+-- Boost.Stacktrace: noop ON, backtrace OFF, addr2line OFF, basic ON, windbg ON, windbg_cached ON
+-- Boost.Thread: threading API is win32
+```
+
+## Guidelines and Best Practices
+
+### Avoid Unnecessary Options
+
+When your library is built as part of Boost, it should only add CMake options
+and cache variables when they materially affect the way it's built or it will
+operate.
+
+Remember that Boost contains more than 140 libraries. If every such library
+adds four "nice to have" options, this will result in 560 options in total in
+`cmake-gui` for the user to wade through, most of which of no relevance for
+the use at hand.
+
+Either add the options only when `BOOST_SUPERPROJECT_VERSION` is not defined,
+or only add them when your project is the root project (recommended).
+
+(The difference is whether you insist on your options appearing when someone
+uses the library with `add_subdirectory`. Typically, the options people add
+to their libraries are only relevant when the library is the root project.)
+
+Definitely don't do this:
+```
+option(BOOST_MYLIB_MYOPTION "" ON)
+
+if(BOOST_MYLIB_MYOPTION AND NOT BOOST_SUPERPROJECT_VERSION)
+
+  # Do highly valuable optional things
+
+endif()
+```
+
+This displays the option, but makes it do nothing. Instead, either put the
+option declaration inside an `if`, or use
+[`CMakeDependentOption`](https://cmake.org/cmake/help/latest/module/CMakeDependentOption.html):
+```
+include(CMakeDependentOption)
+cmake_dependent_option(BOOST_MYLIB_MYOPTION "" ON "NOT BOOST_SUPERPROJECT_VERSION" OFF)
+```
+
+### Avoid Unnecessary Status Output
+
+When your library is built as part of Boost, avoid the urge to emit status
+output unless it's really relevant for the user.
+
+Remember that Boost contains more than 140 libraries. If every such library
+emits two lines of status output, this will result in 280 lines in total, most
+of them irrelevant.
+
+Status output should be reserved for information that is of importance to
+the user building and installing Boost, which usually means that it should
+only be emitted by libraries that materially alter their operation on the
+basis of user configuration or properties of the build environment.
+
+### Prefix Target Names
+
+Target names are global. Always prefix your target names with the name of your
+project/library, such as `boost_mylib-mytarget`.
+
+(This is typically only of relevance if you write your own tests by hand using
+`add_executable` and `add_test`.)
+
+### Do Not Add Tests Unless BUILD_TESTING Is ON
+
+`BUILD_TESTING` is the standard CMake variable that controls whether
+`add_test` does anything. Unless `BUILD_TESTING` is `ON`, to save time, you
+should avoid creating any tests or targets on which they depend. Usually, this
+translates to
+```
+if(BUILD_TESTING)
+  add_subdirectory(test)
+endif()
+```
+
+### Do Not Overuse Generator Expressions
+
+Since CMake doesn't support any inline function calls or expressions,
+programmers are tempted to use generator expressions. In a situation where
+one would write in C++ `foo? "bar": "baz"`, one could write in CMake
+`$<IF:$<BOOL:${FOO}>,BAR,BAZ>`.
+
+Don't do this. It's not the same. Generator expressions are evaluated in the
+generate phase, which happens after the configure phase. If you do
+```
+target_compile_definitions(boost_mylib PUBLIC $<IF:$<BOOL:${BUILD_SHARED_LIBS}>,BOOST_MYLIB_DYN_LINK,BOOST_MYLINK_STATIC_LINK>)
+```
+(and assuming `BUILD_SHARED_LIBS` is `ON`), you're not setting the
+`COMPILE_DEFINITIONS` property of `boost_mylib` to `BOOST_MYLIB_DYN_LINK`, but
+to `$<IF:$<BOOL:ON>,BOOST_MYLIB_DYN_LINK,BOOST_MYLINK_STATIC_LINK>`.
+
+Yes, it will still be evaluated to the right thing during generation, but it's
+better to perform evaluations that only depend on configuration-time values at
+configuration time and write the less "clever"
+```
+if(BUILD_SHARED_LIBS)
+  target_compile_definitions(boost_mylib PUBLIC BOOST_MYLIB_DYN_LINK)
+else()
+  target_compile_definitions(boost_mylib PUBLIC BOOST_MYLINK_STATIC_LINK)
+endif()
+```
+
+## Usage Scenarios
+
+### Building and Installing Boost
+### Using Boost libraries as Subprojects
+### Sole Boost Library as Subproject
+### "Standalone" Installation
+### "Standalone" Development and Testing
     - Creating IDE Projects
-- CI Quick Testing
-- Testing
+
+## CI Quick Testing
+
+### Building the Library
+### Testing add_subdirectory Use
+### Testing Use after Installation
+
+## Testing
+
+### Using boost_test
+### Using boost_test_jamfile
+### Using "Plain" CMake Tests
