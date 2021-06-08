@@ -170,14 +170,14 @@ or perhaps
 ```
 target_include_directories(boost_core INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/include>)
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 ```
 
 You shouldn't; the line is, in fact, correct. The Boost superproject will
 automatically invoke `boost_install` for your target, which will patch
 the value of the include path to something like that last alternative
 (but it will take into account the Boost-specific variables
-`BOOST_INSTALL_INCLUDEDIR` and `BOOST_INSTALL_LAYOUT`.)
+`BOOST_INSTALL_LAYOUT` and `BOOST_INSTALL_INCLUDE_SUBDIR`.)
 
 ### Dependencies
 ```
@@ -293,6 +293,13 @@ adding the following directive:
 target_compile_features(boost_libname INTERFACE cxx_std_11)
 ```
 (use `cxx_std_14` for C++14, `cxx_std_17` for C++17, and so on.)
+
+This will increase your CMake requirement to 3.8, so you should also update
+the preamble to reflect this.
+
+If your `meta/libraries.json` already declares the C++ requirement by means
+of `"cxxstd": "xx"`, `boostdep` 1.77+ will automatically take this into
+account and add the above `target_compile_features`.
 
 ### Additional Functionality
 
@@ -488,7 +495,7 @@ particular on the Windows platform.
 
 These defines are described in the
 [Boost document about separate compilation](https://www.boost.org/development/separate_compilation.html)
-and you look at how
+and you can look at how
 [the Timer library uses them](https://github.com/boostorg/timer/blob/e9387e4d9956074dffcc15bf15bd6d2625e91ebf/include/boost/timer/config.hpp)
 as an example.
 
@@ -515,7 +522,7 @@ you will likely get errors at generate time because the dependencies of your
 library will lack install support.
 
 For another example of a `CMakeLists.txt` file building and installing more
-than one library, see [Boost.Test](https://github.com/boostorg/test/blob/efaa7018bf19826ca282e28a11a2f7db72af7930/CMakeLists.txt).
+than one library, see [Boost.Test](https://github.com/boostorg/test/blob/bce2d24c8b32f47f0403766fe4fee3e2e93af0a0/CMakeLists.txt#L102-L114).
 
 ### TODO
 
