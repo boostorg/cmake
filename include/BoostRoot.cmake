@@ -29,12 +29,15 @@ set(BOOST_EXCLUDE_LIBRARIES "" CACHE STRING
   "List of libraries to exclude from build")
 
 set(BOOST_INCOMPATIBLE_LIBRARIES
-  "beast;callable_traits;compute;gil;hana;hof;safe_numerics;static_string;stl_interfaces;yap"
+  "callable_traits;compute;gil;hana;hof;safe_numerics;yap"
   CACHE STRING
   "List of libraries with incompatible CMakeLists.txt files")
 
 option(BOOST_ENABLE_MPI
-  "Build and enable installation of Boost.MPI and its dependents (requires MPI)")
+  "Build and enable installation of Boost.MPI and its dependents (requires MPI, CMake 3.9)")
+
+option(BOOST_ENABLE_PYTHON
+  "Build and enable installation of Boost.Python and its dependents (requires Python, CMake 3.14)")
 
 # --layout, --libdir, --cmakedir, --includedir in BoostInstall
 
@@ -131,6 +134,40 @@ if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${BOOST_STAGEDIR}/lib")
   endif()
 
+  set(_msg "")
+
+  if(NOT CMAKE_CONFIGURATION_TYPES AND CMAKE_BUILD_TYPE)
+    string(APPEND _msg "${CMAKE_BUILD_TYPE} build, ")
+  endif()
+
+  if(BUILD_SHARED_LIBS)
+    string(APPEND _msg "shared libraries, ")
+  else()
+    string(APPEND _msg "static libraries, ")
+  endif()
+
+  if(MSVC)
+    if(CMAKE_MSVC_RUNTIME_LIBRARY STREQUAL "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+      string(APPEND _msg "static runtime, ")
+    elseif(CMAKE_MSVC_RUNTIME_LIBRARY STREQUAL "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+      string(APPEND _msg "shared runtime, ")
+    endif()
+  endif()
+
+  string(APPEND _msg "MPI ${BOOST_ENABLE_MPI}, Python ${BOOST_ENABLE_PYTHON}, testing ${BUILD_TESTING}")
+
+  message(STATUS "Boost: ${_msg}")
+
+  unset(_msg)
+
+  if(BOOST_INCLUDE_LIBRARIES)
+    message(STATUS "Boost: included libraries ${BOOST_INCLUDE_LIBRARIES}")
+  endif()
+
+  if(BOOST_EXCLUDE_LIBRARIES)
+    message(STATUS "Boost: excluded libraries ${BOOST_EXCLUDE_LIBRARIES}")
+  endif()
+
 endif()
 
 file(GLOB __boost_libraries RELATIVE "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs" "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/*/CMakeLists.txt" "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/numeric/*/CMakeLists.txt")
@@ -190,6 +227,7 @@ if(CMAKE_VERSION VERSION_LESS 3.13)
 endif()
 
 set(__boost_mpi_libs mpi graph_parallel property_map_parallel)
+set(__boost_python_libs python parameter_python)
 
 foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
@@ -205,14 +243,11 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
   elseif(NOT BOOST_ENABLE_MPI AND __boost_lib IN_LIST __boost_mpi_libs)
 
-    boost_message(DEBUG "Adding disabled Boost library ${__boost_lib} with EXCLUDE_FROM_ALL")
+    boost_message(DEBUG "Skipping Boost library ${__boost_lib}, BOOST_ENABLE_MPI is OFF")
 
-    set(BUILD_TESTING OFF) # hide cache variable
+  elseif(NOT BOOST_ENABLE_PYTHON AND __boost_lib IN_LIST __boost_python_libs)
 
-    boost_message(DEBUG "Adding Boost library ${__boost_lib} with EXCLUDE_FROM_ALL")
-    add_subdirectory(libs/${__boost_lib} EXCLUDE_FROM_ALL)
-
-    unset(BUILD_TESTING)
+    boost_message(DEBUG "Skipping Boost library ${__boost_lib}, BOOST_ENABLE_PYTHON is OFF")
 
   elseif(NOT BOOST_INCLUDE_LIBRARIES OR __boost_lib IN_LIST BOOST_INCLUDE_LIBRARIES)
 
