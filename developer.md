@@ -578,7 +578,7 @@ The general pattern is
 
 * determine a sensible default
 * add a CMake option to allow user control and override
-* if the option is ON, enable functionality
+* if the option is `ON`, enable functionality
 
 Avoid silently enabling functionality on the basis of autodetection; it's
 better to allow user control, in both directions. That is, the user should
@@ -672,8 +672,8 @@ Starting with CMake 3.15,
 now supports `VERBOSE` and `DEBUG` message types, which would be ideal for
 the purpose of developer-centric output, if we could require CMake 3.15.
 We don't (yet), so the current convention is to only emit "debug" output when
-`Boost_DEBUG` is ON, and only emit "verbose" output when `Boost_DEBUG` is ON
-or `Boost_VERBOSE` is ON.
+`Boost_DEBUG` is `ON`, and only emit "verbose" output when `Boost_DEBUG` is
+`ON` or `Boost_VERBOSE` is `ON`.
 
 (The rule of thumb separating "verbose" from "debug" is that the target
 audience of the "debug" output is the person authoring the `CMakeLists.txt`
