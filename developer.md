@@ -711,7 +711,65 @@ endif()
 ## Usage Scenarios
 
 ### Building and Installing Boost
+
+The primary scenario we will support is, obviously, building and installing
+Boost with CMake (and optionally, running the tests, if one has a few days
+to spare).
+
+The building procedure would generally involve issuing (from the Boost root)
+```
+mkdir __build
+cd __build
+cmake <configuration options> ..
+cmake --build . -j <threads>
+```
+
+which should result in Boost libraries being built with the specified
+configuration options in subdirectories of the "stage" directory, by default
+`stage/lib` and `stage/bin`.
+
+Subsequent installation would be performed with
+```
+cmake --build . --target install
+```
+assuming that `CMAKE_INSTALL_PREFIX` was set beforehand to the desired
+destination directory.
+
+Under Windows, when using the default Visual Studio generator, the building
+and installation procedure would need to be performed twice, once with
+`--config Debug`, and once with `--config Release` (or perhaps with
+`--config RelWithDebInfo`, as desired.)
+
+Testing the entire Boost would be performed with
+```
+cmake -DBUILD_TESTING=ON ..
+cmake --build . --target tests -j <threads>
+ctest --output-on-failure -j <threads>
+```
+
+Again, when using the Visual Studio generator, this would be
+```
+cmake --build . --target tests -j <threads> --config Debug
+ctest --output-on-failure -j <threads> -C Debug
+```
+resp.
+```
+cmake --build . --target tests -j <threads> --config Release
+ctest --output-on-failure -j <threads> -C Release
+```
+
 ### Using Boost libraries as Subprojects
+
+The secondary scenario we would like to support would be user projects
+"consuming" Boost libraries piecemeal without the superproject, by having
+them in subdirectories in their project (as Git submodules, or acquired
+with `FetchContent`), and then using `add_subdirectory` to incorporate them
+in the master CMake project.
+
+A sample project that demonstrates how users would consume individual Boost
+libraries in this manner is available at
+[github.com/pdimov/boost_cmake_demo](https://github.com/pdimov/boost_cmake_demo).
+
 ### Sole Boost Library as Subproject
 ### "Standalone" Installation
 ### "Standalone" Development and Testing
