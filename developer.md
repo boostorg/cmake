@@ -98,7 +98,7 @@ project(boost_core VERSION "${BOOST_SUPERPROJECT_VERSION}" LANGUAGES CXX)
 
 The project declaration must generally be preceded only by the above
 version requirement directive, and sets the project name, the project
-version and the languages (C, C++) that the source files will use.
+version, and the languages (C, C++) that the source files will use.
 
 Boost projects by convention are named `boost_libname`, in lowercase,
 as in the above. (Libraries in `numeric` such as `numeric/conversion`
@@ -122,7 +122,7 @@ the version is of no significance in an `add_subdirectory` workflow.
 The `LANGUAGES` portion should be left at the default `CXX`, which
 enables the C++ language. If removed, CMake will configure both C and
 C++. C is only needed if the library has C source files, which a
-header-only library does not.
+header-only library does not have.
 
 ### Library Target Declaration
 ```
@@ -138,7 +138,7 @@ add_library(Boost::core ALIAS boost_core)
 ```
 
 The second `add_library` declares an alternative name for the library,
-which by convention is `Boost::libname`. It's a good CMake practice to
+which by convention is `Boost::libname`. It's good CMake practice to
 only link to targets of this form (more specifically, to targets containing
 `::`), because they are unambiguously CMake target names, whereas the
 alphanumeric `boost_core` may refer to either a target or to a library
@@ -298,7 +298,7 @@ This will increase your CMake requirement to 3.8, so you should also update
 the preamble to reflect this.
 
 If your `meta/libraries.json` already declares the C++ requirement by means
-of `"cxxstd": "xx"`, `boostdep` 1.77+ will automatically take this into
+of `"cxxstd": "xx"`, Boostdep 1.77+ will automatically take this into
 account and add the above `target_compile_features`.
 
 ### Additional Functionality
@@ -490,7 +490,7 @@ endif()
 
 When building shared libraries, we define `BOOST_TIMER_DYN_LINK`, and when
 building static libraries, we define `BOOST_TIMER_STATIC_LINK`. Again, this
-is needed to property export and import functions from dynamic libraries, in
+is needed to properly export and import functions from dynamic libraries, in
 particular on the Windows platform.
 
 These defines are described in the
@@ -567,7 +567,7 @@ if(BOOST_MYLIB_ENABLE_ZLIB)
 
   find_package(ZLIB REQUIRED) # For real this time
 
-  target_compile_definitions(boost_mylib BOOST_MYLIB_ENABLE_ZLIB=1)
+  target_compile_definitions(boost_mylib PRIVATE BOOST_MYLIB_ENABLE_ZLIB=1)
   target_add_sources(boost_mylib PRIVATE src/zlib.cpp)
   target_link_libraries(boost_mylib PRIVATE ZLIB::ZLIB)
 
@@ -591,7 +591,7 @@ default. You can also use platform detection (`if(WIN32)`), the result of a
 configure check (`cxx_check_source_compiles`), and other measures.
 
 After all the build options have been declared and taken into account, the
-library should output a single line of status output that shows the selected
+library should emit a single line of status output that shows the selected
 configuration. For Iostreams, this output is of the form
 ```
 -- Boost.Iostreams: ZLIB OFF, BZip2 OFF, LZMA OFF, Zstd OFF
@@ -645,21 +645,40 @@ option declaration inside an `if`, or use
 ```
 include(CMakeDependentOption)
 cmake_dependent_option(BOOST_MYLIB_MYOPTION "" ON "NOT BOOST_SUPERPROJECT_VERSION" OFF)
+
+if(BOOST_MYLIB_MYOPTION)
+
+  # Do highly valuable optional things
+
+endif()
 ```
 
 ### Avoid Unnecessary Status Output
 
 When your library is built as part of Boost, avoid the urge to emit status
-output unless it's really relevant for the user.
+output unless it's relevant.
 
 Remember that Boost contains more than 140 libraries. If every such library
 emits two lines of status output, this will result in 280 lines in total, most
-of them irrelevant.
+of them of no interest to the user.
 
 Status output should be reserved for information that is of importance to
 the user building and installing Boost, which usually means that it should
 only be emitted by libraries that materially alter their operation on the
 basis of user configuration or properties of the build environment.
+
+Starting with CMake 3.15,
+[`message`](https://cmake.org/cmake/help/latest/command/message.html)
+now supports `VERBOSE` and `DEBUG` message types, which would be ideal for
+the purpose of developer-centric output, if we could require CMake 3.15.
+We don't (yet), so the current convention is to only emit "debug" output when
+`Boost_DEBUG` is ON, and only emit "verbose" output when `Boost_DEBUG` is ON
+or `Boost_VERBOSE` is ON.
+
+(The rule of thumb separating "verbose" from "debug" is that the target
+audience of the "debug" output is the person authoring the `CMakeLists.txt`
+file, whereas the target audience of the "verbose" output is the user who
+prefers verbosity over conciseness.)
 
 ### Prefix Target Names
 
@@ -780,14 +799,14 @@ manner because your logic relies on checking `BOOST_SUPERPROJECT_VERSION`.
 Some Boost developers wish to support a scenario in which their library is
 included via `add_subdirectory` into the user project, but other Boost
 libraries are not. To obtain access to their Boost dependencies, they rely
-on `find_package(Boost`.
+on preexisting Boost installations, found using `find_package(Boost)`.
 
 This rarely makes sense. Since the library is a Boost library, if
 `find_package(Boost)` works for it, it will also work for the user, which
 will make that library available (it being part of Boost.) There is no
 need to incorporate it individually.
 
-The cases where this does make sense generally deal with a new library that
+The cases where this does make sense generally concern a new library that
 is not yet accepted into Boost, has not yet appeared in a Boost release, or
 is sufficiently new that the typical `find_package(Boost)` finds a Boost
 release that does not contain it.
