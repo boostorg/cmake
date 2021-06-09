@@ -770,8 +770,49 @@ A sample project that demonstrates how users would consume individual Boost
 libraries in this manner is available at
 [github.com/pdimov/boost_cmake_demo](https://github.com/pdimov/boost_cmake_demo).
 
+Note that `BOOST_SUPERPROJECT_VERSION` is not set in this scenario, but all of
+the recommendations in the preceding sections still apply. Be sure to not
+degrade the experience of the users choosing to embed Boost libraries in this
+manner because your logic relies on checking `BOOST_SUPERPROJECT_VERSION`.
+
 ### Sole Boost Library as Subproject
+
+Some Boost developers wish to support a scenario in which their library is
+included via `add_subdirectory` into the user project, but other Boost
+libraries are not. To obtain access to their Boost dependencies, they rely
+on `find_package(Boost`.
+
+This rarely makes sense. Since the library is a Boost library, if
+`find_package(Boost)` works for it, it will also work for the user, which
+will make that library available (it being part of Boost.) There is no
+need to incorporate it individually.
+
+The cases where this does make sense generally deal with a new library that
+is not yet accepted into Boost, has not yet appeared in a Boost release, or
+is sufficiently new that the typical `find_package(Boost)` finds a Boost
+release that does not contain it.
+
+These conditions only apply in the short term, and supporting this use case
+is not recommended, because in the long term it's both a maintenance burden
+and a source of problems. (When `find_package(Boost)` does find a Boost
+release containing the library, it will rarely be the same version, which can
+easily lead to the user project containing two versions of the library, with
+the associated ODR violations which would at best manifest as link errors.)
+
+If you insist on supporting this scenario, please make sure to not compromise
+the user experience in the previous two cases.
+
 ### "Standalone" Installation
+
+Installing an individual Boost library, without the rest of Boost, is an even
+worse idea. It can easily lead to a broken Boost, and there's not much to be
+gained even if it "works". Don't do it. If you do, please don't use the same
+package name (`boost_libname`) or target names (`boost_libname`,
+`Boost::libname`) as the legitimate Boost installation; if possible, also do
+not use the `boost` namespace, to avoid link errors or ODR violations when
+the "standalone" library and the legitimate Boost library end up in the same
+binary (this happens more often than you might think.)
+
 ### "Standalone" Development and Testing
     - Creating IDE Projects
 
