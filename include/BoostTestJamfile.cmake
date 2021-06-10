@@ -39,42 +39,39 @@ function(boost_test_jamfile)
     return()
   endif()
 
-  file(STRINGS ${__FILE} data)
+  file(STRINGS "${__FILE}" data)
 
   set(types compile compile-fail link link-fail run run-fail)
 
   foreach(line IN LISTS data)
-    if(line)
+    string(REGEX MATCHALL "[^ ]+" ll "${line}")
 
-      string(REGEX MATCHALL "[^ ]+" ll ${line})
+    if(ll)
+      list(GET ll 0 e0)
 
-      if(ll)
-        list(GET ll 0 e0)
+      if(e0 IN_LIST types)
 
-        if(e0 IN_LIST types)
+        list(LENGTH ll lln)
 
-          list(LENGTH ll lln)
+        if(NOT lln EQUAL 2)
 
-          if(NOT lln EQUAL 2)
+          boost_message(VERBOSE "boost_test_jamfile: Jamfile line ignored: ${line}")
 
-            boost_message(VERBOSE "boost_test_jamfile: Jamfile line ignored: ${line}")
+        else()
 
-          else()
+          list(GET ll 1 e1)
 
-            list(GET ll 1 e1)
+          boost_test(PREFIX "${__PREFIX}" TYPE "${e0}"
+            SOURCES ${e1}
+            LINK_LIBRARIES ${__LIBRARIES} ${__LINK_LIBRARIES}
+            COMPILE_DEFINITIONS ${__COMPILE_DEFINITIONS}
+            COMPILE_OPTIONS ${__COMPILE_OPTIONS}
+            COMPILE_FEATURES ${__COMPILE_FEATURES}
+          )
 
-            boost_test(PREFIX ${__PREFIX} TYPE ${e0}
-              SOURCES ${e1}
-              LINK_LIBRARIES ${__LIBRARIES} ${__LINK_LIBRARIES}
-              COMPILE_DEFINITIONS ${__COMPILE_DEFINITIONS}
-              COMPILE_OPTIONS ${__COMPILE_OPTIONS}
-              COMPILE_FEATURES ${__COMPILE_FEATURES}
-            )
-
-          endif()
         endif()
       endif()
     endif()
-  endforeach(line)
+  endforeach()
 
-endfunction(boost_test_jamfile)
+endfunction()
