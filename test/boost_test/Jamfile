@@ -6,7 +6,7 @@ import testing ;
 
 project
   : default-build <warnings-as-errors>on
-  ;
+;
 
 compile compile.cpp ;
 compile-fail compile_fail.cpp ;
