@@ -8,15 +8,6 @@ if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR AND WIN32 AND CMAKE_INSTALL_PREFIX
 
 endif()
 
-if(NOT BOOST_ENABLE_CMAKE)
-
-  message(FATAL_ERROR
-    "CMake support in Boost is experimental and part of an ongoing "
-    "development effort. It's not ready for use yet. Please use b2 "
-    "(Boost.Build) to build and install Boost.")
-
-endif()
-
 include(BoostMessage)
 include(BoostInstall)
 
