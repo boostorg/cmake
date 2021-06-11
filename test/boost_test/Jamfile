@@ -13,7 +13,8 @@ compile-fail compile_fail.cpp ;
 link link.cpp ;
 link-fail link_fail.cpp ;
 run run.cpp ;
-run-fail run_fail.cpp ;
+run-fail run_fail.cpp
+  : ;
 
 run
   arguments.cpp :
