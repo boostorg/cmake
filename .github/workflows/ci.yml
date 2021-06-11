@@ -134,3 +134,36 @@ jobs:
           cmake --build . --config Release
           cmake --build . --target install --config Debug
           cmake --build . --target install --config Release
+
+  BoostTest:
+    strategy:
+      fail-fast: false
+
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Boost
+        run: |
+          echo GITHUB_BASE_REF: $GITHUB_BASE_REF
+          echo GITHUB_REF: $GITHUB_REF
+          REF=${GITHUB_BASE_REF:-$GITHUB_REF}
+          REF=${REF#refs/heads/}
+          echo REF: $REF
+          BOOST_BRANCH=develop && [ "$REF" == "master" ] && BOOST_BRANCH=master || true
+          echo BOOST_BRANCH: $BOOST_BRANCH
+          cd ..
+          git clone -b $BOOST_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
+          cd boost-root
+          git submodule update --init --jobs 3 libs/core libs/assert
+          rm -rf tools/cmake/*
+          cp -r $GITHUB_WORKSPACE/* tools/cmake
+
+      - name: Test BoostTest
+        run: |
+          cd ../boost-root/tools/cmake/test/boost_test
+          mkdir __build__ && cd __build__
+          cmake -DBoost_VERBOSE=ON ..
+          cmake --build . --target tests -j 3
+          ctest --output-on-failure -j 3
