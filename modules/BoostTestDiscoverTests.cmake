@@ -156,6 +156,10 @@ same as the Boost.Test name; see also ``TEST_PREFIX`` and ``TEST_SUFFIX``.
 
 #]=======================================================================]
 
+if(CMAKE_VERSION VERSION_LESS "3.5")
+  message(FATAL_ERROR "CMake version is too old for `boosttest_discover_tests`!")
+endif()
+
 if(CMAKE_VERSION VERSION_LESS "3.17")
   set(__BOOSTTEST_DISCOVER_TESTS_DIR "${CMAKE_CURRENT_LIST_DIR}")
 endif()
