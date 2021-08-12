@@ -188,7 +188,7 @@ function(boosttest_discover_tests_impl)
     math(EXPR next_level "${next_level} / 4")
 
     # Add the test for the test-case from the former loop-run?
-    if (next_level LESS_EQUAL former_level)
+    if ((next_level LESS former_level) OR (next_level EQUAL former_level))
       # Add test-case to the script.
       add_another_test(hierarchy ${test_is_enabled} "${__TEST_NAME_SEPARATOR}")
 
