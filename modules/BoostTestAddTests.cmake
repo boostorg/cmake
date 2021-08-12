@@ -75,8 +75,25 @@ endmacro()
 # Adds another test to the script.
 macro(add_another_test hierarchy_list enabled separator)
   # Create the name and path of the test-case...
-  list(JOIN ${hierarchy_list} ${separator} test_name)
-  list(JOIN ${hierarchy_list} "/" test_path)
+  if (CMAKE_VERSION VERSION_LESS "3.12")
+    set(test_name)
+    set(test_path)
+    foreach(hierarchy_entry IN LISTS ${hierarchy_list})
+      if ("${test_name}" STREQUAL "")
+        set(test_name "${hierarchy_entry}")
+      else()
+        set(test_name "${test_name}${separator}${hierarchy_entry}")
+      endif()
+      if ("${test_path}" STREQUAL "")
+        set(test_path "${hierarchy_entry}")
+      else()
+        set(test_path "${test_path}/${hierarchy_entry}")
+      endif()
+    endforeach()
+  else()
+    list(JOIN ${hierarchy_list} ${separator} test_name)
+    list(JOIN ${hierarchy_list} "/" test_path)
+  endif()
   # ...and add to script.
   add_command(add_test
       "${prefix}${test_name}${suffix}"
