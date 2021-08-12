@@ -226,11 +226,20 @@ function(boosttest_discover_tests TARGET)
   # Prepare file names for ctest configuration files.
   set(ctest_file_base "${CMAKE_CURRENT_BINARY_DIR}/${TARGET}[${counter}]")
   set(ctest_include_file "${ctest_file_base}_include.cmake")
-  set(ctest_tests_file "${ctest_file_base}_tests.cmake")
+  if(GENERATOR_IS_MULTI_CONFIG)
+    set(ctest_tests_file "${ctest_file_base}_tests-$<CONFIG>.cmake")
+  else()
+    set(ctest_tests_file "${ctest_file_base}_tests.cmake")
+  endif()
 
   # Define rule to generate test list for aforementioned test executable
 
   if(__DISCOVERY_MODE STREQUAL "POST_BUILD")
+
+    if(CMAKE_VERSION VERSION_LESS "3.20" AND GENERATOR_IS_MULTI_CONFIG)
+      message(WARNING "CMake is too old to support discovery mode POST_BUILD with multi-config generators. Consider using discovery mode PRE_TEST instead!")
+      set(ctest_tests_file "${ctest_file_base}_tests.cmake")
+    endif()
 
     # Note: Make sure to properly quote all definitions that are given
     #       via the cmdline, or we might swallow some white-space.
@@ -254,19 +263,15 @@ function(boosttest_discover_tests TARGET)
               -P "${__BOOSTTEST_DISCOVER_TESTS_SCRIPT}"
       VERBATIM
     )
-    file(WRITE "${ctest_include_file}"
-      "if(EXISTS \"${ctest_tests_file}\")\n"
-      "  include(\"${ctest_tests_file}\")\n"
-      "else()\n"
-      "  add_test(${TARGET}_NOT_BUILT ${TARGET}_NOT_BUILT)\n"
-      "endif()\n"
+    string(CONCAT ctest_include_content
+      "if(EXISTS \"${ctest_tests_file}\")"                    "\n"
+      "  include(\"${ctest_tests_file}\")"                    "\n"
+      "else()"                                                "\n"
+      "  add_test(${TARGET}_NOT_BUILT ${TARGET}_NOT_BUILT)"   "\n"
+      "endif()"                                               "\n"
     )
 
   elseif(__DISCOVERY_MODE STREQUAL "PRE_TEST")
-
-    if(GENERATOR_IS_MULTI_CONFIG)
-      set(ctest_tests_file "${ctest_file_base}_tests-$<CONFIG>.cmake")
-    endif()
 
     string(CONCAT ctest_include_content
       "if(EXISTS \"$<TARGET_FILE:${TARGET}>\")"                                    "\n"
@@ -294,17 +299,17 @@ function(boosttest_discover_tests TARGET)
       "endif()"                                                                    "\n"
     )
 
-    if(GENERATOR_IS_MULTI_CONFIG)
-      foreach(_config ${CMAKE_CONFIGURATION_TYPES})
-        file(GENERATE OUTPUT "${ctest_file_base}_include-${_config}.cmake" CONTENT "${ctest_include_content}" CONDITION $<CONFIG:${_config}>)
-      endforeach()
-      file(WRITE "${ctest_include_file}" "include(\"${ctest_file_base}_include-\${CTEST_CONFIGURATION_TYPE}.cmake\")")
-    else()
-      file(GENERATE OUTPUT "${ctest_file_base}_include.cmake" CONTENT "${ctest_include_content}")
-    endif()
-
   else()
     message(SEND_ERROR "Unknown DISCOVERY_MODE: ${__DISCOVERY_MODE}")
+  endif()
+
+  if(GENERATOR_IS_MULTI_CONFIG)
+    foreach(_config ${CMAKE_CONFIGURATION_TYPES})
+      file(GENERATE OUTPUT "${ctest_file_base}_include-${_config}.cmake" CONTENT "${ctest_include_content}" CONDITION $<CONFIG:${_config}>)
+    endforeach()
+    file(WRITE "${ctest_include_file}" "include(\"${ctest_file_base}_include-\${CTEST_CONFIGURATION_TYPE}.cmake\")")
+  else()
+    file(GENERATE OUTPUT "${ctest_file_base}_include.cmake" CONTENT "${ctest_include_content}")
   endif()
 
   # Add discovered tests to directory TEST_INCLUDE_FILES
