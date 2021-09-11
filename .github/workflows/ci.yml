@@ -46,12 +46,51 @@ jobs:
           - os: ubuntu-18.04
             include: assert
             testing: ON
+          - os: macos-latest
+            include: assert
+            testing: ON
+          - os: ubuntu-18.04
+            include: mp11
+            testing: ON
+          - os: macos-latest
+            include: mp11
+            testing: ON
           - os: ubuntu-18.04
             include: timer
             testing: ON
+            layout: versioned
+            shared: OFF
+          - os: ubuntu-18.04
+            include: timer
+            testing: ON
+            layout: versioned
+            shared: ON
+          - os: macos-latest
+            include: timer
+            testing: ON
+            layout: versioned
+            shared: OFF
+          - os: macos-latest
+            include: timer
+            testing: ON
+            layout: versioned
+            shared: ON
           - os: ubuntu-18.04
             include: iostreams
-            testing: ON
+            layout: versioned
+            shared: OFF
+          - os: ubuntu-18.04
+            include: iostreams
+            layout: versioned
+            shared: ON
+          - os: macos-latest
+            include: iostreams
+            layout: versioned
+            shared: OFF
+          - os: macos-latest
+            include: iostreams
+            layout: versioned
+            shared: ON
 
     runs-on: ${{matrix.os}}
 
