@@ -151,6 +151,7 @@ jobs:
           mkdir __build__ && cd __build__
           cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
           cmake --build .
+          export LD_LIBRARY_PATH=$HOME/.local/lib:$LD_LIBRARY_PATH
           cmake --build . --target check
 
   windows:
