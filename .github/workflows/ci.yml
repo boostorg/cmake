@@ -147,7 +147,7 @@ jobs:
       - name: Test installed Boost library with CMake
         if: matrix.test_install
         run: |
-          cd tools/cmake/test/${{matrix.include}}
+          cd ../boost-root/tools/cmake/test/${{matrix.include}}
           mkdir __build__ && cd __build__
           cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
           cmake --build .
@@ -255,7 +255,7 @@ jobs:
 
       - name: Test BoostFetch
         run: |
-          cd cd test/boost_fetch
+          cd test/boost_fetch
           mkdir __build__ && cd __build__
           cmake ..
           cmake --build .
