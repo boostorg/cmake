@@ -46,51 +46,63 @@ jobs:
           - os: ubuntu-18.04
             include: assert
             testing: ON
+            test_install: ON
           - os: macos-latest
             include: assert
             testing: ON
+            test_install: ON
           - os: ubuntu-18.04
             include: mp11
             testing: ON
+            test_install: ON
           - os: macos-latest
             include: mp11
             testing: ON
+            test_install: ON
           - os: ubuntu-18.04
             include: timer
             testing: ON
             layout: versioned
             shared: OFF
+            test_install: ON
           - os: ubuntu-18.04
             include: timer
             testing: ON
             layout: versioned
             shared: ON
+            test_install: ON
           - os: macos-latest
             include: timer
             testing: ON
             layout: versioned
             shared: OFF
+            test_install: ON
           - os: macos-latest
             include: timer
             testing: ON
             layout: versioned
             shared: ON
+            test_install: ON
           - os: ubuntu-18.04
             include: iostreams
             layout: versioned
             shared: OFF
+            test_install: ON
           - os: ubuntu-18.04
             include: iostreams
             layout: versioned
             shared: ON
+            test_install: ON
           - os: macos-latest
             include: iostreams
             layout: versioned
             shared: OFF
+            test_install: ON
           - os: macos-latest
             include: iostreams
             layout: versioned
             shared: ON
+            test_install: ON
 
     runs-on: ${{matrix.os}}
 
@@ -131,6 +143,15 @@ jobs:
           cd ../boost-root/__build__
           cmake --build . --target tests -- -j 3
           ctest --output-on-failure -j 3
+
+      - name: Test installed Boost library with CMake
+        if: matrix.test_install
+        run: |
+          cd tools/cmake/test/${{matrix.include}}
+          mkdir __build__ && cd __build__
+          cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
+          cmake --build .
+          cmake --build . --target check
 
   windows:
     strategy:
@@ -222,3 +243,20 @@ jobs:
           cmake -DBoost_VERBOSE=ON ..
           cmake --build . --target tests -j 3
           ctest --output-on-failure -j 3
+
+  BoostFetch:
+    strategy:
+      fail-fast: false
+
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Test BoostFetch
+        run: |
+          cd cd test/boost_fetch
+          mkdir __build__ && cd __build__
+          cmake ..
+          cmake --build .
+          cmake --build . --target check
