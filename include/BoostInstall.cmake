@@ -297,6 +297,10 @@ function(boost_install_target)
 
         string(APPEND CONFIG_FILE_CONTENTS "find_dependency(LibLZMA)\n")
 
+      elseif(dep STREQUAL "Zstd::Zstd")
+
+        string(APPEND CONFIG_FILE_CONTENTS "find_dependency(Zstd)\n")
+
       elseif(dep STREQUAL "MPI::MPI_CXX")
 
         # COMPONENTS requires 3.9, but the imported target also requires 3.9
