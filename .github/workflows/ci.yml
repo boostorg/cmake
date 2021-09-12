@@ -88,11 +88,13 @@ jobs:
             layout: versioned
             shared: OFF
             test_install: ON
+            install: libzstd-dev
           - os: ubuntu-18.04
             include: iostreams
             layout: versioned
             shared: ON
             test_install: ON
+            install: libzstd-dev
           - os: macos-latest
             include: iostreams
             layout: versioned
