@@ -208,12 +208,10 @@ jobs:
           - os: windows-2019
             include: iostreams
             shared: OFF
-            testing: OFF
             test_install: ON
           - os: windows-2019
             include: iostreams
             shared: ON
-            testing: OFF
             test_install: ON
 
     runs-on: ${{matrix.os}}
