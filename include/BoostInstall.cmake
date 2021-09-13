@@ -224,6 +224,13 @@ function(boost_install_target)
     set_target_properties(${LIB} PROPERTIES EXPORT_NAME ${CMAKE_MATCH_1})
   endif()
 
+  if(CMAKE_SKIP_INSTALL_RULES)
+
+    boost_message(DEBUG "boost_install_target: not installing target '${__TARGET}' due to CMAKE_SKIP_INSTALL_RULES=${CMAKE_SKIP_INSTALL_RULES}")
+    return()
+
+  endif()
+
   set(CONFIG_INSTALL_DIR "${BOOST_INSTALL_CMAKEDIR}/${LIB}-${__VERSION}")
 
   install(TARGETS ${LIB} EXPORT ${LIB}-targets
