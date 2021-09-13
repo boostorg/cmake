@@ -197,12 +197,12 @@ jobs:
             test_install: ON
           - os: windows-2019
             include: timer
-            shared: ON
+            shared: OFF
             testing: ON
             test_install: ON
           - os: windows-2019
             include: timer
-            shared: OFF
+            shared: ON
             testing: ON
             test_install: ON
           - os: windows-2019
