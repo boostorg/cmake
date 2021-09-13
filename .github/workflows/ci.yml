@@ -244,38 +244,46 @@ jobs:
           mkdir __build__ && cd __build__
           cmake -DBoost_VERBOSE=${{matrix.verbose}} -DBUILD_TESTING=${{matrix.testing}} -DBOOST_INCLUDE_LIBRARIES=${{matrix.include}} -DBOOST_EXCLUDE_LIBRARIES=${{matrix.exclude}} -DBUILD_SHARED_LIBS=${{matrix.shared}} -DBOOST_INSTALL_LAYOUT=${{matrix.layout}} -DBOOST_ENABLE_MPI=${{matrix.mpi}} -DBOOST_ENABLE_PYTHON=${{matrix.python}} ..
 
-      - name: Build Boost
-        run: |
-          cd ../boost-root/__build__
-          cmake --build . --config Debug
-          cmake --build . --config Release
+      - name: Build Boost (Debug)
+        run: cmake --build ../boost-root/__build__ --config Debug
 
-      - name: Install Boost
-        run: |
-          cd ../boost-root/__build__
-          cmake --build . --target install --config Debug
-          cmake --build . --target install --config Release
+      - name: Build Boost (Release)
+        run: cmake --build ../boost-root/__build__ --config Release
 
-      - name: Test Boost
+      - name: Install Boost (Debug)
+        run: cmake --build ../boost-root/__build__ --target install --config Debug
+
+      - name: Install Boost (Release)
+        run: cmake --build ../boost-root/__build__ --target install --config Release
+
+      - name: Test Boost (Debug)
         if: matrix.testing
-        run: |
-          cd ../boost-root/__build__
-          cmake --build . --target tests --config Debug
-          ctest --output-on-failure -j 3 -C Debug
-          cmake --build . --target tests --config Release
-          ctest --output-on-failure -j 3 -C Release
+        run: cmake --build ../boost-root/__build__ --target tests --config Debug && ctest --output-on-failure -j 3 -C Debug
 
-      - name: Test installed Boost library
+      - name: Test Boost (Release)
+        if: matrix.testing
+        run: cmake --build ../boost-root/__build__ --target tests --config Release && ctest --output-on-failure -j 3 -C Release
+
+      - name: Configure test project
         if: matrix.test_install
         run: |
           cd ../boost-root/tools/cmake/test/${{matrix.include}}
           mkdir __build__ && cd __build__
           cmake -DCMAKE_PREFIX_PATH=C:/Boost ..
+
+      - name: Test installed Boost library (Debug)
+        if: matrix.test_install
+        run: |
+          cd ../boost-root/tools/cmake/test/${{matrix.include}}
           PATH C:\Boost\bin;%PATH%
-          cmake --build . --config Debug
-          ctest --output-on-failure -j 3 -C Debug
-          cmake --build . --config Release
-          ctest --output-on-failure -j 3 -C Release
+          cmake --build . --config Debug && ctest --output-on-failure -j 3 -C Debug
+
+      - name: Test installed Boost library (Release)
+        if: matrix.test_install
+        run: |
+          cd ../boost-root/tools/cmake/test/${{matrix.include}}
+          PATH C:\Boost\bin;%PATH%
+          cmake --build . --config Release && ctest --output-on-failure -j 3 -C Release
 
   BoostTest:
     strategy:
