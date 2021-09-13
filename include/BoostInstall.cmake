@@ -384,16 +384,7 @@ function(boost_install)
 
   endif()
 
-  get_directory_property(excluded_from_all EXCLUDE_FROM_ALL)
-
-  if(excluded_from_all)
-
-    boost_message(DEBUG "boost_install: not installing targets '${__TARGETS}' due to EXCLUDE_FROM_ALL")
-    return()
-
-  endif()
-
-  if(__HEADER_DIRECTORY)
+  if(__HEADER_DIRECTORY AND NOT CMAKE_SKIP_INSTALL_RULES)
 
     get_filename_component(__HEADER_DIRECTORY "${__HEADER_DIRECTORY}" ABSOLUTE)
     install(DIRECTORY "${__HEADER_DIRECTORY}/" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
