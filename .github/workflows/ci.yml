@@ -260,6 +260,7 @@ jobs:
 
       - name: Test Boost
         if: matrix.testing
+        shell: cmd
         run: |
           cd ../boost-root/__build__
           cmake --build . --target tests --config Debug && ctest --output-on-failure -j 3 -C Debug
@@ -267,6 +268,7 @@ jobs:
 
       - name: Test installed Boost library
         if: matrix.test_install
+        shell: cmd
         run: |
           cd ../boost-root/tools/cmake/test/${{matrix.include}}
           mkdir __build__ && cd __build__
