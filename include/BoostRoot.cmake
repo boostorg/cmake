@@ -252,14 +252,14 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
     # Disable tests for dependencies
     set(BUILD_TESTING OFF) # hide cache variable
 
-    boost_message(VERBOSE "Adding dependency Boost library ${__boost_lib}")
+    boost_message(VERBOSE "Adding Boost dependency ${__boost_lib}")
     add_subdirectory(libs/${__boost_lib})
 
     __boost_auto_install(${__boost_lib})
 
     unset(BUILD_TESTING)
 
-  else()
+  elseif(BUILD_TESTING)
 
     # Disable tests and installation for libraries neither included nor dependencies
     set(BUILD_TESTING OFF) # hide cache variable
