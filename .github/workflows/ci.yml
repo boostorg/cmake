@@ -274,14 +274,14 @@ jobs:
       - name: Test installed Boost library (Debug)
         if: matrix.test_install
         run: |
-          cd ../boost-root/tools/cmake/test/${{matrix.include}}
+          cd ../boost-root/tools/cmake/test/${{matrix.include}}/__build__
           PATH C:\Boost\bin;%PATH%
           cmake --build . --config Debug && ctest --output-on-failure -j 3 -C Debug
 
       - name: Test installed Boost library (Release)
         if: matrix.test_install
         run: |
-          cd ../boost-root/tools/cmake/test/${{matrix.include}}
+          cd ../boost-root/tools/cmake/test/${{matrix.include}}/__build__
           PATH C:\Boost\bin;%PATH%
           cmake --build . --config Release && ctest --output-on-failure -j 3 -C Release
 
