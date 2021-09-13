@@ -131,12 +131,16 @@ jobs:
           rm -rf tools/cmake/*
           cp -r $GITHUB_WORKSPACE/* tools/cmake
 
-      - name: Build and install Boost with CMake
+      - name: Build Boost with CMake
         run: |
           cd ../boost-root
           mkdir __build__ && cd __build__
           cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBoost_VERBOSE=${{matrix.verbose}} -DBUILD_TESTING=${{matrix.testing}} -DBOOST_INCLUDE_LIBRARIES=${{matrix.include}} -DBOOST_EXCLUDE_LIBRARIES=${{matrix.exclude}} -DBUILD_SHARED_LIBS=${{matrix.shared}} -DBOOST_INSTALL_LAYOUT=${{matrix.layout}} -DBOOST_ENABLE_MPI=${{matrix.mpi}} -DBOOST_ENABLE_PYTHON=${{matrix.python}} ..
           cmake --build .
+
+      - name: Install Boost with CMake
+        run: |
+          cd ../boost-root/__build__
           cmake --build . --target install
 
       - name: Test Boost with CMake
@@ -203,7 +207,7 @@ jobs:
           rd /s/q tools\cmake
           xcopy /s /e /q %GITHUB_WORKSPACE% tools\cmake\
 
-      - name: Build and install Boost with CMake
+      - name: Build Boost with CMake
         shell: cmd
         run: |
           cd ../boost-root
@@ -211,6 +215,11 @@ jobs:
           cmake -DBoost_VERBOSE=${{matrix.verbose}} -DBOOST_INCLUDE_LIBRARIES=${{matrix.include}} -DBOOST_EXCLUDE_LIBRARIES=${{matrix.exclude}} -DBUILD_SHARED_LIBS=${{matrix.shared}} -DBOOST_INSTALL_LAYOUT=${{matrix.layout}} -DBOOST_ENABLE_MPI=${{matrix.mpi}} -DBOOST_ENABLE_PYTHON=${{matrix.python}} ..
           cmake --build . --config Debug
           cmake --build . --config Release
+
+      - name: Install Boost with CMake
+        shell: cmd
+        run: |
+          cd ../boost-root/__build__
           cmake --build . --target install --config Debug
           cmake --build . --target install --config Release
 
