@@ -260,8 +260,10 @@ jobs:
         if: matrix.testing
         run: |
           cd ../boost-root/__build__
-          cmake --build . --target tests --config Debug && ctest --output-on-failure -j 3 -C Debug
-          cmake --build . --target tests --config Release && ctest --output-on-failure -j 3 -C Release
+          cmake --build . --target tests --config Debug
+          ctest --output-on-failure -j 3 -C Debug
+          cmake --build . --target tests --config Release
+          ctest --output-on-failure -j 3 -C Release
 
       - name: Test installed Boost library
         if: matrix.test_install
@@ -270,8 +272,10 @@ jobs:
           mkdir __build__ && cd __build__
           cmake -DCMAKE_PREFIX_PATH=C:/Boost ..
           PATH C:\Boost\bin;%PATH%
-          cmake --build . --config Debug && ctest --output-on-failure -j 3 -C Debug
-          cmake --build . --config Release && ctest --output-on-failure -j 3 -C Release
+          cmake --build . --config Debug
+          ctest --output-on-failure -j 3 -C Debug
+          cmake --build . --config Release
+          ctest --output-on-failure -j 3 -C Release
 
   BoostTest:
     strategy:
