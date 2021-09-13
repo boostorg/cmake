@@ -258,11 +258,11 @@ jobs:
 
       - name: Test Boost (Debug)
         if: matrix.testing
-        run: cmake --build ../boost-root/__build__ --target tests --config Debug && ctest --output-on-failure -j 3 -C Debug
+        run: cd ../boost-root/__build__ && cmake --build . --target tests --config Debug && ctest --output-on-failure -j 3 -C Debug
 
       - name: Test Boost (Release)
         if: matrix.testing
-        run: cmake --build ../boost-root/__build__ --target tests --config Release && ctest --output-on-failure -j 3 -C Release
+        run: cd ../boost-root/__build__ && cmake --build . --target tests --config Release && ctest --output-on-failure -j 3 -C Release
 
       - name: Configure test project
         if: matrix.test_install
