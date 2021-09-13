@@ -288,7 +288,7 @@ function(boost_install_target)
 
         string(APPEND CONFIG_FILE_CONTENTS "find_dependency(LibLZMA)\n")
 
-      elseif(dep STREQUAL "zstd::libzstd-shared" OR dep STREQUAL "zstd::libzstd-static")
+      elseif(dep STREQUAL "zstd::libzstd_shared" OR dep STREQUAL "zstd::libzstd_static")
 
         string(APPEND CONFIG_FILE_CONTENTS "find_dependency(zstd)\n")
 
