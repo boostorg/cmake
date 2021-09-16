@@ -20,7 +20,7 @@ set(BOOST_EXCLUDE_LIBRARIES "" CACHE STRING
   "List of libraries to exclude from build")
 
 set(BOOST_INCOMPATIBLE_LIBRARIES
-  "compute;gil;hana;hof;safe_numerics"
+  "compute;gil;hana;safe_numerics"
   CACHE STRING
   "List of libraries with incompatible CMakeLists.txt files")
 
