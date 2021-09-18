@@ -1,4 +1,4 @@
-# Copyright 2019, 2020 Peter Dimov
+# Copyright 2019-2021 Peter Dimov
 # Distributed under the Boost Software License, Version 1.0.
 # See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -11,31 +11,84 @@ endif()
 include(BoostMessage)
 include(BoostInstall)
 
-# --with-<library>
-set(BOOST_INCLUDE_LIBRARIES "" CACHE STRING
-  "List of libraries to build (default: all but excluded and incompatible)")
+#
 
-# --without-<library>
-set(BOOST_EXCLUDE_LIBRARIES "" CACHE STRING
-  "List of libraries to exclude from build")
+set(__boost_incompatible_libraries
+  compute gil hana safe_numerics
+)
 
-set(BOOST_INCOMPATIBLE_LIBRARIES
-  "compute;gil;hana;safe_numerics"
-  CACHE STRING
-  "List of libraries with incompatible CMakeLists.txt files")
+# Define cache variables if root project
 
-option(BOOST_ENABLE_MPI
-  "Build and enable installation of Boost.MPI and its dependents (requires MPI, CMake 3.9)")
+if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR)
 
-option(BOOST_ENABLE_PYTHON
-  "Build and enable installation of Boost.Python and its dependents (requires Python, CMake 3.14)")
+  # --with-<library>
+  set(BOOST_INCLUDE_LIBRARIES "" CACHE STRING
+    "List of libraries to build (default: all but excluded and incompatible)")
 
-# --layout, --libdir, --cmakedir, --includedir in BoostInstall
+  # --without-<library>
+  set(BOOST_EXCLUDE_LIBRARIES "" CACHE STRING
+    "List of libraries to exclude from build")
 
-# runtime-link=static|shared
+  set(BOOST_INCOMPATIBLE_LIBRARIES
+    "${__boost_incompatible_libraries}"
+    CACHE STRING
+    "List of libraries with incompatible CMakeLists.txt files")
 
-set(BOOST_RUNTIME_LINK shared CACHE STRING "Runtime library selection for the MS ABI (shared or static)")
-set_property(CACHE BOOST_RUNTIME_LINK PROPERTY STRINGS shared static)
+  option(BOOST_ENABLE_MPI
+    "Build and enable installation of Boost.MPI and its dependents (requires MPI, CMake 3.9)")
+
+  option(BOOST_ENABLE_PYTHON
+    "Build and enable installation of Boost.Python and its dependents (requires Python, CMake 3.14)")
+
+  # --layout, --libdir, --cmakedir, --includedir in BoostInstall
+
+  # runtime-link=static|shared
+
+  set(BOOST_RUNTIME_LINK shared CACHE STRING "Runtime library selection for the MS ABI (shared or static)")
+  set_property(CACHE BOOST_RUNTIME_LINK PROPERTY STRINGS shared static)
+
+  option(BUILD_TESTING "Build the tests." OFF)
+  include(CTest)
+  add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure -C $<CONFIG>)
+
+  # link=static|shared
+  option(BUILD_SHARED_LIBS "Build shared libraries")
+
+  # --stagedir
+  set(BOOST_STAGEDIR "${CMAKE_CURRENT_BINARY_DIR}/stage" CACHE STRING "Build output directory")
+
+  if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${BOOST_STAGEDIR}/bin")
+  endif()
+
+  if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BOOST_STAGEDIR}/lib")
+  endif()
+
+  if(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${BOOST_STAGEDIR}/lib")
+  endif()
+
+else()
+
+  # add_subdirectory use
+
+  if(NOT DEFINED BOOST_INCOMPATIBLE_LIBRARIES)
+    set(BOOST_INCOMPATIBLE_LIBRARIES ${__boost_incompatible_libraries})
+  endif()
+
+  if(NOT DEFINED BOOST_ENABLE_MPI)
+    set(BOOST_ENABLE_MPI OFF)
+  endif()
+
+  if(NOT DEFINED BOOST_ENABLE_PYTHON)
+    set(BOOST_ENABLE_PYTHON OFF)
+  endif()
+
+  set(BUILD_TESTING OFF)
+  set(CMAKE_SKIP_INSTALL_RULES ON)
+
+endif()
 
 if(NOT CMAKE_MSVC_RUNTIME_LIBRARY)
 
@@ -47,7 +100,43 @@ if(NOT CMAKE_MSVC_RUNTIME_LIBRARY)
 
 endif()
 
-# Functions
+# Output configuration status lines
+
+set(_msg "")
+
+if(NOT CMAKE_CONFIGURATION_TYPES AND CMAKE_BUILD_TYPE)
+  string(APPEND _msg "${CMAKE_BUILD_TYPE} build, ")
+endif()
+
+if(BUILD_SHARED_LIBS)
+  string(APPEND _msg "shared libraries, ")
+else()
+  string(APPEND _msg "static libraries, ")
+endif()
+
+if(MSVC)
+  if(CMAKE_MSVC_RUNTIME_LIBRARY STREQUAL "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    string(APPEND _msg "static runtime, ")
+  elseif(CMAKE_MSVC_RUNTIME_LIBRARY STREQUAL "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+    string(APPEND _msg "shared runtime, ")
+  endif()
+endif()
+
+string(APPEND _msg "MPI ${BOOST_ENABLE_MPI}, Python ${BOOST_ENABLE_PYTHON}, testing ${BUILD_TESTING}")
+
+message(STATUS "Boost: ${_msg}")
+
+unset(_msg)
+
+if(BOOST_INCLUDE_LIBRARIES)
+  message(STATUS "Boost: libraries included: ${BOOST_INCLUDE_LIBRARIES}")
+endif()
+
+if(BOOST_EXCLUDE_LIBRARIES)
+  message(STATUS "Boost: libraries excluded: ${BOOST_EXCLUDE_LIBRARIES}")
+endif()
+
+# Define functions
 
 function(__boost_auto_install __boost_lib)
   if(NOT CMAKE_VERSION VERSION_LESS 3.13)
@@ -100,66 +189,6 @@ function(__boost_scan_dependencies lib var)
 endfunction()
 
 #
-
-if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR)
-
-  option(BUILD_TESTING "Build the tests." OFF)
-  include(CTest)
-  add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure -C $<CONFIG>)
-
-  # link=static|shared
-  option(BUILD_SHARED_LIBS "Build shared libraries")
-
-  # --stagedir
-  set(BOOST_STAGEDIR "${CMAKE_CURRENT_BINARY_DIR}/stage" CACHE STRING "Build output directory")
-
-  if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${BOOST_STAGEDIR}/bin")
-  endif()
-
-  if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BOOST_STAGEDIR}/lib")
-  endif()
-
-  if(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
-    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${BOOST_STAGEDIR}/lib")
-  endif()
-
-  set(_msg "")
-
-  if(NOT CMAKE_CONFIGURATION_TYPES AND CMAKE_BUILD_TYPE)
-    string(APPEND _msg "${CMAKE_BUILD_TYPE} build, ")
-  endif()
-
-  if(BUILD_SHARED_LIBS)
-    string(APPEND _msg "shared libraries, ")
-  else()
-    string(APPEND _msg "static libraries, ")
-  endif()
-
-  if(MSVC)
-    if(CMAKE_MSVC_RUNTIME_LIBRARY STREQUAL "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-      string(APPEND _msg "static runtime, ")
-    elseif(CMAKE_MSVC_RUNTIME_LIBRARY STREQUAL "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
-      string(APPEND _msg "shared runtime, ")
-    endif()
-  endif()
-
-  string(APPEND _msg "MPI ${BOOST_ENABLE_MPI}, Python ${BOOST_ENABLE_PYTHON}, testing ${BUILD_TESTING}")
-
-  message(STATUS "Boost: ${_msg}")
-
-  unset(_msg)
-
-  if(BOOST_INCLUDE_LIBRARIES)
-    message(STATUS "Boost: libraries included: ${BOOST_INCLUDE_LIBRARIES}")
-  endif()
-
-  if(BOOST_EXCLUDE_LIBRARIES)
-    message(STATUS "Boost: libraries excluded: ${BOOST_EXCLUDE_LIBRARIES}")
-  endif()
-
-endif()
 
 file(GLOB __boost_libraries RELATIVE "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs" "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/*/CMakeLists.txt" "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/numeric/*/CMakeLists.txt")
 
