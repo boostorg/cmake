@@ -330,3 +330,62 @@ jobs:
           cmake ..
           cmake --build .
           cmake --build . --target check
+
+  posix-subdir:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-18.04
+            shared: OFF
+          - os: ubuntu-18.04
+            shared: ON
+          - os: ubuntu-20.04
+            shared: OFF
+          - os: ubuntu-20.04
+            shared: ON
+          - os: macos-10.15
+            shared: OFF
+          - os: macos-10.15
+            shared: ON
+
+    runs-on: ${{matrix.os}}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install packages
+        if: matrix.install
+        run: sudo apt install ${{matrix.install}}
+
+      - name: Setup Boost
+        run: |
+          echo GITHUB_BASE_REF: $GITHUB_BASE_REF
+          echo GITHUB_REF: $GITHUB_REF
+          REF=${GITHUB_BASE_REF:-$GITHUB_REF}
+          REF=${REF#refs/heads/}
+          echo REF: $REF
+          BOOST_BRANCH=develop && [ "$REF" == "master" ] && BOOST_BRANCH=master || true
+          echo BOOST_BRANCH: $BOOST_BRANCH
+          cd ..
+          git clone -b $BOOST_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
+          cd boost-root
+          git submodule update --init --jobs 3
+          rm -rf tools/cmake/*
+          cp -r $GITHUB_WORKSPACE/* tools/cmake
+
+      - name: Test Boost with add_subdirectory
+        run: |
+          cd ../boost-root/tools/cmake/test/add_subdir
+          mkdir __build__ && cd __build__
+          cmake -DBoost_VERBOSE=ON -DBUILD_SHARED_LIBS=${{matrix.shared}} ..
+          cmake --build .
+          ctest --output-on-failure --no-tests=error
+
+      - name: Test Boost with add_subdirectory(EXCLUDE_FROM_ALL)
+        run: |
+          cd ../boost-root/tools/cmake/test/add_subdir_exc
+          mkdir __build__ && cd __build__
+          cmake -DBoost_VERBOSE=ON -DBUILD_SHARED_LIBS=${{matrix.shared}} ..
+          cmake --build .
+          ctest --output-on-failure --no-tests=error
