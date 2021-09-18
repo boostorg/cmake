@@ -4,20 +4,15 @@
 
 cmake_minimum_required(VERSION 3.5...3.20)
 
-project(boost_add_sibdir_test LANGUAGES CXX)
+project(boost_add_sibdir_exc_test LANGUAGES CXX)
 
-set(BOOST_INCLUDE_LIBRARIES timer)
+include(CTest)
 
-set(BUILD_TESTING OFF)
-set(CMAKE_SKIP_INSTALL_RULES ON)
+# set(BOOST_INCLUDE_LIBRARIES timer)
 
 add_subdirectory(../../../.. deps/boost EXCLUDE_FROM_ALL)
-
-unset(BUILD_TESTING)
-unset(CMAKE_SKIP_INSTALL_RULES)
 
 add_executable(main main.cpp)
 target_link_libraries(main Boost::timer)
 
-include(CTest)
 add_test(NAME main COMMAND main)
