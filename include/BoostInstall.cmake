@@ -18,11 +18,36 @@ else()
   set(__boost_default_layout "system")
 endif()
 
-set(BOOST_INSTALL_LAYOUT ${__boost_default_layout} CACHE STRING "Installation layout (versioned, tagged, or system)")
-set_property(CACHE BOOST_INSTALL_LAYOUT PROPERTY STRINGS versioned tagged system)
+set(__boost_default_cmakedir "${CMAKE_INSTALL_LIBDIR}/cmake")
+set(__boost_default_include_subdir "/boost-${PROJECT_VERSION_MAJOR}_${PROJECT_VERSION_MINOR}")
 
-set(BOOST_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake" CACHE STRING "Installation directory for CMake configuration files")
-set(BOOST_INSTALL_INCLUDE_SUBDIR "/boost-${PROJECT_VERSION_MAJOR}_${PROJECT_VERSION_MINOR}" CACHE STRING "Header subdirectory when layout is versioned")
+# Define cache variables when Boost is the root project
+
+if(CMAKE_SOURCE_DIR STREQUAL "${BOOST_SUPERPROJECT_SOURCE_DIR}")
+
+  set(BOOST_INSTALL_LAYOUT "${__boost_default_layout}" CACHE STRING "Installation layout (versioned, tagged, or system)")
+  set_property(CACHE BOOST_INSTALL_LAYOUT PROPERTY STRINGS versioned tagged system)
+
+  set(BOOST_INSTALL_CMAKEDIR "${__boost_default_cmakedir}" CACHE STRING "Installation directory for CMake configuration files")
+  set(BOOST_INSTALL_INCLUDE_SUBDIR "${__boost_default_include_subdir}" CACHE STRING "Header subdirectory when layout is versioned")
+
+else()
+
+  # add_subdirectory use
+
+  if(NOT DEFINED BOOST_INSTALL_LAYOUT)
+    set(BOOST_INSTALL_LAYOUT "${__boost_default_layout}")
+  endif()
+
+  if(NOT DEFINED BOOST_INSTALL_CMAKEDIR)
+    set(BOOST_INSTALL_CMAKEDIR "${__boost_default_cmakedir}")
+  endif()
+
+  if(NOT DEFINED BOOST_INSTALL_INCLUDE_SUBDIR)
+    set(BOOST_INSTALL_INCLUDE_SUBDIR "${__boost_default_include_subdir}")
+  endif()
+
+endif()
 
 if(BOOST_INSTALL_LAYOUT STREQUAL "versioned")
   string(APPEND CMAKE_INSTALL_INCLUDEDIR "${BOOST_INSTALL_INCLUDE_SUBDIR}")
