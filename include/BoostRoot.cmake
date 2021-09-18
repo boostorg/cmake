@@ -250,6 +250,8 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
   elseif(__boost_lib IN_LIST __boost_include_libraries)
 
     # Disable tests for dependencies
+
+    set(__boost_build_testing ${BUILD_TESTING})
     set(BUILD_TESTING OFF) # hide cache variable
 
     boost_message(VERBOSE "Adding Boost dependency ${__boost_lib}")
@@ -257,19 +259,23 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
     __boost_auto_install(${__boost_lib})
 
-    unset(BUILD_TESTING)
+    set(BUILD_TESTING ${__boost_build_testing})
 
   elseif(BUILD_TESTING)
 
     # Disable tests and installation for libraries neither included nor dependencies
+
+    set(__boost_build_testing ${BUILD_TESTING})
     set(BUILD_TESTING OFF) # hide cache variable
+
+    set(__boost_skip_install ${CMAKE_SKIP_INSTALL_RULES})
     set(CMAKE_SKIP_INSTALL_RULES ON)
 
     boost_message(DEBUG "Adding Boost library ${__boost_lib} with EXCLUDE_FROM_ALL")
     add_subdirectory(libs/${__boost_lib} EXCLUDE_FROM_ALL)
 
-    unset(BUILD_TESTING)
-    unset(CMAKE_SKIP_INSTALL_RULES)
+    set(BUILD_TESTING ${__boost_build_testing})
+    set(CMAKE_SKIP_INSTALL_RULES ${__boost_skip_install})
 
   endif()
 
