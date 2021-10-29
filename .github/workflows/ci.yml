@@ -302,7 +302,7 @@ jobs:
           cd ..
           git clone -b $BOOST_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
           cd boost-root
-          git submodule update --init --jobs 3 libs/core libs/assert libs/config
+          git submodule update --init --jobs 3 libs/core libs/assert libs/config libs/static_assert libs/throw_exception
           rm -rf tools/cmake/*
           cp -r $GITHUB_WORKSPACE/* tools/cmake
 
