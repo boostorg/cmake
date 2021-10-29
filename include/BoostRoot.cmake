@@ -14,7 +14,7 @@ include(BoostInstall)
 #
 
 set(__boost_incompatible_libraries
-  gil hana safe_numerics
+  gil
 )
 
 # Define cache variables if root project
