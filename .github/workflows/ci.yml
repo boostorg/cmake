@@ -103,6 +103,26 @@ jobs:
             layout: versioned
             shared: ON
             test_install: ON
+          - os: ubuntu-18.04
+            include: locale
+            layout: versioned
+            shared: OFF
+            test_install: ON
+          - os: ubuntu-18.04
+            include: locale
+            layout: versioned
+            shared: ON
+            test_install: ON
+          - os: macos-latest
+            include: locale
+            layout: versioned
+            shared: OFF
+            test_install: ON
+          - os: macos-latest
+            include: locale
+            layout: versioned
+            shared: ON
+            test_install: ON
 
     runs-on: ${{matrix.os}}
 
