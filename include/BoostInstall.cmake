@@ -297,6 +297,9 @@ function(boost_install_target)
     set(link_libraries ${INTERFACE_LINK_LIBRARIES} ${LINK_LIBRARIES})
     list(REMOVE_DUPLICATES link_libraries)
 
+    set(python_components "")
+    set(icu_components "")
+
     foreach(dep IN LISTS link_libraries)
 
       if(dep MATCHES "^Boost::(.*)$")
@@ -329,17 +332,45 @@ function(boost_install_target)
         # COMPONENTS requires 3.9, but the imported target also requires 3.9
         string(APPEND CONFIG_FILE_CONTENTS "find_dependency(MPI COMPONENTS CXX)\n")
 
+      elseif(dep STREQUAL "Iconv::Iconv")
+
+        string(APPEND CONFIG_FILE_CONTENTS "find_dependency(Iconv)\n")
+
       elseif(dep STREQUAL "Python::Module")
 
-        string(APPEND CONFIG_FILE_CONTENTS "find_dependency(Python COMPONENTS Development)\n")
+        string(APPEND python_components " Development")
 
       elseif(dep STREQUAL "Python::NumPy")
 
-        string(APPEND CONFIG_FILE_CONTENTS "find_dependency(Python COMPONENTS NumPy)\n")
+        string(APPEND python_components " NumPy")
+
+      elseif(dep STREQUAL "ICU::data")
+
+        string(APPEND icu_components " data")
+
+      elseif(dep STREQUAL "ICU::i18n")
+
+        string(APPEND icu_components " i18n")
+
+      elseif(dep STREQUAL "ICU::uc")
+
+        string(APPEND icu_components " uc")
 
       endif()
 
     endforeach()
+
+    if(python_components)
+
+        string(APPEND CONFIG_FILE_CONTENTS "find_dependency(Python COMPONENTS ${python_components})\n")
+
+    endif()
+
+    if(icu_components)
+
+        string(APPEND CONFIG_FILE_CONTENTS "find_dependency(ICU COMPONENTS ${icu_components})\n")
+
+    endif()
 
     string(APPEND CONFIG_FILE_CONTENTS "\n")
 
