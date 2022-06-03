@@ -413,3 +413,57 @@ jobs:
           cmake -DBoost_VERBOSE=ON -DBUILD_SHARED_LIBS=${{matrix.shared}} ..
           cmake --build .
           ctest --output-on-failure --no-tests=error
+
+  posix-target-check:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-18.04
+            include: timer
+            shared: ON
+          - os: ubuntu-20.04
+            include: timer
+            shared: ON
+          - os: ubuntu-22.04
+            include: timer
+            shared: ON
+          - os: macos-latest
+            include: timer
+            shared: ON
+
+    runs-on: ${{matrix.os}}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install packages
+        if: matrix.install
+        run: sudo apt install ${{matrix.install}}
+
+      - name: Setup Boost
+        run: |
+          echo GITHUB_BASE_REF: $GITHUB_BASE_REF
+          echo GITHUB_REF: $GITHUB_REF
+          REF=${GITHUB_BASE_REF:-$GITHUB_REF}
+          REF=${REF#refs/heads/}
+          echo REF: $REF
+          BOOST_BRANCH=develop && [ "$REF" == "master" ] && BOOST_BRANCH=master || true
+          echo BOOST_BRANCH: $BOOST_BRANCH
+          cd ..
+          git clone -b $BOOST_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
+          cd boost-root
+          git submodule update --init --jobs 3
+          rm -rf tools/cmake/*
+          cp -r $GITHUB_WORKSPACE/* tools/cmake
+
+      - name: Configure Boost
+        run: |
+          cd ../boost-root
+          mkdir __build__ && cd __build__
+          cmake -DBoost_VERBOSE=${{matrix.verbose}} -DBUILD_TESTING=ON -DBOOST_INCLUDE_LIBRARIES=${{matrix.include}} -DBUILD_SHARED_LIBS=${{matrix.shared}} ..
+
+      - name: Test Boost
+        run: |
+          cd ../boost-root/__build__
+          cmake --build . --target check
