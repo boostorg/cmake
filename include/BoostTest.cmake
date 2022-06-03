@@ -139,6 +139,9 @@ function(boost_test)
 
   if(NOT TARGET tests)
     add_custom_target(tests)
+    if(TARGET check)
+      add_dependencies(check tests)
+    endif()
   endif()
 
   if(__TYPE STREQUAL "compile")
