@@ -13,9 +13,7 @@ include(BoostInstall)
 
 #
 
-set(__boost_incompatible_libraries
-  gil
-)
+set(__boost_incompatible_libraries "")
 
 # Define cache variables if root project
 
