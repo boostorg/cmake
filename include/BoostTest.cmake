@@ -60,6 +60,7 @@ function(boost_test)
 
   if(NOT __NAME)
     list(GET __SOURCES 0 __NAME)
+    get_filename_component(__NAME ${__NAME} NAME_WE)
     string(MAKE_C_IDENTIFIER ${__NAME} __NAME)
   endif()
 
