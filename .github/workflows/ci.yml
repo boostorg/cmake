@@ -43,7 +43,7 @@ jobs:
             layout: tagged
             python: ON
             mpi: OFF
-          - os: ubuntu-18.04
+          - os: ubuntu-latest
             include: assert
             testing: ON
             test_install: ON
@@ -51,7 +51,7 @@ jobs:
             include: assert
             testing: ON
             test_install: ON
-          - os: ubuntu-18.04
+          - os: ubuntu-latest
             include: mp11
             testing: ON
             test_install: ON
@@ -59,13 +59,21 @@ jobs:
             include: mp11
             testing: ON
             test_install: ON
-          - os: ubuntu-18.04
+          - os: ubuntu-latest
+            include: preprocessor
+            testing: ON
+            test_install: ON
+          - os: macos-latest
+            include: preprocessor
+            testing: ON
+            test_install: ON
+          - os: ubuntu-latest
             include: timer
             testing: ON
             layout: versioned
             shared: OFF
             test_install: ON
-          - os: ubuntu-18.04
+          - os: ubuntu-latest
             include: timer
             testing: ON
             layout: versioned
@@ -83,12 +91,12 @@ jobs:
             layout: versioned
             shared: ON
             test_install: ON
-          - os: ubuntu-18.04
+          - os: ubuntu-latest
             include: iostreams
             layout: versioned
             shared: OFF
             test_install: ON
-          - os: ubuntu-18.04
+          - os: ubuntu-latest
             include: iostreams
             layout: versioned
             shared: ON
@@ -103,12 +111,12 @@ jobs:
             layout: versioned
             shared: ON
             test_install: ON
-          - os: ubuntu-18.04
+          - os: ubuntu-latest
             include: locale
             layout: versioned
             shared: OFF
             test_install: ON
-          - os: ubuntu-18.04
+          - os: ubuntu-latest
             include: locale
             layout: versioned
             shared: ON
@@ -305,7 +313,7 @@ jobs:
     strategy:
       fail-fast: false
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -338,7 +346,7 @@ jobs:
     strategy:
       fail-fast: false
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -356,10 +364,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-18.04
-            shared: OFF
-          - os: ubuntu-18.04
-            shared: ON
           - os: ubuntu-20.04
             shared: OFF
           - os: ubuntu-20.04
@@ -419,9 +423,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-18.04
-            include: timer
-            shared: ON
           - os: ubuntu-20.04
             include: timer
             shared: ON
