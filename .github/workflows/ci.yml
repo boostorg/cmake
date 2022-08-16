@@ -49,12 +49,14 @@ jobs:
             layout: system
             python: OFF
             mpi: OFF
+            exclude: process
           - os: macos-latest
             shared: OFF
             testing: ON
             layout: system
             python: OFF
             mpi: OFF
+            exclude: process
           - os: ubuntu-latest
             include: assert
             testing: ON
