@@ -44,6 +44,18 @@ jobs:
             python: ON
             mpi: OFF
           - os: ubuntu-latest
+            shared: ON
+            testing: ON
+            layout: system
+            python: OFF
+            mpi: OFF
+          - os: macos-latest
+            shared: OFF
+            testing: ON
+            layout: system
+            python: OFF
+            mpi: OFF
+          - os: ubuntu-latest
             include: assert
             testing: ON
             test_install: ON
