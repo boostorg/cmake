@@ -90,7 +90,7 @@ else()
   endif()
 
   set(BUILD_TESTING OFF)
-  set(CMAKE_SKIP_INSTALL_RULES ON)
+  set(BOOST_SKIP_INSTALL_RULES ON)
 
 endif()
 
@@ -301,14 +301,14 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
     set(__boost_build_testing ${BUILD_TESTING})
     set(BUILD_TESTING OFF) # hide cache variable
 
-    set(__boost_skip_install ${CMAKE_SKIP_INSTALL_RULES})
-    set(CMAKE_SKIP_INSTALL_RULES ON)
+    set(__boost_skip_install ${BOOST_SKIP_INSTALL_RULES})
+    set(BOOST_SKIP_INSTALL_RULES ON)
 
     boost_message(DEBUG "Adding Boost library ${__boost_lib} with EXCLUDE_FROM_ALL")
     add_subdirectory(libs/${__boost_lib} EXCLUDE_FROM_ALL)
 
     set(BUILD_TESTING ${__boost_build_testing})
-    set(CMAKE_SKIP_INSTALL_RULES ${__boost_skip_install})
+    set(BOOST_SKIP_INSTALL_RULES ${__boost_skip_install})
 
   endif()
 
