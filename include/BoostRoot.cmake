@@ -11,7 +11,10 @@ endif()
 include(BoostMessage)
 include(BoostInstall)
 
-boost_message(VERBOSE "Using CMake ${CMAKE_VERSION}")
+#
+
+boost_message(VERBOSE "Boost: using CMake ${CMAKE_VERSION}")
+
 #
 
 set(__boost_incompatible_libraries "")
