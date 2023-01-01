@@ -48,11 +48,14 @@ function(boost_test_jamfile)
   set(types "compile|compile-fail|link|link-fail|run|run-fail")
 
   foreach(line IN LISTS data)
-
-    if(line MATCHES "^[ \t]*(${types})[ \t]+([^ \t]+)[ \t]*(\;[ \t]*)?$")
+    # Match something like 'run foo.c ;' (single source, any name) or 'run foo.cpp bar.cpp ;' (multiple sources, restricted names)
+    # Also allow missing semicolon at the line end to support e.g. 'run mytest.cpp\n : : : something ;' (ignore 'something')
+    if(line MATCHES "^[ \t]*(${types})[ \t]+([^ \t]+|([a-zA-Z0-9_]+\.cpp[ \t]+)+)[ \t]*(;[ \t]*)?$")
+      # Convert the space separated list of sources (2nd case) into CMake list of sources. No-op for single source
+      string(REPLACE ".cpp " ".cpp;" sources "${CMAKE_MATCH_2}")
 
       boost_test(PREFIX "${__PREFIX}" TYPE "${CMAKE_MATCH_1}"
-        SOURCES "${CMAKE_MATCH_2}"
+        SOURCES ${sources}
         LINK_LIBRARIES ${__LIBRARIES} ${__LINK_LIBRARIES}
         COMPILE_DEFINITIONS ${__COMPILE_DEFINITIONS}
         COMPILE_OPTIONS ${__COMPILE_OPTIONS}
