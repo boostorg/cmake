@@ -363,6 +363,10 @@ function(boost_install_target)
 
         string(APPEND icu_components " uc")
 
+      elseif (dep MATCHES "^OpenSSL::(.*)$")
+
+        string(APPEND CONFIG_FILE_CONTENTS "find_dependency(OpenSSL)\n")
+
       endif()
 
     endforeach()
