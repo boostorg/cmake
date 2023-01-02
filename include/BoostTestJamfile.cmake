@@ -51,17 +51,18 @@ function(boost_test_jamfile)
     # Extract type and remaining part, (silently) ignore any other line
     if(line MATCHES "^[ \t]*(${types})([ \t].*|$)")
       set(type ${CMAKE_MATCH_1})
-      set(args ${CMAKE_MATCH_2})
+      set(args ${CMAKE_MATCH_2}) # This starts with a space
 
       if(args MATCHES "^[ \t]+([^ \t]+)[ \t]*(;[ \t]*)?$")
         # Single source, e.g. 'run foo.c ;'
         # Semicolon is optional to support e.g. 'run mytest.cpp\n : : : something ;' (ignore 'something')
         set(sources ${CMAKE_MATCH_1})
-      elseif(args MATCHES "^[ \t]+(([a-zA-Z0-9_]+\.cpp[ \t]+)+)(;[ \t]*)?$")
+      elseif(args MATCHES "^(([ \t]+[a-zA-Z0-9_]+\.cpp)+)[ \t]*(;[ \t]*)?$")
         # Multiple sources with restricted names to avoid false positives, e.g. 'run foo.cpp bar.cpp ;'
         # Again with optional semicolon
+        string(STRIP "${CMAKE_MATCH_1}" sources)
         # Convert space-separated list into CMake list
-        string(REGEX REPLACE "\.cpp[ \t]+" ".cpp;" sources "${CMAKE_MATCH_1}")
+        string(REGEX REPLACE "\.cpp[ \t]+" ".cpp;" sources "${sources}")
       else()
         boost_message(VERBOSE "boost_test_jamfile: Jamfile line ignored: ${line}")
         continue()
