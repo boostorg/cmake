@@ -138,6 +138,11 @@ jobs:
             layout: versioned
             shared: ON
             test_install: ON
+          - os: ubuntu-latest
+            include: mysql
+            testing: ON
+            test_install: ON
+            install: libssl-dev
 
     runs-on: ${{matrix.os}}
 
