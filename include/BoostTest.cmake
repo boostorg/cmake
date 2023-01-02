@@ -8,6 +8,7 @@ set(BOOST_TEST_LINK_LIBRARIES "")
 set(BOOST_TEST_COMPILE_DEFINITIONS "")
 set(BOOST_TEST_COMPILE_OPTIONS "")
 set(BOOST_TEST_COMPILE_FEATURES "")
+set(BOOST_TEST_SOURCES "")
 
 # Include guard
 
@@ -84,6 +85,7 @@ function(boost_test)
     set(BOOST_TEST_COMPILE_DEFINITIONS "")
     set(BOOST_TEST_COMPILE_OPTIONS "")
     set(BOOST_TEST_COMPILE_FEATURES "")
+    set(BOOST_TEST_SOURCES "")
 
   endif()
 
@@ -91,6 +93,7 @@ function(boost_test)
   list(APPEND BOOST_TEST_COMPILE_DEFINITIONS ${__COMPILE_DEFINITIONS})
   list(APPEND BOOST_TEST_COMPILE_OPTIONS ${__COMPILE_OPTIONS})
   list(APPEND BOOST_TEST_COMPILE_FEATURES ${__COMPILE_FEATURES})
+  list(APPEND BOOST_TEST_SOURCES ${__SOURCES})
 
   if(MSVC)
 
@@ -144,7 +147,7 @@ function(boost_test)
 
   if(__TYPE STREQUAL "compile")
 
-    add_library(${__NAME} STATIC EXCLUDE_FROM_ALL ${__SOURCES})
+    add_library(${__NAME} STATIC EXCLUDE_FROM_ALL ${BOOST_TEST_SOURCES})
     target_link_libraries(${__NAME} ${BOOST_TEST_LINK_LIBRARIES})
     target_compile_definitions(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_DEFINITIONS})
     target_compile_options(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
@@ -154,7 +157,7 @@ function(boost_test)
 
   elseif(__TYPE STREQUAL "compile-fail")
 
-    add_library(${__NAME} STATIC EXCLUDE_FROM_ALL ${__SOURCES})
+    add_library(${__NAME} STATIC EXCLUDE_FROM_ALL ${BOOST_TEST_SOURCES})
     target_link_libraries(${__NAME} ${BOOST_TEST_LINK_LIBRARIES})
     target_compile_definitions(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_DEFINITIONS})
     target_compile_options(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
@@ -166,7 +169,7 @@ function(boost_test)
 
   elseif(__TYPE STREQUAL "link")
 
-    add_executable(${__NAME} EXCLUDE_FROM_ALL ${__SOURCES})
+    add_executable(${__NAME} EXCLUDE_FROM_ALL ${BOOST_TEST_SOURCES})
     target_link_libraries(${__NAME} ${BOOST_TEST_LINK_LIBRARIES})
     target_compile_definitions(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_DEFINITIONS})
     target_compile_options(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
@@ -176,7 +179,7 @@ function(boost_test)
 
   elseif(__TYPE STREQUAL "link-fail")
 
-    add_library(compile-${__NAME} OBJECT EXCLUDE_FROM_ALL ${__SOURCES})
+    add_library(compile-${__NAME} OBJECT EXCLUDE_FROM_ALL ${BOOST_TEST_SOURCES})
     target_link_libraries(compile-${__NAME} ${BOOST_TEST_LINK_LIBRARIES})
     target_compile_definitions(compile-${__NAME} PRIVATE ${BOOST_TEST_COMPILE_DEFINITIONS})
     target_compile_options(compile-${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
@@ -195,7 +198,7 @@ function(boost_test)
 
   elseif(__TYPE STREQUAL "run" OR __TYPE STREQUAL "run-fail")
 
-    add_executable(${__NAME} EXCLUDE_FROM_ALL ${__SOURCES})
+    add_executable(${__NAME} EXCLUDE_FROM_ALL ${BOOST_TEST_SOURCES})
     target_link_libraries(${__NAME} ${BOOST_TEST_LINK_LIBRARIES})
     target_compile_definitions(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_DEFINITIONS})
     target_compile_options(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
