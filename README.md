@@ -21,9 +21,9 @@ support infrastructure expects the headers to remain in their
 respective `libs/<libname>/include` directories, and therefore
 does not work on a release archive.
 
-To build Boost with CMake, you will need either a Git checkout
+To build Boost with CMake, you will need either a Git clone
 of Boost
-(`git checkout --recurse-submodules https://github.com/boostorg/boost`)
+(`git clone --recurse-submodules https://github.com/boostorg/boost`)
 or the alternative archives
 [available on Github](https://github.com/boostorg/boost/releases).
 
