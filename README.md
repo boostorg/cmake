@@ -45,9 +45,24 @@ cmake --build . --target install
 
 Under Windows, you can control whether Debug or Release variants
 are built by adding `--config Debug` or `--config Release` to the
-`cmake --build` lines. The default is Release. You can build and
+`cmake --build` lines:
+
+```
+cmake --build . --config Debug
+```
+
+```
+cmake --build . --target install --config Debug
+```
+
+The default is Release. You can build and
 install both Debug and Release at the same time, by running the
-respective `cmake --build` line twice, once per `--config`.
+respective `cmake --build` line twice, once per `--config`:
+
+```
+cmake --build . --target install --config Debug
+cmake --build . --target install --config Release
+```
 
 The following variables are supported and can be set either from
 the command line as `cmake -DVARIABLE=VALUE ..`, or via `ccmake`
