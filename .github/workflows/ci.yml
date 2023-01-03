@@ -252,6 +252,9 @@ jobs:
             include: iostreams
             shared: ON
             test_install: ON
+          - os: windows-2019
+            include: bind
+            test_install: ON
 
     runs-on: ${{matrix.os}}
 
