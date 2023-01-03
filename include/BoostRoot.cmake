@@ -1,4 +1,4 @@
-# Copyright 2019-2021 Peter Dimov
+# Copyright 2019-2023 Peter Dimov
 # Distributed under the Boost Software License, Version 1.0.
 # See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -284,7 +284,7 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
     __boost_auto_install(${__boost_lib})
 
-  elseif(__boost_lib IN_LIST __boost_include_libraries)
+  elseif(__boost_lib IN_LIST __boost_include_libraries OR __boost_lib STREQUAL "headers")
 
     # Disable tests for dependencies
 
