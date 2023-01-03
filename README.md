@@ -146,5 +146,5 @@ or `cmake-gui`:
 
   The standard CMake variables `CMAKE_RUNTIME_OUTPUT_DIRECTORY`,
   `CMAKE_LIBRARY_OUTPUT_DIRECTORY`, and `CMAKE_ARCHIVE_OUTPUT_DIRECTORY` are
-  set by default to `${BOOST_STAGEDIR}/bin`, `${BOOST_STAGEDIR}/lib` and
+  set by default to `${BOOST_STAGEDIR}/bin`, `${BOOST_STAGEDIR}/lib`, and
   `${BOOST_STAGEDIR}/lib`, respectively.
