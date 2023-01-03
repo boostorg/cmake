@@ -143,6 +143,9 @@ jobs:
             testing: ON
             test_install: ON
             install: libssl-dev
+          - os: ubuntu-latest
+            include: bind
+            test_install: ON
 
     runs-on: ${{matrix.os}}
 
