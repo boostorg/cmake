@@ -141,19 +141,28 @@ jobs:
           - os: ubuntu-latest
             include: mysql
             testing: ON
+            install: libssl-dev
+          - os: ubuntu-latest
+            include: mysql
             test_install: ON
             install: libssl-dev
           - os: ubuntu-latest
             include: bind
             testing: ON
+          - os: ubuntu-latest
+            include: bind
             test_install: ON
           - os: ubuntu-latest
             include: endian
             testing: ON
+          - os: ubuntu-latest
+            include: endian
             test_install: ON
           - os: ubuntu-latest
             include: system
             testing: ON
+          - os: ubuntu-latest
+            include: system
             test_install: ON
 
     runs-on: ${{matrix.os}}
@@ -264,14 +273,20 @@ jobs:
           - os: windows-2019
             include: bind
             testing: ON
+          - os: windows-2019
+            include: bind
             test_install: ON
           - os: windows-2019
             include: endian
             testing: ON
+          - os: windows-2019
+            include: endian
             test_install: ON
           - os: windows-2019
             include: system
             testing: ON
+          - os: windows-2019
+            include: system
             test_install: ON
 
     runs-on: ${{matrix.os}}
