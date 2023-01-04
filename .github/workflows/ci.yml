@@ -150,6 +150,10 @@ jobs:
             include: endian
             testing: ON
             test_install: ON
+          - os: ubuntu-latest
+            include: system
+            testing: ON
+            test_install: ON
 
     runs-on: ${{matrix.os}}
 
