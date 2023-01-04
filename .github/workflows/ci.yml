@@ -146,6 +146,10 @@ jobs:
           - os: ubuntu-latest
             include: bind
             test_install: ON
+          - os: ubuntu-latest
+            include: endian
+            testing: ON
+            test_install: ON
 
     runs-on: ${{matrix.os}}
 
