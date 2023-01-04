@@ -145,6 +145,7 @@ jobs:
             install: libssl-dev
           - os: ubuntu-latest
             include: bind
+            testing: ON
             test_install: ON
           - os: ubuntu-latest
             include: endian
@@ -262,6 +263,15 @@ jobs:
             test_install: ON
           - os: windows-2019
             include: bind
+            testing: ON
+            test_install: ON
+          - os: windows-2019
+            include: endian
+            testing: ON
+            test_install: ON
+          - os: windows-2019
+            include: system
+            testing: ON
             test_install: ON
 
     runs-on: ${{matrix.os}}
