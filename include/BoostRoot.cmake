@@ -317,3 +317,43 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
   endif()
 
 endforeach()
+
+# Install BoostConfig.cmake
+
+if(BOOST_SKIP_INSTALL_RULES)
+
+  boost_message(DEBUG "Boost: not installing BoostConfig.cmake due to BOOST_SKIP_INSTALL_RULES=${BOOST_SKIP_INSTALL_RULES}")
+  return()
+
+endif()
+
+if(CMAKE_SKIP_INSTALL_RULES)
+
+  boost_message(DEBUG "Boost: not installing BoostConfig.cmake due to CMAKE_SKIP_INSTALL_RULES=${CMAKE_SKIP_INSTALL_RULES}")
+  return()
+
+endif()
+
+set(CONFIG_INSTALL_DIR "${BOOST_INSTALL_CMAKEDIR}/Boost-${BOOST_SUPERPROJECT_VERSION}")
+set(CONFIG_FILE_NAME "${CMAKE_CURRENT_LIST_DIR}/../config/BoostConfig.cmake")
+
+install(FILES "${CONFIG_FILE_NAME}" DESTINATION "${CONFIG_INSTALL_DIR}")
+
+set(CONFIG_VERSION_FILE_NAME "${CMAKE_CURRENT_BINARY_DIR}/tmpinst/BoostConfigVersion.cmake")
+
+if(NOT CMAKE_VERSION VERSION_LESS 3.14)
+
+  write_basic_package_version_file("${CONFIG_VERSION_FILE_NAME}" COMPATIBILITY SameMajorVersion ARCH_INDEPENDENT)
+
+else()
+
+  set(OLD_CMAKE_SIZEOF_VOID_P ${CMAKE_SIZEOF_VOID_P})
+  set(CMAKE_SIZEOF_VOID_P "")
+
+  write_basic_package_version_file("${CONFIG_VERSION_FILE_NAME}" COMPATIBILITY SameMajorVersion)
+
+  set(CMAKE_SIZEOF_VOID_P ${OLD_CMAKE_SIZEOF_VOID_P})
+
+endif()
+
+install(FILES "${CONFIG_VERSION_FILE_NAME}" DESTINATION "${CONFIG_INSTALL_DIR}")
