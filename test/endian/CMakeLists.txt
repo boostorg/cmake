@@ -6,10 +6,12 @@ cmake_minimum_required(VERSION 3.5...3.16)
 
 project(boost_endian_install_test LANGUAGES CXX)
 
-find_package(boost_endian REQUIRED)
+# test find_package(Boost) instead of find_package(boost_endian)
+
+find_package(Boost 1.82 REQUIRED)
 
 add_executable(main main.cpp)
-target_link_libraries(main Boost::endian)
+target_link_libraries(main Boost::boost)
 
 enable_testing()
 add_test(NAME main COMMAND main)

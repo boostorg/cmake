@@ -6,7 +6,9 @@ cmake_minimum_required(VERSION 3.5...3.16)
 
 project(boost_system_install_test LANGUAGES CXX)
 
-find_package(boost_system REQUIRED)
+# test find_package(Boost) instead of find_package(boost_system)
+
+find_package(Boost 1.82 REQUIRED COMPONENTS system)
 
 add_executable(main main.cpp)
 target_link_libraries(main Boost::system)
