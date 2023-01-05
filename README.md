@@ -296,3 +296,57 @@ are given below.
 
   Threading API, `pthread` or `win32`. Defaults to `win32` under Windows,
   `posix` otherwise.
+
+## Testing Boost with CMake
+
+To run the Boost tests with CMake/CTest, first configure as before, but with
+`BUILD_TESTING=ON`:
+
+```
+mkdir __build
+cd __build
+cmake -DBUILD_TESTING=ON ..
+```
+
+then build the tests:
+
+```
+cmake --build . --target tests
+```
+
+and then run them:
+
+```
+ctest --output-on-failure --no-tests=error
+```
+
+Under Windows, you need to select a configuration (Debug or Release):
+
+```
+cmake --build . --target tests --config Debug
+ctest --output-on-failure --no-tests=error -C Debug
+```
+
+To only build the tests for a specific library, and not the entire Boost,
+use `BOOST_INCLUDE_LIBRARIES`:
+
+```
+cmake -DBUILD_TESTING=ON -DBOOST_INCLUDE_LIBRARIES=timer ..
+```
+
+To build and run in parallel using more than one core, use the `-j`
+option:
+
+```
+cmake --build . --target tests -j 16
+ctest --output-on-failure --no-tests=error -j 16
+```
+
+A convenience target `check` is provided that first builds the tests and
+then invokes `ctest`:
+
+```
+cmake --build . --target check
+```
+
+but it doesn't support running the tests in parallel.
