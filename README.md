@@ -55,7 +55,7 @@ cmake --build . --config Debug
 cmake --build . --target install --config Debug
 ```
 
-The default is Release. You can build and
+The default is Debug. You can build and
 install both Debug and Release at the same time, by running the
 respective `cmake --build` line twice, once per `--config`:
 
@@ -63,6 +63,8 @@ respective `cmake --build` line twice, once per `--config`:
 cmake --build . --target install --config Debug
 cmake --build . --target install --config Release
 ```
+
+## Configuration Variables
 
 The following variables are supported and can be set either from
 the command line as `cmake -DVARIABLE=VALUE ..`, or via `ccmake`
@@ -163,3 +165,134 @@ or `cmake-gui`:
   `CMAKE_LIBRARY_OUTPUT_DIRECTORY`, and `CMAKE_ARCHIVE_OUTPUT_DIRECTORY` are
   set by default to `${BOOST_STAGEDIR}/bin`, `${BOOST_STAGEDIR}/lib`, and
   `${BOOST_STAGEDIR}/lib`, respectively.
+
+## Library Specific Configuration Variables
+
+Some Boost libraries provide their own configuration variables, some of which
+are given below.
+
+### Context
+
+* `BOOST_CONTEXT_BINARY_FORMAT`
+
+  Allowed values are `elf`, `mach-o`, `pe`, `xcoff`. The default is
+  autodetected from the platform.
+
+* `BOOST_CONTEXT_ABI`
+
+  Allowed values are `aapcs`, `eabi`, `ms`, `n32`, `n64`, `o32`, `o64`, `sysv`,
+  `x32`. The default is autodetected from the platform.
+
+* `BOOST_CONTEXT_ARCHITECTURE`
+
+  Allowed values are `arm`, `arm64`, `loongarch64`, `mips32`, `mips64`,
+  `ppc32`, `ppc64`, `riscv64`, `s390x`, `i386`, `x86_64`, `combined`.
+  The default is autodetected from the platform.
+
+* `BOOST_CONTEXT_ASSEMBLER`
+
+  Allowed values are `masm`, `gas`, `armasm`. The default is autodetected from
+  the platform.
+
+* `BOOST_CONTEXT_ASM_SUFFIX`
+
+  Allowed values are `.asm` and `.S`. The default is autodetected from the
+  platform.
+
+* `BOOST_CONTEXT_IMPLEMENTATION`
+
+  Allowed values are `fcontext`, `ucontext`, `winfib`. Defaults to `fcontext`.
+
+### Fiber
+
+* `BOOST_FIBER_NUMA_TARGET_OS`
+
+  Target OS for the Fiber NUMA support. Can be `aix`, `freebsd`, `hpux`,
+  `linux`, `solaris`, `windows`, `none`. Defaults to `windows` under Windows,
+  `linux` under Linux, otherwise `none`.
+
+### IOStreams
+
+* `BOOST_IOSTREAMS_ENABLE_ZLIB`
+
+  When ON, enables ZLib support. Defaults to ON when `zlib` is found, OFF
+  otherwise.
+
+* `BOOST_IOSTREAMS_ENABLE_BZIP2`
+
+  When ON, enables BZip2 support. Defaults to ON when `libbzip2` is found,
+  OFF otherwise.
+
+* `BOOST_IOSTREAMS_ENABLE_LZMA`
+
+  When ON, enables LZMA support. Defaults to ON when `liblzma` is found,
+  OFF otherwise.
+
+* `BOOST_IOSTREAMS_ENABLE_ZSTD`
+
+  When ON, enables Zstd support. Defaults to ON when `libzstd` is found,
+  OFF otherwise.
+
+### Locale
+
+* `BOOST_LOCALE_ENABLE_ICU`
+
+  When ON, enables the ICU backend. Defaults to ON when ICU is found,
+  OFF otherwise.
+
+* `BOOST_LOCALE_ENABLE_ICONV`
+
+  When ON, enables the Iconv backend. Defaults to ON when `iconv` is found,
+  OFF otherwise.
+
+* `BOOST_LOCALE_ENABLE_POSIX`
+
+  When ON, enables the POSIX backend. Defaults to ON on POSIX systems,
+  OFF otherwise.
+
+* `BOOST_LOCALE_ENABLE_STD`
+
+  When ON, enables the `std::locale` backend. Defaults to ON.
+
+* `BOOST_LOCALE_ENABLE_WINAPI`
+
+  When ON, enables the Windows API backend. Defaults to ON under Windows, OFF
+  otherwise.
+
+### Stacktrace
+
+* `BOOST_STACKTRACE_ENABLE_NOOP`
+
+  When ON, builds the `boost_stacktrace_noop` library variant. Defaults to ON.
+
+* `BOOST_STACKTRACE_ENABLE_BACKTRACE`
+
+  When ON, builds the `boost_stacktrace_backtrace` library variant. Defaults
+  to ON when `libbacktrace` is found, OFF otherwise.
+
+* `BOOST_STACKTRACE_ENABLE_ADDR2LINE`
+
+  When ON, builds the `boost_stacktrace_addr2line` library variant. Defaults
+  to ON, except on Windows.
+
+* `BOOST_STACKTRACE_ENABLE_BASIC`
+
+  When ON, builds the `boost_stacktrace_basic` library variant. Defaults to ON.
+
+* `BOOST_STACKTRACE_ENABLE_WINDBG`
+
+  When ON, builds the `boost_stacktrace_windbg` library variant. Defaults to
+  ON under Windows when WinDbg support is autodetected, otherwise OFF.
+
+* `BOOST_STACKTRACE_ENABLE_WINDBG_CACHED`
+
+  When ON, builds the `boost_stacktrace_windbg_cached` library variant.
+  Defaults to ON under Windows when WinDbg support is autodetected and when
+  `thread_local` is supported, otherwise OFF.
+
+### Thread
+
+* `BOOST_THREAD_THREADAPI`
+
+  Threading API, `pthread` or `win32`. Defaults to `win32` under Windows,
+  `posix` otherwise.
