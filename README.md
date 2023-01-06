@@ -350,3 +350,106 @@ cmake --build . --target check
 ```
 
 but it doesn't support running the tests in parallel.
+
+## Using Boost after building and installing it with CMake
+
+Normally, a Boost installation is used from CMake by means of
+`find_package(Boost)`. However, up to and including release 1.81.0, Boost
+that has been installed with CMake does not deploy the necessary CMake
+configuration file for the `Boost` package, so `find_package(Boost)` does
+not work. (It also does not provide the `Boost::boost` and `Boost::headers`
+targets, on which many existing `CMakeLists.txt` files rely.)
+
+Instead, the individual Boost libraries need to be referenced as in
+```
+find_package(boost_filesystem 1.81 REQUIRED)
+```
+
+This will be rectified in Boost 1.82, which will install an umbrella CMake
+configuration file for the Boost package (`BoostConfig.cmake`) and will
+provide the `Boost::boost` and `Boost::headers` compatibility targets.
+
+## Using Boost with `add_subdirectory`
+
+Assuming that your project already has a copy of Boost in a subdirectory,
+either deployed as a Git submodule or extracted manually by the user as a
+prerequisite, using it is relatively straightforward:
+
+```
+add_subdirectory(deps/boost)
+```
+
+However, as-is, this will configure all Boost libraries and build them by
+default regardless of whether they are used. It's better to use
+
+```
+add_subdirectory(deps/boost EXCLUDE_FROM_ALL)
+```
+
+so that only the libraries that are referenced by the project are built,
+and it's even better to set `BOOST_INCLUDE_LIBRARIES` before the
+`add_subdirectory` call to a list of the Boost libraries that need to be
+configured:
+
+```
+set(BOOST_INCLUDE_LIBRARIES filesystem regex)
+add_subdirectory(deps/boost EXCLUDE_FROM_ALL)
+```
+
+## Using an individual Boost library with `add_subdirectory`
+
+Boost is a large dependency, and sometimes a project only needs a single
+library. It's possible to use `add_subdirectory` with individual Boost
+libraries (`https://github.com/boostorg/<libname>`) instead of the entire
+superproject or release archive. However, since Boost libraries depend on
+each other quite extensively, all library dependencies also need to be
+added (again via `add_subdirectory`.)
+
+As an example, this is how one would use Boost.Timer in this manner:
+
+```
+set(libs
+
+  timer
+
+  # Primary dependencies
+
+  chrono
+  config
+  core
+  io
+  predef
+  system
+  throw_exception
+
+  # Secondary dependencies
+
+  assert
+  integer
+  move
+  mpl
+  ratio
+  static_assert
+  type_traits
+  typeof
+  utility
+  winapi
+  variant2
+  preprocessor
+  rational
+  mp11
+)
+
+foreach(lib IN LISTS libs)
+
+  add_subdirectory(deps/boost/${lib} EXCLUDE_FROM_ALL)
+
+endforeach()
+```
+
+assuming that the individual libraries have been placed in subdirectories
+of `deps/boost`.
+
+(The list of required dependencies above has been produced by running
+`boostdep --brief timer`. See
+[the documentation of Boostdep](https://boost.org/tools/boostdep).)
