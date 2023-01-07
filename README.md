@@ -312,7 +312,7 @@ are given below.
 * `BOOST_THREAD_THREADAPI`
 
   Threading API, `pthread` or `win32`. Defaults to `win32` under Windows,
-  `posix` otherwise.
+  `pthread` otherwise.
 
 ## Testing Boost with CMake
 
