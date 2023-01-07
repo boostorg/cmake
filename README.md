@@ -90,7 +90,7 @@ or `cmake-gui`:
 
   Set to ON if Boost libraries depending on Python should be built.
 
-* `CMAKE_INSTALL_PREFIX`
+* [`CMAKE_INSTALL_PREFIX`](https://cmake.org/cmake/help/latest/variable/CMAKE_INSTALL_PREFIX.html)
 
   A standard CMake variable that determines where the headers and libraries
   should be installed. The default is `C:/Boost` under Windows, `/usr/local`
@@ -151,7 +151,7 @@ or `cmake-gui`:
   A standard CMake variable; when ON, tests are configured and built. Defaults
   to OFF.
 
-* `BUILD_SHARED_LIBS`
+* [`BUILD_SHARED_LIBS`](https://cmake.org/cmake/help/latest/variable/BUILD_SHARED_LIBS.html)
 
   A standard CMake variable that determines whether to build shared or static
   libraries. Defaults to OFF.
