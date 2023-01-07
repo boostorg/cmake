@@ -90,11 +90,25 @@ or `cmake-gui`:
 
   Set to ON if Boost libraries depending on Python should be built.
 
+* [`CMAKE_BUILD_TYPE`](https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html)
+
+  For single-configuration generators such as Makefile and Ninja (the typical
+  case under POSIX operating systems), controls the build variant (Debug or
+  Release.) The default when building Boost is set to Release.
+
+  For multi-configuration generators such as the Visual Studio generators,
+  `CMAKE_BUILD_TYPE` is ignored; the desired configuration is set at build
+  (or install) time, with the `--config` option to `cmake --build` and
+  `cmake --install`.
+
+  For more information, see
+  [the CMake documentation on build configurations](https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#build-configurations).
+
 * [`CMAKE_INSTALL_PREFIX`](https://cmake.org/cmake/help/latest/variable/CMAKE_INSTALL_PREFIX.html)
 
   A standard CMake variable that determines where the headers and libraries
-  should be installed. The default is `C:/Boost` under Windows, `/usr/local`
-  otherwise.
+  should be installed. The default when building Boost is set to `C:/Boost`
+  under Windows, `/usr/local` otherwise.
 
 * [`CMAKE_INSTALL_INCLUDEDIR`](https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html)
 
