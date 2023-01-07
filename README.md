@@ -90,6 +90,13 @@ or `cmake-gui`:
 
   Set to ON if Boost libraries depending on Python should be built.
 
+* [`CMAKE_BUILD_TYPE`](https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html)
+
+  Choose the variant to be build, e.g. `"Debug"` or `"Release"`(default) similar to the `--config` option.
+  Depending on the used generator either `CMAKE_BUILD_TYPE` or `--config` is used and the other ignored.
+  E.g. Visual Studio uses `--config` while on most POSIX systems `CMAKE_BUILD_TYPE` is used.
+  If in doubt simply use both `CMAKE_BUILD_TYPE` and `--config`.
+
 * [`CMAKE_INSTALL_PREFIX`](https://cmake.org/cmake/help/latest/variable/CMAKE_INSTALL_PREFIX.html)
 
   A standard CMake variable that determines where the headers and libraries
