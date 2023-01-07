@@ -96,17 +96,17 @@ or `cmake-gui`:
   should be installed. The default is `C:/Boost` under Windows, `/usr/local`
   otherwise.
 
-* `CMAKE_INSTALL_INCLUDEDIR`
+* [`CMAKE_INSTALL_INCLUDEDIR`](https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html)
 
   Directory in which to install the header files. Can be relative to
   `CMAKE_INSTALL_PREFIX`. Default `include`.
 
-* `CMAKE_INSTALL_BINDIR`
+* [`CMAKE_INSTALL_BINDIR`](https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html)
 
   Directory in which to install the binary artifacts (executables and Windows
   DLLs.) Can be relative to `CMAKE_INSTALL_PREFIX`. Default `bin`.
 
-* `CMAKE_INSTALL_LIBDIR`
+* [`CMAKE_INSTALL_LIBDIR`](https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html)
 
   Directory in which to install the compiled libraries. Can be relative to
   `CMAKE_INSTALL_PREFIX`. Default `lib`.
@@ -146,7 +146,7 @@ or `cmake-gui`:
   Visual C++ and compatible compilers. (The available values are `shared` and
   `static` and the default is `shared`.)
 
-* `BUILD_TESTING`
+* [`BUILD_TESTING`](https://cmake.org/cmake/help/latest/module/CTest.html)
 
   A standard CMake variable; when ON, tests are configured and built. Defaults
   to OFF.
@@ -161,9 +161,12 @@ or `cmake-gui`:
   The directory in which to place the build outputs. Defaults to the `stage`
   subdirectory of the current CMake binary directory.
 
-  The standard CMake variables `CMAKE_RUNTIME_OUTPUT_DIRECTORY`,
-  `CMAKE_LIBRARY_OUTPUT_DIRECTORY`, and `CMAKE_ARCHIVE_OUTPUT_DIRECTORY` are
-  set by default to `${BOOST_STAGEDIR}/bin`, `${BOOST_STAGEDIR}/lib`, and
+  The standard CMake variables
+  [`CMAKE_RUNTIME_OUTPUT_DIRECTORY`](https://cmake.org/cmake/help/latest/variable/CMAKE_RUNTIME_OUTPUT_DIRECTORY.html),
+  [`CMAKE_LIBRARY_OUTPUT_DIRECTORY`](https://cmake.org/cmake/help/latest/variable/CMAKE_LIBRARY_OUTPUT_DIRECTORY.html),
+  and
+  [`CMAKE_ARCHIVE_OUTPUT_DIRECTORY`](https://cmake.org/cmake/help/latest/variable/CMAKE_ARCHIVE_OUTPUT_DIRECTORY.html)
+  are set by default to `${BOOST_STAGEDIR}/bin`, `${BOOST_STAGEDIR}/lib`, and
   `${BOOST_STAGEDIR}/lib`, respectively.
 
 ## Library-specific configuration variables
