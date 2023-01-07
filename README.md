@@ -43,9 +43,9 @@ to build it with CMake. To install it, add
 cmake --build . --target install
 ```
 
-Under Windows, you can control whether Debug or Release variants
-are built by adding `--config Debug` or `--config Release` to the
-`cmake --build` lines:
+Under Windows (when using the Visual Studio generator), you can
+control whether Debug or Release variants are built by adding
+`--config Debug` or `--config Release` to the `cmake --build` lines:
 
 ```
 cmake --build . --config Debug
