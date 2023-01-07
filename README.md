@@ -64,7 +64,7 @@ cmake --build . --target install --config Debug
 cmake --build . --target install --config Release
 ```
 
-## Configuration Variables
+## Configuration variables
 
 The following variables are supported and can be set either from
 the command line as `cmake -DVARIABLE=VALUE ..`, or via `ccmake`
@@ -166,7 +166,7 @@ or `cmake-gui`:
   set by default to `${BOOST_STAGEDIR}/bin`, `${BOOST_STAGEDIR}/lib`, and
   `${BOOST_STAGEDIR}/lib`, respectively.
 
-## Library Specific Configuration Variables
+## Library-specific configuration variables
 
 Some Boost libraries provide their own configuration variables, some of which
 are given below.
@@ -453,3 +453,54 @@ of `deps/boost`.
 (The list of required dependencies above has been produced by running
 `boostdep --brief timer`. See
 [the documentation of Boostdep](https://boost.org/tools/boostdep).)
+
+## Using Boost with `FetchContent`
+
+`FetchContent` downloads the required dependencies as part of CMake's
+project configuration phase. While this is convenient because it doesn't
+require the user to acquire the dependencies beforehand, in the case of
+Boost it involves an 87 MB download, so you should carefully weigh the
+pros and cons of this approach.
+
+That said, here's how one would use Boost with `FetchContent`:
+
+```
+include(FetchContent)
+
+FetchContent_Declare(
+  Boost
+  URL https://github.com/boostorg/boost/releases/download/boost-1.81.0/boost-1.81.0.tar.xz
+  URL_MD5 6cf0cdd797bca685910d527ae3c08cb3
+  DOWNLOAD_EXTRACT_TIMESTAMP ON
+)
+
+FetchContent_MakeAvailable(Boost)
+```
+
+This has the same drawback as the simple `add_subdirectory` call -- all
+Boost libraries are configured and built, even if not used by the project.
+
+To configure only some Boost libraries, set `BOOST_INCLUDE_LIBRARIES`
+before the `FetchContent_MakeAvailable` call:
+
+```
+set(BOOST_INCLUDE_LIBRARIES timer filesystem regex)
+FetchContent_MakeAvailable(Boost)
+```
+
+To perform the `add_subdirectory` call with the `EXCLUDE_FROM_ALL` option,
+replace `FetchContent_MakeAvailable(Boost)` with this:
+
+```
+FetchContent_GetProperties(Boost)
+
+if(NOT Boost_POPULATED)
+
+  message(STATUS "Fetching Boost")
+  FetchContent_Populate(Boost)
+
+  message(STATUS "Configuring Boost")
+  add_subdirectory(${Boost_SOURCE_DIR} ${Boost_BINARY_DIR} EXCLUDE_FROM_ALL)
+
+endif()
+```
