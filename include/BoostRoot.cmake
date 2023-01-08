@@ -77,6 +77,16 @@ if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${BOOST_STAGEDIR}/lib")
   endif()
 
+  # Set default visibility to hidden to match b2
+
+  set(CMAKE_C_VISIBILITY_PRESET hidden CACHE STRING "Symbol visibility for C")
+  set_property(CACHE CMAKE_C_VISIBILITY_PRESET PROPERTY STRINGS default hidden protected internal)
+
+  set(CMAKE_CXX_VISIBILITY_PRESET hidden CACHE STRING "Symbol visibility for C++")
+  set_property(CACHE CMAKE_CXX_VISIBILITY_PRESET PROPERTY STRINGS default hidden protected internal)
+
+  option(CMAKE_VISIBILITY_INLINES_HIDDEN "Inline function have hidden visibility" ON)
+
 else()
 
   # add_subdirectory use
