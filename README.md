@@ -183,11 +183,11 @@ or `cmake-gui`:
   are set by default to `${BOOST_STAGEDIR}/bin`, `${BOOST_STAGEDIR}/lib`, and
   `${BOOST_STAGEDIR}/lib`, respectively.
 
-* [`CMAKE_CXX_VISIBILITY_PRESET`](https://cmake.org/cmake/help/latest/variable/CMAKE_CXX_VISIBILITY_PRESET.html)
+* [`CMAKE_CXX_VISIBILITY_PRESET`](https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_VISIBILITY_PRESET.html)
 
   C++ symbol visibility (one of `default`, `hidden`, `protected`, `internal`). The default is set to `hidden` to match `b2`.
 
-* [`CMAKE_C_VISIBILITY_PRESET`](https://cmake.org/cmake/help/latest/variable/CMAKE_C_VISIBILITY_PRESET.html)
+* [`CMAKE_C_VISIBILITY_PRESET`](https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_VISIBILITY_PRESET.html)
 
   C symbol visibility (one of `default`, `hidden`, `protected`, `internal`). The default is set to `hidden` to match `b2`.
 
