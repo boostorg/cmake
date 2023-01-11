@@ -427,6 +427,10 @@ jobs:
             shared: OFF
           - os: macos-11
             shared: ON
+          - os: macos-12
+            shared: OFF
+          - os: macos-12
+            shared: ON
 
     runs-on: ${{matrix.os}}
 
@@ -496,7 +500,10 @@ jobs:
           - os: ubuntu-22.04
             include: timer
             shared: ON
-          - os: macos-latest
+          - os: macos-11
+            include: timer
+            shared: ON
+          - os: macos-12
             include: timer
             shared: ON
 
