@@ -87,6 +87,10 @@ if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR)
 
   option(CMAKE_VISIBILITY_INLINES_HIDDEN "Inline function have hidden visibility" ON)
 
+  # Enable IDE folders for Visual Studio
+
+  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 else()
 
   # add_subdirectory use
@@ -301,12 +305,16 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
     set(__boost_build_testing ${BUILD_TESTING})
     set(BUILD_TESTING OFF) # hide cache variable
 
+    set(__boost_cmake_folder ${CMAKE_FOLDER})
+    string(APPEND CMAKE_FOLDER "/Dependencies")
+
     boost_message(VERBOSE "Adding Boost dependency ${__boost_lib}")
     add_subdirectory(libs/${__boost_lib})
 
     __boost_auto_install(${__boost_lib})
 
     set(BUILD_TESTING ${__boost_build_testing})
+    set(CMAKE_FOLDER ${__boost_cmake_folder})
 
   elseif(BUILD_TESTING)
 
@@ -318,11 +326,15 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
     set(__boost_skip_install ${BOOST_SKIP_INSTALL_RULES})
     set(BOOST_SKIP_INSTALL_RULES ON)
 
+    set(__boost_cmake_folder ${CMAKE_FOLDER})
+    string(APPEND CMAKE_FOLDER "/Dependencies")
+
     boost_message(DEBUG "Adding Boost library ${__boost_lib} with EXCLUDE_FROM_ALL")
     add_subdirectory(libs/${__boost_lib} EXCLUDE_FROM_ALL)
 
     set(BUILD_TESTING ${__boost_build_testing})
     set(BOOST_SKIP_INSTALL_RULES ${__boost_skip_install})
+    set(CMAKE_FOLDER ${__boost_cmake_folder})
 
   endif()
 
