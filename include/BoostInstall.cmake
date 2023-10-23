@@ -311,7 +311,9 @@ function(boost_install_target)
 
       if(dep MATCHES "^Boost::(.*)$")
 
-        string(APPEND CONFIG_FILE_CONTENTS "find_dependency(boost_${CMAKE_MATCH_1} ${__VERSION} EXACT)\n")
+        string(APPEND CONFIG_FILE_CONTENTS "if(NOT boost_${CMAKE_MATCH_1}_FOUND)\n")
+        string(APPEND CONFIG_FILE_CONTENTS "  find_dependency(boost_${CMAKE_MATCH_1} ${__VERSION} EXACT)\n")
+        string(APPEND CONFIG_FILE_CONTENTS "endif()\n")
 
       elseif(dep STREQUAL "Threads::Threads")
 
