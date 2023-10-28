@@ -1,9 +1,9 @@
 # Boost CMake support infrastructure
 
 This repository hosts the `tools/cmake` Boost submodule, containing
-experimental CMake support infrastructure for Boost.
+the CMake support infrastructure for Boost.
 
-Note that the supported way to build Boost remains
+Note that the officially supported way to build Boost remains
 [with `b2`](https://www.boost.org/more/getting_started/index.html).
 
 ## Building Boost with CMake
