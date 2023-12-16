@@ -151,6 +151,10 @@ function(boost_test)
     add_custom_target(tests)
   endif()
 
+  if(NOT TARGET tests-quick)
+    add_custom_target(tests-quick)
+  endif()
+
   if(__TYPE STREQUAL "compile")
 
     add_library(${__NAME} STATIC EXCLUDE_FROM_ALL ${BOOST_TEST_SOURCES})
@@ -160,6 +164,10 @@ function(boost_test)
     target_compile_features(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
 
     add_dependencies(tests ${__NAME})
+
+    if("${__NAME}" MATCHES "quick")
+      add_dependencies(tests-quick ${__NAME})
+    endif()
 
   elseif(__TYPE STREQUAL "compile-fail")
 
@@ -183,6 +191,10 @@ function(boost_test)
 
     add_dependencies(tests ${__NAME})
 
+    if("${__NAME}" MATCHES "quick")
+      add_dependencies(tests-quick ${__NAME})
+    endif()
+
   elseif(__TYPE STREQUAL "link-fail")
 
     add_library(compile-${__NAME} OBJECT EXCLUDE_FROM_ALL ${BOOST_TEST_SOURCES})
@@ -192,6 +204,10 @@ function(boost_test)
     target_compile_features(compile-${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
 
     add_dependencies(tests compile-${__NAME})
+
+    if("${__NAME}" MATCHES "quick")
+      add_dependencies(tests-quick compile-${__NAME})
+    endif()
 
     add_executable(${__NAME} EXCLUDE_FROM_ALL $<TARGET_OBJECTS:compile-${__NAME}>)
     target_link_libraries(${__NAME} ${BOOST_TEST_LINK_LIBRARIES})
@@ -211,6 +227,10 @@ function(boost_test)
     target_compile_features(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
 
     add_dependencies(tests ${__NAME})
+
+    if("${__NAME}" MATCHES "quick")
+      add_dependencies(tests-quick ${__NAME})
+    endif()
 
     add_test(NAME ${__TYPE}-${__NAME} COMMAND ${__NAME} ${__ARGUMENTS})
 

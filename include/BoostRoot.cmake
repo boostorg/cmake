@@ -59,6 +59,13 @@ if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR)
   add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure --no-tests=error -C $<CONFIG>)
   add_dependencies(check tests)
 
+  if(NOT TARGET tests-quick)
+    add_custom_target(tests-quick)
+  endif()
+
+  add_custom_target(check-quick COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure --no-tests=error -C $<CONFIG> -R quick)
+  add_dependencies(check-quick tests-quick)
+
   # link=static|shared
   option(BUILD_SHARED_LIBS "Build shared libraries")
 
