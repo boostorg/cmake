@@ -176,13 +176,15 @@ function(__boost_auto_install __boost_lib)
 
       get_target_property(__boost_lib_incdir "boost_${__boost_lib_target}" INTERFACE_INCLUDE_DIRECTORIES)
 
-      if(__boost_lib_incdir STREQUAL "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}/include")
+      set(incdir "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}/include")
+
+      if("${__boost_lib_incdir}" STREQUAL "${incdir}" OR "${__boost_lib_incdir}" STREQUAL "$<BUILD_INTERFACE:${incdir}>")
 
         boost_message(DEBUG "Enabling installation for '${__boost_lib}'")
-        boost_install(TARGETS "boost_${__boost_lib_target}" VERSION "${BOOST_SUPERPROJECT_VERSION}" HEADER_DIRECTORY "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}/include")
+        boost_install(TARGETS "boost_${__boost_lib_target}" VERSION "${BOOST_SUPERPROJECT_VERSION}" HEADER_DIRECTORY "${incdir}")
 
       else()
-        boost_message(DEBUG "Not enabling installation for '${__boost_lib}'; interface include directory '${__boost_lib_incdir}' does not equal '${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}/include'")
+        boost_message(DEBUG "Not enabling installation for '${__boost_lib}'; interface include directory '${__boost_lib_incdir}' does not equal '${incdir}' or '$<BUILD_INTERFACE:${incdir}>'")
       endif()
 
     else()
