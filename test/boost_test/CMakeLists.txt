@@ -52,10 +52,11 @@ boost_test(TYPE run NAME run_subdir SOURCES include_subdir.cpp INCLUDE_DIRECTORI
 set(BOOST_TEST_COMPILE_OPTIONS -fno-rtti -fno-exceptions)
 set(BOOST_TEST_LINK_LIBRARIES Boost::config)
 set(BOOST_TEST_INCLUDE_DIRECTORIES subdir)
+set(BOOST_TEST_PREFIX boost_cmake_test_globals)
 
-boost_test(SOURCES requires_no_rtti.cpp PREFIX boost_cmake_test_globals)
-boost_test(SOURCES requires_no_exceptions.cpp PREFIX boost_cmake_test_globals)
-boost_test(SOURCES include_subdir.cpp PREFIX boost_cmake_test_globals)
+boost_test(SOURCES requires_no_rtti.cpp)
+boost_test(SOURCES requires_no_exceptions.cpp)
+boost_test(SOURCES include_subdir.cpp)
 
 # boost_test_jamfile
 

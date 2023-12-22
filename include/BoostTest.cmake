@@ -11,6 +11,7 @@ set(BOOST_TEST_COMPILE_FEATURES "")
 set(BOOST_TEST_INCLUDE_DIRECTORIES "")
 set(BOOST_TEST_SOURCES "")
 set(BOOST_TEST_WORKING_DIRECTORY "")
+set(BOOST_TEST_PREFIX "")
 
 # Include guard
 
@@ -62,17 +63,11 @@ function(boost_test)
     set(__TYPE run)
   endif()
 
-  if(NOT __PREFIX)
-    set(__PREFIX ${PROJECT_NAME})
-  endif()
-
   if(NOT __NAME)
     list(GET __SOURCES 0 __NAME)
     get_filename_component(__NAME ${__NAME} NAME_WE)
     string(MAKE_C_IDENTIFIER ${__NAME} __NAME)
   endif()
-
-  set(__NAME ${__PREFIX}-${__NAME})
 
   if(__UNPARSED_ARGUMENTS)
     message(AUTHOR_WARNING "Extra arguments for test '${__NAME}' ignored: ${__UNPARSED_ARGUMENTS}")
@@ -95,6 +90,7 @@ function(boost_test)
     set(BOOST_TEST_INCLUDE_DIRECTORIES "")
     set(BOOST_TEST_SOURCES "")
     set(BOOST_TEST_WORKING_DIRECTORY "")
+    set(BOOST_TEST_PREFIX "")
 
   endif()
 
@@ -108,6 +104,16 @@ function(boost_test)
   if(__WORKING_DIRECTORY)
     set(BOOST_TEST_WORKING_DIRECTORY ${__WORKING_DIRECTORY})
   endif()
+
+  if(__PREFIX)
+    set(BOOST_TEST_PREFIX ${__PREFIX})
+  endif()
+
+  if(NOT BOOST_TEST_PREFIX)
+    set(BOOST_TEST_PREFIX ${PROJECT_NAME})
+  endif()
+
+  set(__NAME ${BOOST_TEST_PREFIX}-${__NAME})
 
   if(MSVC)
 
