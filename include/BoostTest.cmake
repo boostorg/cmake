@@ -8,6 +8,7 @@ set(BOOST_TEST_LINK_LIBRARIES "")
 set(BOOST_TEST_COMPILE_DEFINITIONS "")
 set(BOOST_TEST_COMPILE_OPTIONS "")
 set(BOOST_TEST_COMPILE_FEATURES "")
+set(BOOST_TEST_INCLUDE_DIRECTORIES "")
 set(BOOST_TEST_SOURCES "")
 set(BOOST_TEST_WORKING_DIRECTORY "")
 
@@ -46,11 +47,16 @@ endfunction()
 #   COMPILE_DEFINITIONS defs...
 #   COMPILE_OPTIONS opts...
 #   COMPILE_FEATURES features...
+#   INCLUDE_DIRECTORIES dirs...
 # )
 
 function(boost_test)
 
-  cmake_parse_arguments(_ "IGNORE_TEST_GLOBALS" "TYPE;PREFIX;NAME;WORKING_DIRECTORY" "SOURCES;ARGUMENTS;LIBRARIES;LINK_LIBRARIES;COMPILE_DEFINITIONS;COMPILE_OPTIONS;COMPILE_FEATURES" ${ARGN})
+  cmake_parse_arguments(_
+    "IGNORE_TEST_GLOBALS"
+    "TYPE;PREFIX;NAME;WORKING_DIRECTORY"
+    "SOURCES;ARGUMENTS;LIBRARIES;LINK_LIBRARIES;COMPILE_DEFINITIONS;COMPILE_OPTIONS;COMPILE_FEATURES;INCLUDE_DIRECTORIES"
+    ${ARGN})
 
   if(NOT __TYPE)
     set(__TYPE run)
@@ -95,6 +101,7 @@ function(boost_test)
   list(APPEND BOOST_TEST_COMPILE_DEFINITIONS ${__COMPILE_DEFINITIONS})
   list(APPEND BOOST_TEST_COMPILE_OPTIONS ${__COMPILE_OPTIONS})
   list(APPEND BOOST_TEST_COMPILE_FEATURES ${__COMPILE_FEATURES})
+  list(APPEND BOOST_TEST_INCLUDE_DIRECTORIES ${__INCLUDE_DIRECTORIES})
   list(APPEND BOOST_TEST_SOURCES ${__SOURCES})
 
   if(__WORKING_DIRECTORY)
@@ -162,6 +169,7 @@ function(boost_test)
     target_compile_definitions(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_DEFINITIONS})
     target_compile_options(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
     target_compile_features(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
+    target_include_directories(${__NAME} PRIVATE ${BOOST_TEST_INCLUDE_DIRECTORIES})
 
     add_dependencies(tests ${__NAME})
 
@@ -176,6 +184,7 @@ function(boost_test)
     target_compile_definitions(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_DEFINITIONS})
     target_compile_options(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
     target_compile_features(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
+    target_include_directories(${__NAME} PRIVATE ${BOOST_TEST_INCLUDE_DIRECTORIES})
 
     add_test(NAME ${__TYPE}-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
 
@@ -188,6 +197,7 @@ function(boost_test)
     target_compile_definitions(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_DEFINITIONS})
     target_compile_options(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
     target_compile_features(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
+    target_include_directories(${__NAME} PRIVATE ${BOOST_TEST_INCLUDE_DIRECTORIES})
 
     add_dependencies(tests ${__NAME})
 
@@ -202,6 +212,7 @@ function(boost_test)
     target_compile_definitions(compile-${__NAME} PRIVATE ${BOOST_TEST_COMPILE_DEFINITIONS})
     target_compile_options(compile-${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
     target_compile_features(compile-${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
+    target_include_directories(compile-${__NAME} PRIVATE ${BOOST_TEST_INCLUDE_DIRECTORIES})
 
     add_dependencies(tests compile-${__NAME})
 
@@ -214,6 +225,7 @@ function(boost_test)
     target_compile_definitions(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_DEFINITIONS})
     target_compile_options(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
     target_compile_features(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
+    target_include_directories(${__NAME} PRIVATE ${BOOST_TEST_INCLUDE_DIRECTORIES})
 
     add_test(NAME ${__TYPE}-${__NAME} COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${__NAME} --config $<CONFIG>)
     set_tests_properties(${__TYPE}-${__NAME} PROPERTIES WILL_FAIL TRUE RUN_SERIAL TRUE)
@@ -225,6 +237,7 @@ function(boost_test)
     target_compile_definitions(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_DEFINITIONS})
     target_compile_options(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
     target_compile_features(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
+    target_include_directories(${__NAME} PRIVATE ${BOOST_TEST_INCLUDE_DIRECTORIES})
 
     add_dependencies(tests ${__NAME})
 
