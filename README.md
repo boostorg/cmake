@@ -517,7 +517,23 @@ set(BOOST_INCLUDE_LIBRARIES timer filesystem regex)
 FetchContent_MakeAvailable(Boost)
 ```
 
-To perform the `add_subdirectory` call with the `EXCLUDE_FROM_ALL` option,
+### Using Boost with `FetchContent` and `EXCLUDE_FROM_ALL`
+
+If you are using CMake >= 3.28, you can use
+
+```cmake
+FetchContent_Declare(
+  Boost
+  URL https://github.com/boostorg/boost/releases/download/boost-1.84.0/boost-1.84.0.tar.xz
+  URL_MD5 893b5203b862eb9bbd08553e24ff146a
+  DOWNLOAD_EXTRACT_TIMESTAMP ON
+  EXCLUDE_FROM_ALL
+)
+set(BOOST_INCLUDE_LIBRARIES timer filesystem regex)
+FetchContent_MakeAvailable(Boost)
+```
+
+For CMake < 3.28, to perform the `add_subdirectory` call with the `EXCLUDE_FROM_ALL` option,
 replace `FetchContent_MakeAvailable(Boost)` with this:
 
 ```
