@@ -152,8 +152,27 @@ function(__boost_install_set_output_name LIB TYPE VERSION)
     # Arch and model
     math(EXPR bits ${CMAKE_SIZEOF_VOID_P}*8)
 
-    string(APPEND name_debug "-x${bits}") # x86 only for now
-    string(APPEND name_release "-x${bits}")
+    set(arch "x")
+
+    if(MSVC)
+
+      if(CMAKE_CXX_COMPILER_ARCHITECTURE_ID MATCHES "^ARM")
+        set(arch "a")
+      endif()
+
+    else()
+
+      if(CMAKE_SYSTEM_PROCESSOR MATCHES "^[Aa][Rr][Mm]"
+           OR CMAKE_SYSTEM_PROCESSOR MATCHES "aarch")
+        set(arch "a")
+      elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^mips")
+        set(arch "m")
+      endif()
+
+    endif()
+
+    string(APPEND name_debug "-${arch}${bits}")
+    string(APPEND name_release "-${arch}${bits}")
 
   endif()
 
