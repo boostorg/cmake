@@ -152,23 +152,45 @@ function(__boost_install_set_output_name LIB TYPE VERSION)
     # Arch and model
     math(EXPR bits ${CMAKE_SIZEOF_VOID_P}*8)
 
-    # This selection is copied out of FindBoost.cmake
-    set(_boost_ARCHITECTURE_TAG "")
-    if(CMAKE_CXX_COMPILER_ARCHITECTURE_ID STREQUAL "IA64")
-      string(APPEND _boost_ARCHITECTURE_TAG "i")
-    elseif(CMAKE_CXX_COMPILER_ARCHITECTURE_ID STREQUAL "X86"
-              OR CMAKE_CXX_COMPILER_ARCHITECTURE_ID STREQUAL "x64")
-      string(APPEND _boost_ARCHITECTURE_TAG "x")
-    elseif(CMAKE_CXX_COMPILER_ARCHITECTURE_ID MATCHES "^ARM")
-      string(APPEND _boost_ARCHITECTURE_TAG "a")
-    elseif(CMAKE_CXX_COMPILER_ARCHITECTURE_ID STREQUAL "MIPS")
-      string(APPEND _boost_ARCHITECTURE_TAG "m")
+    set(__boost_default_arch_tag "x")
+
+    if(MSVC)
+
+      # This selection is copied out of FindBoost.cmake
+      if(CMAKE_CXX_COMPILER_ARCHITECTURE_ID STREQUAL "IA64")
+        string(APPEND __boost_default_arch_tag "i")
+      elseif(CMAKE_CXX_COMPILER_ARCHITECTURE_ID STREQUAL "X86"
+                OR CMAKE_CXX_COMPILER_ARCHITECTURE_ID STREQUAL "x64")
+        string(APPEND __boost_default_arch_tag "x")
+      elseif(CMAKE_CXX_COMPILER_ARCHITECTURE_ID MATCHES "^ARM")
+        string(APPEND __boost_default_arch_tag "a")
+      elseif(CMAKE_CXX_COMPILER_ARCHITECTURE_ID STREQUAL "MIPS")
+        string(APPEND __boost_default_arch_tag "m")
+      else()
+        message(WARNING "Unknown architecture! Please provide BOOST_ARCHITECTURE_TAG")
+      endif()
+
     else()
-      message(WARNING "Unknown architecture")
+
+      if(CMAKE_SYSTEM_PROCESSOR MATCHES "^[Aa][Rr][Mm]"
+           OR CMAKE_SYSTEM_PROCESSOR MATCHES "aarch")
+        set(__boost_default_arch_tag "a")
+      elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^mips")
+        set(__boost_default_arch_tag "m")
+      elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^i(3|6)86"
+          OR CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64"
+          OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
+        set(__boost_default_arch_tag "x")
+      else()
+        message(WARNING "Unknown architecture! Please provide BOOST_ARCHITECTURE_TAG")
+      endif()
+
     endif()
 
-    string(APPEND name_debug "-${_boost_ARCHITECTURE_TAG}${bits}")
-    string(APPEND name_release "-${_boost_ARCHITECTURE_TAG}${bits}")
+    set(BOOST_ARCHITECTURE_TAG "${__boost_default_arch_tag}" CACHE STRING "Architecture tag to be used in versioned or tagged layouts")
+
+    string(APPEND name_debug "-${BOOST_ARCHITECTURE_TAG}${bits}")
+    string(APPEND name_release "-${BOOST_ARCHITECTURE_TAG}${bits}")
 
   endif()
 

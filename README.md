@@ -147,6 +147,13 @@ or `cmake-gui`:
   `system` produces library names of the form `libboost_timer.lib` (or
   `libboost_timer.a`, `libboost_timer.so`, `libboost_timer.dylib`.)
 
+* `BOOST_ARCHITECTURE_TAG`
+
+  If `BOOST_INSTALL_LAYOUT` is either `tagged` or `versioned` this is the architecture tag 
+  before the bits tag (e.g. `libboost_timer-vc143-mt-gd-${BOOST_ARCHITECTURE_TAG}64-1_82.lib`).
+  The value is calculated by inspecting `CMAKE_CXX_COMPILER_ARCHITECTURE_ID` for MSVC and using 
+  `CMAKE_SYSTEM_PROCESSOR` otherwise. If the architecture is unknown a default value of `x` is used.
+
 * `BOOST_INSTALL_INCLUDE_SUBDIR`
 
   When `BOOST_INSTALL_LAYOUT` is `versioned`, headers are installed in a
