@@ -162,11 +162,11 @@ function(__boost_install_set_output_name LIB TYPE VERSION)
 
     else()
 
-      if(CMAKE_SYSTEM_PROCESSOR MATCHES "^[Aa][Rr][Mm]"
-           OR CMAKE_SYSTEM_PROCESSOR MATCHES "aarch")
-        set(arch "a")
-      elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^mips")
-        set(arch "m")
+      if(CMAKE_SYSTEM_PROCESSOR MATCHES "(i[3-6]86|amd64)")
+        set(arch "x")
+      else()
+        string(SUBSTRING "${CMAKE_SYSTEM_PROCESSOR}" 0 1 arch)
+        string(TOLOWER "${arch}" arch)
       endif()
 
     endif()
