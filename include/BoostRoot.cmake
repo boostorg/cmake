@@ -358,6 +358,36 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
 endforeach()
 
+# Compatibility targets
+
+if(BOOST_ENABLE_COMPATIBILITY_TARGETS)
+
+  # Boost::boost
+
+  add_library(boost_comptarget_boost INTERFACE)
+  add_library(Boost::boost ALIAS boost_comptarget_boost)
+  target_link_libraries(boost_comptarget_boost INTERFACE Boost::headers)
+
+  # Boost::diagnostic_definitions
+
+  add_library(boost_comptarget_diagnostic_definitions INTERFACE)
+  add_library(Boost::diagnostic_definitions ALIAS boost_comptarget_diagnostic_definitions)
+  target_compile_definitions(boost_comptarget_diagnostic_definitions INTERFACE BOOST_LIB_DIAGNOSTIC)
+
+  # Boost::disable_autolinking
+
+  add_library(boost_comptarget_disable_autolinking INTERFACE)
+  add_library(Boost::disable_autolinking ALIAS boost_comptarget_disable_autolinking)
+  target_compile_definitions(boost_comptarget_disable_autolinking INTERFACE BOOST_ALL_NO_LIB)
+
+  # Boost::dynamic_linking
+
+  add_library(boost_comptarget_dynamic_linking INTERFACE)
+  add_library(Boost::dynamic_linking ALIAS boost_comptarget_dynamic_linking)
+  target_compile_definitions(boost_comptarget_dynamic_linking INTERFACE BOOST_ALL_DYN_LINK)
+
+endif()
+
 # Install BoostConfig.cmake
 
 if(BOOST_SKIP_INSTALL_RULES)
