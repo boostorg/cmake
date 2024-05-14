@@ -474,6 +474,22 @@ jobs:
           cmake --build . --target install
           cmake --install .
 
+      - name: Test add_subdirectory compatibility targets
+        run: |
+          cd ../boost-root/tools/cmake/test/add_subdir_compat
+          mkdir __build__ && cd __build__
+          cmake -DBoost_VERBOSE=ON -DBUILD_SHARED_LIBS=${{matrix.shared}} ..
+          cmake --build .
+          ctest --output-on-failure --no-tests=error
+
+      - name: Test add_subdirectory(EXCLUDE_FROM_ALL) compatibility targets
+        run: |
+          cd ../boost-root/tools/cmake/test/add_subdir_exc_compat
+          mkdir __build__ && cd __build__
+          cmake -DBoost_VERBOSE=ON -DBUILD_SHARED_LIBS=${{matrix.shared}} ..
+          cmake --build .
+          ctest --output-on-failure --no-tests=error
+
   posix-target-check:
     strategy:
       fail-fast: false
