@@ -4,6 +4,7 @@
 
 #include <boost/timer/timer.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 
 int main()
 {
