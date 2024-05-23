@@ -37,7 +37,7 @@ if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR)
     "List of libraries with incompatible CMakeLists.txt files")
 
   option(BOOST_ENABLE_MPI
-    "Build and enable installation of Boost.MPI and its dependents (requires MPI, CMake 3.9)")
+    "Build and enable installation of Boost.MPI and its dependents (requires MPI, CMake 3.10)")
 
   option(BOOST_ENABLE_PYTHON
     "Build and enable installation of Boost.Python and its dependents (requires Python, CMake 3.14)")
