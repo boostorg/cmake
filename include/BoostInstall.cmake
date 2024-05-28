@@ -284,6 +284,14 @@ function(boost_install_target)
 
   set(CONFIG_INSTALL_DIR "${BOOST_INSTALL_CMAKEDIR}/${LIB}-${__VERSION}")
 
+  if(TYPE STREQUAL "SHARED_LIBRARY")
+    string(APPEND CONFIG_INSTALL_DIR "-shared")
+  endif()
+
+  if(TYPE STREQUAL "STATIC_LIBRARY")
+    string(APPEND CONFIG_INSTALL_DIR "-static")
+  endif()
+
   install(TARGETS ${LIB} EXPORT ${LIB}-targets
     # explicit destination specification required for 3.13, 3.14 no longer needs it
     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
