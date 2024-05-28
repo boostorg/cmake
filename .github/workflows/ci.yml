@@ -597,6 +597,7 @@ jobs:
         os: [ ubuntu-latest, macos-latest ]
         include_libraries: [ timer ]
         layout: [ system, versioned ]
+        verbose: [ ON ]
 
     runs-on: ${{matrix.os}}
 
@@ -655,7 +656,7 @@ jobs:
         run: |
           cd ../boost-root/tools/cmake/test/${{matrix.include_libraries}}
           mkdir __build_static__ && cd __build_static__
-          cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBoost_USE_STATIC_LIBS=ON ..
+          cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBoost_VERBOSE=${{matrix.verbose}} -DBoost_USE_STATIC_LIBS=ON ..
           cmake --build .
           export LD_LIBRARY_PATH=$HOME/.local/lib:$LD_LIBRARY_PATH
           cmake --build . --target check
@@ -664,7 +665,7 @@ jobs:
         run: |
           cd ../boost-root/tools/cmake/test/${{matrix.include_libraries}}
           mkdir __build_shared__ && cd __build_shared__
-          cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBoost_USE_STATIC_LIBS=OFF ..
+          cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBoost_VERBOSE=${{matrix.verbose}} -DBoost_USE_STATIC_LIBS=OFF ..
           cmake --build .
           export LD_LIBRARY_PATH=$HOME/.local/lib:$LD_LIBRARY_PATH
           cmake --build . --target check
