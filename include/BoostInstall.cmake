@@ -458,33 +458,41 @@ function(boost_install_target)
 
   endif()
 
-  if(TYPE STREQUAL "SHARED_LIBRARY")
+  if("${LIB}" STREQUAL "boost_exception" OR "${LIB}" STREQUAL "boost_test_exec_monitor")
 
-    file(APPEND "${CONFIG_VERSION_FILE_NAME}"
+    # These two libraries are hardcoded to STATIC
 
-      "\n"
-      "# Do not return shared libraries when Boost_USE_STATIC_LIBS is ON\n"
-      "if(NOT PACKAGE_VERSION_UNSUITABLE AND Boost_USE_STATIC_LIBS)\n"
-      "  set(PACKAGE_VERSION_UNSUITABLE TRUE)\n"
-      "  set(PACKAGE_VERSION \"\${PACKAGE_VERSION} (shared)\")\n"
-      "  return()\n"
-      "endif()\n"
-    )
+  else()
 
-  endif()
+    if(TYPE STREQUAL "SHARED_LIBRARY")
 
-  if(TYPE STREQUAL "STATIC_LIBRARY")
+      file(APPEND "${CONFIG_VERSION_FILE_NAME}"
 
-    file(APPEND "${CONFIG_VERSION_FILE_NAME}"
+        "\n"
+        "# Do not return shared libraries when Boost_USE_STATIC_LIBS is ON\n"
+        "if(NOT PACKAGE_VERSION_UNSUITABLE AND Boost_USE_STATIC_LIBS)\n"
+        "  set(PACKAGE_VERSION_UNSUITABLE TRUE)\n"
+        "  set(PACKAGE_VERSION \"\${PACKAGE_VERSION} (shared)\")\n"
+        "  return()\n"
+        "endif()\n"
+      )
 
-      "\n"
-      "# Do not return static libraries when Boost_USE_STATIC_LIBS is OFF\n"
-      "if(NOT PACKAGE_VERSION_UNSUITABLE AND DEFINED Boost_USE_STATIC_LIBS AND NOT Boost_USE_STATIC_LIBS)\n"
-      "  set(PACKAGE_VERSION_UNSUITABLE TRUE)\n"
-      "  set(PACKAGE_VERSION \"\${PACKAGE_VERSION} (static)\")\n"
-      "  return()\n"
-      "endif()\n"
-    )
+    endif()
+
+    if(TYPE STREQUAL "STATIC_LIBRARY")
+
+      file(APPEND "${CONFIG_VERSION_FILE_NAME}"
+
+        "\n"
+        "# Do not return static libraries when Boost_USE_STATIC_LIBS is OFF\n"
+        "if(NOT PACKAGE_VERSION_UNSUITABLE AND DEFINED Boost_USE_STATIC_LIBS AND NOT Boost_USE_STATIC_LIBS)\n"
+        "  set(PACKAGE_VERSION_UNSUITABLE TRUE)\n"
+        "  set(PACKAGE_VERSION \"\${PACKAGE_VERSION} (static)\")\n"
+        "  return()\n"
+        "endif()\n"
+      )
+
+    endif()
 
   endif()
 
