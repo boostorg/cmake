@@ -414,7 +414,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-20.04, ubuntu-22.04, macos-11, macos-12, macos-13 ]
+        os: [ ubuntu-20.04, ubuntu-22.04, macos-12, macos-13, macos-14 ]
         shared: [ ON, OFF ]
 
     runs-on: ${{matrix.os}}
@@ -501,13 +501,13 @@ jobs:
           - os: ubuntu-22.04
             include: timer
             shared: ON
-          - os: macos-11
-            include: timer
-            shared: ON
           - os: macos-12
             include: timer
             shared: ON
           - os: macos-13
+            include: timer
+            shared: ON
+          - os: macos-14
             include: timer
             shared: ON
 
@@ -551,7 +551,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-20.04, ubuntu-22.04, macos-11, macos-12, macos-13 ]
+        os: [ ubuntu-20.04, ubuntu-22.04, macos-12, macos-13, macos-14 ]
         shared: [ ON, OFF ]
 
     runs-on: ${{matrix.os}}
