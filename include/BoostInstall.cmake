@@ -351,7 +351,7 @@ function(boost_install_target)
       elseif(dep MATCHES "^\\$<TARGET_NAME_IF_EXISTS:Boost::(.*)>$")
 
         string(APPEND CONFIG_FILE_CONTENTS "if(NOT boost_${CMAKE_MATCH_1}_FOUND)\n")
-        string(APPEND CONFIG_FILE_CONTENTS "  find_package(boost_${CMAKE_MATCH_1} ${__VERSION} EXACT QUIET)\n")
+        string(APPEND CONFIG_FILE_CONTENTS "  find_package(boost_${CMAKE_MATCH_1} ${__VERSION} EXACT QUIET HINTS \"\${CMAKE_CURRENT_LIST_DIR}/..\")\n")
         string(APPEND CONFIG_FILE_CONTENTS "endif()\n")
 
       elseif(dep STREQUAL "Threads::Threads")
