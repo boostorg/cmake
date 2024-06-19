@@ -301,6 +301,8 @@ function(boost_install_target)
     PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
   )
 
+  export(TARGETS ${LIB} NAMESPACE Boost:: FILE export/${LIB}-targets.cmake)
+
   if(MSVC)
     if(TYPE STREQUAL "SHARED_LIBRARY")
       install(FILES $<TARGET_PDB_FILE:${LIB}> DESTINATION ${CMAKE_INSTALL_BINDIR} OPTIONAL)
