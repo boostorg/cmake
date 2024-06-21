@@ -91,6 +91,11 @@ function(__boost_install_set_output_name LIB TYPE VERSION)
 
         math(EXPR minor ${CMAKE_MATCH_2}/10)
 
+        if(major EQUAL 14 AND minor EQUAL 4)
+          # MSVC 19.40 is still vc143
+          set(minor 3)
+        endif()
+
         string(APPEND toolset ${major}${minor})
 
       endif()
