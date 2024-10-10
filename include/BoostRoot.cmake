@@ -379,7 +379,7 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
 endforeach()
 
-# Compatibility targets
+# Compatibility targets for use with add_subdirectory/FetchContent
 
 if(BOOST_ENABLE_COMPATIBILITY_TARGETS)
 
