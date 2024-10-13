@@ -167,7 +167,7 @@ function(__boost_install_set_output_name LIB TYPE VERSION)
 
     else()
 
-      if(CMAKE_SYSTEM_PROCESSOR MATCHES "(i[3-6]86|amd64)")
+      if(CMAKE_SYSTEM_PROCESSOR MATCHES "(i[3-6]86|amd64|AMD64)")
         set(arch "x")
       else()
         string(SUBSTRING "${CMAKE_SYSTEM_PROCESSOR}" 0 1 arch)
