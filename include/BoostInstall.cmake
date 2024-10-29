@@ -383,6 +383,7 @@ function(boost_install_target)
       elseif(dep STREQUAL "MPI::MPI_CXX")
 
         # COMPONENTS requires 3.9, but the imported target also requires 3.9
+        string(APPEND CONFIG_FILE_CONTENTS "set(MPI_CXX_SKIP_MPICXX ON)\n")
         string(APPEND CONFIG_FILE_CONTENTS "find_dependency(MPI COMPONENTS CXX)\n")
 
       elseif(dep STREQUAL "Iconv::Iconv")
