@@ -183,8 +183,13 @@ function(__boost_auto_install __boost_lib)
 
       if("${__boost_lib_incdir}" STREQUAL "${incdir}" OR "${__boost_lib_incdir}" STREQUAL "$<BUILD_INTERFACE:${incdir}>")
 
+        set(extradir "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}/extra")
+        if(NOT EXISTS "${extradir}")
+          set(extradir "")
+        endif()
+
         boost_message(DEBUG "Enabling installation for '${__boost_lib}'")
-        boost_install(TARGETS "boost_${__boost_lib_target}" VERSION "${BOOST_SUPERPROJECT_VERSION}" HEADER_DIRECTORY "${incdir}")
+        boost_install(TARGETS "boost_${__boost_lib_target}" VERSION "${BOOST_SUPERPROJECT_VERSION}" HEADER_DIRECTORY "${incdir}" EXTRA_DIRECTORY "${extradir}")
 
       else()
         boost_message(DEBUG "Not enabling installation for '${__boost_lib}'; interface include directory '${__boost_lib_incdir}' does not equal '${incdir}' or '$<BUILD_INTERFACE:${incdir}>'")
