@@ -269,7 +269,7 @@ endif()
 
 # Scan for dependencies
 
-function(__boost_gather_dependencies var input_list sub_folder)
+function(__boost_gather_dependencies var input_list with_test)
   set(result "")
 
   set(libs_to_scan ${input_list})
@@ -281,8 +281,12 @@ function(__boost_gather_dependencies var input_list sub_folder)
 
     foreach(lib IN LISTS libs_to_scan)
 
-      __boost_scan_dependencies(${lib} new_deps "${sub_folder}")
+      __boost_scan_dependencies(${lib} new_deps "")
       list(APPEND cur_dependencies ${new_deps})
+      if(with_test)
+          __boost_scan_dependencies(${lib} new_deps "test")
+          list(APPEND cur_dependencies ${new_deps})
+      endif()
 
     endforeach()
 
@@ -303,9 +307,10 @@ endfunction()
 
 if(BOOST_INCLUDE_LIBRARIES)
   list(REMOVE_DUPLICATES BOOST_INCLUDE_LIBRARIES)
-  __boost_gather_dependencies(__boost_dependencies "${BOOST_INCLUDE_LIBRARIES}" "")
+  __boost_gather_dependencies(__boost_dependencies "${BOOST_INCLUDE_LIBRARIES}" OFF)
   if(BUILD_TESTING)
-    __boost_gather_dependencies(__boost_test_dependencies "${BOOST_INCLUDE_LIBRARIES};${__boost_dependencies}" "test")
+    __boost_gather_dependencies(__boost_test_dependencies "${BOOST_INCLUDE_LIBRARIES};${__boost_dependencies}" ON)
+    list(REMOVE_ITEM __boost_test_dependencies ${__boost_dependencies})
   endif()
 else()
   set(__boost_dependencies "")
