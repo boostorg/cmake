@@ -228,14 +228,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: windows-2019
-            shared: OFF
-            python: ON
-            mpi: OFF
-          - os: windows-2019
-            shared: ON
-            python: ON
-            mpi: OFF
           - os: windows-2022
             shared: OFF
             python: ON
@@ -244,48 +236,48 @@ jobs:
             shared: ON
             python: ON
             mpi: OFF
-          - os: windows-2019
+          - os: windows-2022
             include: assert
             testing: ON
             test_install: ON
-          - os: windows-2019
+          - os: windows-2022
             include: mp11
             testing: ON
             test_install: ON
-          - os: windows-2019
+          - os: windows-2022
             include: timer
             shared: OFF
             testing: ON
             test_install: ON
-          - os: windows-2019
+          - os: windows-2022
             include: timer
             shared: ON
             testing: ON
             test_install: ON
-          - os: windows-2019
+          - os: windows-2022
             include: iostreams
             shared: OFF
             test_install: ON
-          - os: windows-2019
+          - os: windows-2022
             include: iostreams
             shared: ON
             test_install: ON
-          - os: windows-2019
+          - os: windows-2022
             include: bind
             testing: ON
-          - os: windows-2019
+          - os: windows-2022
             include: bind
             test_install: ON
-          - os: windows-2019
+          - os: windows-2022
             include: endian
             testing: ON
-          - os: windows-2019
+          - os: windows-2022
             include: endian
             test_install: ON
-          - os: windows-2019
+          - os: windows-2022
             include: system
             testing: ON
-          - os: windows-2019
+          - os: windows-2022
             include: system
             test_install: ON
 
