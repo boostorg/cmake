@@ -199,6 +199,8 @@ endfunction()
 
 function(__boost_scan_dependencies lib var sub_folder)
 
+  # Libraries that define at least one library with a name like "<prefix>_"
+  set(prefix_names "asio" "dll" "fiber" "log" "regex" "stacktrace")
   set(result "")
 
   set(cml_files "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${lib}")
@@ -222,14 +224,27 @@ function(__boost_scan_dependencies lib var sub_folder)
 
         foreach(dep IN LISTS libs)
           string(REGEX REPLACE "^Boost::" "" dep ${dep})
+          if(dep STREQUAL "headers" OR dep STREQUAL "boost" OR dep MATCHES "linking")
+            continue()
+          endif()
           if(dep MATCHES "unit_test_framework|prg_exec_monitor|test_exec_monitor")
             set(dep "test")
-          elseif(dep MATCHES "^asio")
-            set(dep "asio")
+          elseif(dep STREQUAL "numpy")
+            set(dep "python")
+          elseif(dep MATCHES "serialization")
+            set(dep "serialization")
           else()
             string(REGEX REPLACE "^numeric_" "numeric/" dep ${dep})
+            foreach(prefix IN LISTS prefix_names)
+              if(dep MATCHES "^${prefix}_")
+                set(dep ${prefix})
+                break()
+              endif()
+            endforeach()
           endif()
-          list(APPEND result ${dep})
+          if(NOT dep STREQUAL lib)
+            list(APPEND result ${dep})
+          endif()
         endforeach()
 
       endif()
@@ -238,6 +253,7 @@ function(__boost_scan_dependencies lib var sub_folder)
 
   endforeach()
 
+  list(REMOVE_DUPLICATES result)
   set(${var} ${result} PARENT_SCOPE)
 
 endfunction()
