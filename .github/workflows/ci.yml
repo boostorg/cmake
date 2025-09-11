@@ -382,6 +382,50 @@ jobs:
           PATH C:\Boost\bin;%PATH%
           cmake --build . --config Release && ctest --output-on-failure --no-tests=error -j 3 -C Release
 
+  BoostRoot:
+    strategy:
+      matrix:
+        enable_test: [ON, OFF]
+      fail-fast: false
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Boost
+        run: |
+          REF=${GITHUB_BASE_REF:-$GITHUB_REF}
+          REF=${REF#refs/heads/}
+          echo REF: $REF
+          BOOST_BRANCH=develop && [ "$REF" == "master" ] && BOOST_BRANCH=master || true
+          echo BOOST_BRANCH: $BOOST_BRANCH
+          cd ..
+          git clone -b $BOOST_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
+          cd boost-root
+          git submodule update --init --jobs 3 
+          rm -rf tools/cmake/*
+          cp -r $GITHUB_WORKSPACE/* tools/cmake
+      - name: Configure each library independently
+        run: |
+          set -o pipefail
+          error=""
+          cd ../boost-root
+          for cml in libs/*/CMakeLists.txt; do
+            lib=$(dirname "${cml#*libs/}")
+            echo "====================================================================="
+            echo "Building $lib"
+            echo "====================================================================="
+            cmake -DBUILD_TESTING=${{matrix.enable_test}} -DBOOST_INCLUDE_LIBRARIES=$lib -B "__build_$lib" . 2>&1 | tee /tmp/config.log || error+=" $lib"
+            echo; echo; echo
+            if grep -F "BOOST_INCLUDE_LIBRARIES has not been found" "/tmp/config.log"; then
+              error+=" $lib"
+            fi
+          done
+          if [[ -n $error ]]; then
+            echo "Failed libraries: $error"
+            exit 1
+          fi
+
   BoostTest:
     strategy:
       fail-fast: false
