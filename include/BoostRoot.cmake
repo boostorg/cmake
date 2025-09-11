@@ -217,7 +217,11 @@ function(__boost_scan_dependencies lib var sub_folder)
 
         foreach(dep IN LISTS libs)
           string(REGEX REPLACE "^Boost::" "" dep ${dep})
-          string(REGEX REPLACE "^numeric_" "numeric/" dep ${dep})
+          if(dep MATCHES "unit_test_framework|prg_exec_monitor|test_exec_monitor")
+            set(dep "test")
+          else()
+            string(REGEX REPLACE "^numeric_" "numeric/" dep ${dep})
+          endif()
           list(APPEND result ${dep})
         endforeach()
 
