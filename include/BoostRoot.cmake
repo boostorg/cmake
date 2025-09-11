@@ -1,4 +1,5 @@
 # Copyright 2019-2023 Peter Dimov
+# Copyright 2025 Alexander Grund
 # Distributed under the Boost Software License, Version 1.0.
 # See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -13,7 +14,11 @@ include(BoostInstall)
 
 #
 
-boost_message(VERBOSE "Boost: using CMake ${CMAKE_VERSION}")
+if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR)
+  boost_message(STATUS "Boost: using CMake ${CMAKE_VERSION}")
+else()
+  boost_message(VERBOSE "Boost: using CMake ${CMAKE_VERSION}")
+endif()
 
 #
 
