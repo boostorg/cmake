@@ -407,22 +407,32 @@ jobs:
           cp -r $GITHUB_WORKSPACE/* tools/cmake
       - name: Configure each library independently
         run: |
-          set -o pipefail
-          error=""
+          failed_libs=""
+          failed_outputs=()
           cd ../boost-root
           for cml in libs/*/CMakeLists.txt; do
             lib=$(dirname "${cml#*libs/}")
             echo "====================================================================="
             echo "Building $lib"
             echo "====================================================================="
-            cmake -DBUILD_TESTING=${{matrix.enable_test}} -DBOOST_INCLUDE_LIBRARIES=$lib -B "__build_$lib" . 2>&1 | tee /tmp/config.log || error+=" $lib"
+            error=0
+            out=$(cmake -DBUILD_TESTING=${{matrix.enable_test}} -DBOOST_INCLUDE_LIBRARIES=$lib -DBoost_DEBUG=ON -B "__build_$lib" . 2>&1) || error=1
+            echo "$out"
             echo; echo; echo
-            if grep -F "BOOST_INCLUDE_LIBRARIES has not been found" "/tmp/config.log"; then
-              error+=" $lib"
+            [[ "$out" != *"BOOST_INCLUDE_LIBRARIES has not been found"* ]] || error=1
+            [[ "$out" != *"CMake Error"* ]] || error=1
+            if ((error==1)); then
+              failed_libs+=" $lib"
+              failed_outputs+=(
+                "====================================================================="
+                "Output of $lib"
+                "$out"
+              )
             fi
           done
-          if [[ -n $error ]]; then
-            echo "Failed libraries: $error"
+          if [[ -n $failed_libs ]]; then
+            echo "Failed libraries: $failed_libs"
+            printf '%s\n' "${failed_outputs[@]}"
             exit 1
           fi
 
