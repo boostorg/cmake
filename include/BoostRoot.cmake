@@ -201,12 +201,17 @@ function(__boost_scan_dependencies lib var sub_folder)
 
   set(result "")
 
-  set(cml_file "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${lib}/")
+  set(cml_files "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${lib}")
   if(sub_folder)
-    string(APPEND cml_file "${sub_folder}/")
+    file(GLOB_RECURSE cml_files "${cml_files}/${sub_folder}/CMakeLists.txt")
+  else()
+    string(APPEND cml_files "/CMakeLists.txt")
   endif()
-  string(APPEND cml_file "CMakeLists.txt")
-  if(EXISTS "${cml_file}")
+
+  foreach(cml_file IN LISTS cml_files)
+    if(NOT EXISTS "${cml_file}")
+      CONTINUE()
+    endif()
 
     file(STRINGS "${cml_file}" data)
 
@@ -229,7 +234,7 @@ function(__boost_scan_dependencies lib var sub_folder)
 
     endforeach()
 
-  endif()
+  endforeach()
 
   set(${var} ${result} PARENT_SCOPE)
 
@@ -293,6 +298,8 @@ function(__boost_gather_dependencies var input_list with_test)
       list(APPEND cur_dependencies ${new_deps})
       if(with_test)
           __boost_scan_dependencies(${lib} new_deps "test")
+          list(APPEND cur_dependencies ${new_deps})
+          __boost_scan_dependencies(${lib} new_deps "example")
           list(APPEND cur_dependencies ${new_deps})
       endif()
 
