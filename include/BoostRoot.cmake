@@ -214,12 +214,18 @@ function(__boost_scan_dependencies lib var sub_folder)
     if(NOT EXISTS "${cml_file}")
       CONTINUE()
     endif()
+    set(libs_to_exclude "")
 
     file(STRINGS "${cml_file}" data)
 
     foreach(line IN LISTS data)
-
-      if(line MATCHES "^[^#]*(Boost::[A-Za-z0-9_]+[^#]*)(#.*)?$")
+      if(line MATCHES "^ *# *Boost-(Include|Exclude):? *(.*)$")
+        set(type ${CMAKE_MATCH_1})
+        set(line ${CMAKE_MATCH_2})
+      else()
+        set(type "Include")
+      endif()
+      if(line MATCHES "^([^#]*Boost::[A-Za-z0-9_]+[^#]*)(#.*)?$")
         string(REGEX MATCHALL "Boost::[A-Za-z0-9_]+" libs "${CMAKE_MATCH_1}")
 
         foreach(dep IN LISTS libs)
@@ -243,7 +249,11 @@ function(__boost_scan_dependencies lib var sub_folder)
             endforeach()
           endif()
           if(NOT dep STREQUAL lib)
-            list(APPEND result ${dep})
+            if(type STREQUAL "Exclude")
+              list(APPEND libs_to_exclude ${dep})
+            else()
+              list(APPEND result ${dep})
+            endif()
           endif()
         endforeach()
 
@@ -253,6 +263,7 @@ function(__boost_scan_dependencies lib var sub_folder)
 
   endforeach()
 
+  list(REMOVE_ITEM result ${libs_to_exclude})
   list(REMOVE_DUPLICATES result)
   set(${var} ${result} PARENT_SCOPE)
 
