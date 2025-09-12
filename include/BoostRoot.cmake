@@ -219,8 +219,8 @@ function(__boost_scan_dependencies lib var sub_folder)
 
     foreach(line IN LISTS data)
 
-      if(line MATCHES "^[^#]*(Boost::[A-Za-z0-9_]+[^#]*)$")
-        string(REGEX MATCHALL "Boost::[A-Za-z0-9_]+" libs "${CMAKE_MATCH_0}")
+      if(line MATCHES "^[^#]*(Boost::[A-Za-z0-9_]+[^#]*)(#.*)?$")
+        string(REGEX MATCHALL "Boost::[A-Za-z0-9_]+" libs "${CMAKE_MATCH_1}")
 
         foreach(dep IN LISTS libs)
           string(REGEX REPLACE "^Boost::" "" dep ${dep})
