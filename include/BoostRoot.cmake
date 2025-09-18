@@ -202,27 +202,76 @@ function(__boost_auto_install __boost_lib)
   endif()
 endfunction()
 
-function(__boost_scan_dependencies lib var)
+function(__boost_scan_dependencies lib var sub_folder)
 
+  # Libraries that define at least one library with a name like "<prefix>_"
+  set(prefix_names "asio" "dll" "fiber" "log" "regex" "stacktrace")
   set(result "")
 
-  if(EXISTS "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${lib}/CMakeLists.txt")
+  set(cml_files "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${lib}")
+  if(sub_folder)
+    file(GLOB_RECURSE cml_files "${cml_files}/${sub_folder}/CMakeLists.txt")
+  else()
+    string(APPEND cml_files "/CMakeLists.txt")
+  endif()
 
-    file(STRINGS "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${lib}/CMakeLists.txt" data)
+  foreach(cml_file IN LISTS cml_files)
+    if(NOT EXISTS "${cml_file}")
+      CONTINUE()
+    endif()
+    set(libs_to_exclude "")
+
+    file(STRINGS "${cml_file}" data)
 
     foreach(line IN LISTS data)
+      if(line MATCHES "^ *# *Boost-(Include|Exclude):? *(.*)$")
+        set(type ${CMAKE_MATCH_1})
+        set(line ${CMAKE_MATCH_2})
+      else()
+        set(type "Include")
+      endif()
+      if(line MATCHES "^([^#]*Boost::[A-Za-z0-9_]+[^#]*)(#.*)?$")
+        string(REGEX MATCHALL "Boost::[A-Za-z0-9_]+" libs "${CMAKE_MATCH_1}")
 
-      if(line MATCHES "^[ ]*Boost::([A-Za-z0-9_]+)[ ]*$")
-
-        string(REGEX REPLACE "^numeric_" "numeric/" dep ${CMAKE_MATCH_1})
-        list(APPEND result ${dep})
+        foreach(dep IN LISTS libs)
+          string(REGEX REPLACE "^Boost::" "" dep ${dep})
+          if(dep STREQUAL "headers" OR dep STREQUAL "boost" OR dep MATCHES "linking")
+            continue()
+          endif()
+          if(dep MATCHES "unit_test_framework|prg_exec_monitor|test_exec_monitor")
+            set(dep "test")
+          elseif(dep STREQUAL "numpy")
+            set(dep "python")
+          elseif(dep MATCHES "serialization")
+            set(dep "serialization")
+          else()
+            string(REGEX REPLACE "^numeric_" "numeric/" dep ${dep})
+            foreach(prefix IN LISTS prefix_names)
+              if(dep MATCHES "^${prefix}_")
+                set(dep ${prefix})
+                break()
+              endif()
+            endforeach()
+          endif()
+          if(NOT dep STREQUAL lib)
+            if(type STREQUAL "Exclude")
+              list(APPEND libs_to_exclude ${dep})
+            else()
+              list(APPEND result ${dep})
+            endif()
+          endif()
+        endforeach()
 
       endif()
 
     endforeach()
 
-  endif()
+  endforeach()
 
+  if(libs_to_exclude)
+    list(REMOVE_ITEM result ${libs_to_exclude})
+  endif()
+  list(REMOVE_DUPLICATES result)
   set(${var} ${result} PARENT_SCOPE)
 
 endfunction()
@@ -269,38 +318,58 @@ endif()
 
 # Scan for dependencies
 
-set(__boost_include_libraries ${BOOST_INCLUDE_LIBRARIES})
+function(__boost_gather_dependencies var input_list with_test)
+  set(result "")
 
-if(__boost_include_libraries)
-  list(REMOVE_DUPLICATES __boost_include_libraries)
-endif()
+  set(libs_to_scan ${input_list})
+  while(libs_to_scan)
 
-set(__boost_libs_to_scan ${__boost_include_libraries})
+    boost_message(DEBUG "Scanning dependencies: ${libs_to_scan}")
 
-while(__boost_libs_to_scan)
+    set(cur_dependencies "")
 
-  boost_message(DEBUG "Scanning dependencies: ${__boost_libs_to_scan}")
+    foreach(lib IN LISTS libs_to_scan)
 
-  set(__boost_dependencies "")
+      __boost_scan_dependencies(${lib} new_deps "")
+      list(APPEND cur_dependencies ${new_deps})
+      # Only consider test dependencies of the input libraries, not transitively as those tests aren't build
+      if(with_test AND lib IN_LIST input_list)
+          __boost_scan_dependencies(${lib} new_deps "test")
+          list(APPEND cur_dependencies ${new_deps})
+          __boost_scan_dependencies(${lib} new_deps "example")
+          list(APPEND cur_dependencies ${new_deps})
+      endif()
 
-  foreach(__boost_lib IN LISTS __boost_libs_to_scan)
+    endforeach()
 
-    __boost_scan_dependencies(${__boost_lib} __boost_deps)
-    list(APPEND __boost_dependencies ${__boost_deps})
+    list(REMOVE_DUPLICATES cur_dependencies)
 
-  endforeach()
+    if(cur_dependencies)
+      list(REMOVE_ITEM cur_dependencies ${libs_to_scan} ${result})
+      list(APPEND result ${cur_dependencies})
+    endif()
 
-  list(REMOVE_DUPLICATES __boost_dependencies)
+    set(libs_to_scan ${cur_dependencies})
 
-  set(__boost_libs_to_scan ${__boost_dependencies})
+  endwhile()
 
-  if(__boost_libs_to_scan)
-    list(REMOVE_ITEM __boost_libs_to_scan ${__boost_include_libraries})
+  list(REMOVE_ITEM result ${input_list})
+  set(${var} ${result} PARENT_SCOPE)
+endfunction()
+
+if(BOOST_INCLUDE_LIBRARIES)
+  list(REMOVE_DUPLICATES BOOST_INCLUDE_LIBRARIES)
+  __boost_gather_dependencies(__boost_dependencies "${BOOST_INCLUDE_LIBRARIES}" OFF)
+  if(BUILD_TESTING)
+    __boost_gather_dependencies(__boost_test_dependencies "${BOOST_INCLUDE_LIBRARIES}" ON)
+    if(__boost_dependencies)
+      list(REMOVE_ITEM __boost_test_dependencies ${__boost_dependencies})
+    endif()
   endif()
-
-  list(APPEND __boost_include_libraries ${__boost_libs_to_scan})
-
-endwhile()
+else()
+  set(__boost_dependencies "")
+  set(__boost_test_dependencies "")
+endif()
 
 # Installing targets created in other directories requires CMake 3.13
 if(CMAKE_VERSION VERSION_LESS 3.13)
@@ -342,7 +411,7 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
     __boost_auto_install(${__boost_lib})
     __boost_add_header_only(${__boost_lib})
 
-  elseif(__boost_lib IN_LIST __boost_include_libraries OR __boost_lib STREQUAL "headers")
+  elseif(__boost_lib IN_LIST __boost_dependencies OR __boost_lib STREQUAL "headers")
 
     # Disable tests for dependencies
 
@@ -364,9 +433,9 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
     set(BUILD_TESTING ${__boost_build_testing})
     set(CMAKE_FOLDER ${__boost_cmake_folder})
 
-  elseif(BUILD_TESTING)
+  elseif(__boost_lib IN_LIST __boost_test_dependencies)
 
-    # Disable tests and installation for libraries neither included nor dependencies
+    # Disable tests and installation for libraries not included but used as test dependencies
 
     set(__boost_build_testing ${BUILD_TESTING})
     set(BUILD_TESTING OFF) # hide cache variable
@@ -380,7 +449,7 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
       set(CMAKE_FOLDER "Test Dependencies")
     endif()
 
-    boost_message(DEBUG "Adding Boost library ${__boost_lib} with EXCLUDE_FROM_ALL")
+    boost_message(DEBUG "Adding Boost test dependency ${__boost_lib} with EXCLUDE_FROM_ALL")
     add_subdirectory(libs/${__boost_lib} EXCLUDE_FROM_ALL)
 
     set(BUILD_TESTING ${__boost_build_testing})
