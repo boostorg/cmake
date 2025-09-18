@@ -214,7 +214,8 @@ include path because it doesn't require any compilation. This is what the
 which are propagated upwards to its users.)
 
 Note that the exact form of the directive, with each `Boost::libname` target on
-its own line, is not necessary. You could as well put them on a singe line:
+its own line, is no longer necessary after Boost 1.89.
+You can as well put them on a singe line:
 `target_link_libraries(boost_core INTERFACE Boost::assert Boost::config Boost::static_assert)`
 This dependency specification influences the behavior of the user-settable
 `BOOST_INCLUDE_LIBRARIES` option of the superproject, which requests only the
