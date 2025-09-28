@@ -182,8 +182,8 @@ function(__boost_auto_install __boost_lib)
 
     if(TARGET "Boost::${__boost_lib_target}" AND TARGET "boost_${__boost_lib_target}")
 
-      get_target_property(labels "boost_${__boost_lib_target}" LABELS)
-      if("boost_install_specified" IN_LIST labels)
+      get_target_property(is_installed "boost_${__boost_lib_target}" _boost_is_installed)
+      if(is_installed)
         return() # Ignore libraries for which boost_install was already called
       endif()
 
