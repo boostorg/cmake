@@ -182,6 +182,11 @@ function(__boost_auto_install __boost_lib)
 
     if(TARGET "Boost::${__boost_lib_target}" AND TARGET "boost_${__boost_lib_target}")
 
+      get_target_property(is_installed "boost_${__boost_lib_target}" _boost_is_installed)
+      if(is_installed)
+        return() # Ignore libraries for which boost_install was already called
+      endif()
+
       get_target_property(__boost_lib_incdir "boost_${__boost_lib_target}" INTERFACE_INCLUDE_DIRECTORIES)
 
       set(incdir "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/${__boost_lib}/include")
