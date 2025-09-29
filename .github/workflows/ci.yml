@@ -454,7 +454,15 @@ jobs:
             cd "$(mktemp -d)"
             wget https://cmake.org/files/v${version%.*}/$filename
             tar -xf $filename --strip-components=1
-            cmake -B __build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/tmp/cmake .
+            flags=(
+              "-DCMAKE_BUILD_TYPE=Release"
+              "-DCMAKE_INSTALL_PREFIX=/tmp/cmake"
+              "-B" "__build"
+              "-Wno-dev"  # Make configuring more silent
+              "-DCMAKE_USE_SYSTEM_CURL=1"  # Avoid failures caused by newer (system) OpenSSL in CMake < 3.10
+              "-DCMAKE_CXX_FLAGS='-include cstdint -include limits'"  # Fix missing includes in CMake < 3.10
+            )
+            cmake "${flags[@]}" .
             cmake --build __build -- -j 3
             cmake --build __build --target install
 
