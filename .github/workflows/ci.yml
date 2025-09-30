@@ -446,6 +446,10 @@ jobs:
           path: /tmp/cmake
           key: ${{ runner.os }}-cmake-${{matrix.cmake_version}}
 
+      - name: Install CMake dependencies
+        if: matrix.cmake_version != 'default'
+        run: sudo apt-get -o Acquire::Retries=3 -y -q --no-install-suggests --no-install-recommends install curl libcurl4-openssl-dev libarchive-dev
+
       - name: Build CMake
         if: matrix.cmake_version != 'default' && steps.cache-cmake.outputs.cache-hit != 'true'
         run: |
