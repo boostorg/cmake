@@ -484,13 +484,19 @@ jobs:
         run: |
           version_greater_equal() { printf '%s\n' "$2" "$1" | sort --check=quiet --version-sort; }
           excluded=()
-          version_greater_equal ${{matrix.cmake_version}} 3.7.0  || excluded+=("outcome")
-          version_greater_equal ${{matrix.cmake_version}} 3.8.0  || excluded+=("asio" "atomic" "beast" "bind" "bloom" "callable_traits" "charconv" "chrono" "compat" "container_hash" "contract" "crc" "date_time" "endian" "fiber" "filesystem" "format" "function" "geometry" "gil" "graph" "hana" "hash2" "heap" "hof" "iostreams" "json" "lambda2" "lockfree" "log" "mqtt5" "mysql" "numeric/ublas" "process" "program_options" "property_tree" "random" "ratio" "redis" "safe_numerics" "serialization" "smart_ptr" "static_string" "stl_interfaces" "system" "test" "thread" "type_erasure" "typeof" "unordered" "url" "uuid" "variant2" "wave" "yap")
-          version_greater_equal ${{matrix.cmake_version}} 3.9.0  || excluded+=("hana" "nowide")
-          version_greater_equal ${{matrix.cmake_version}} 3.10.0 || excluded+=("gil" "sort")
-          version_greater_equal ${{matrix.cmake_version}} 3.11.0 || excluded+=("locale")
-          version_greater_equal ${{matrix.cmake_version}} 3.12.0 || excluded+=("cobalt" "histogram" "msm")
-          version_greater_equal ${{matrix.cmake_version}} 3.14.0 || excluded+=("parser" "python" "pfr" "mysql")  # mysql depends on pfr
+          for cml in "$PWD"/libs/*/CMakeLists.txt "$PWD"/libs/numeric/*/CMakeLists.txt; do
+            lib=$(dirname "${cml#*libs/}")
+            if minimal_cmake_version=$(grep "cmake_minimum_required" "$cml" | grep -Eo '[0-9]\.[0-9]+' | head -1); then
+              version_greater_equal ${{matrix.cmake_version}} "$minimal_cmake_version" || excluded+=("$lib")
+            else
+              echo "Minimum required CMake version not found in $cml for library $lib"
+            fi
+          done
+          # Libraries that don't declare their correct minimal required CMake version or where dependencies require higher version
+          version_greater_equal ${{matrix.cmake_version}} 3.8.0  || excluded+=("static_string")
+          version_greater_equal ${{matrix.cmake_version}} 3.10.0 || excluded+=("gil")
+          version_greater_equal ${{matrix.cmake_version}} 3.12.0 || excluded+=("msm")
+          version_greater_equal ${{matrix.cmake_version}} 3.14.0 || excluded+=("pfr" "mysql")  # mysql depends on pfr
           /tmp/cmake/bin/cmake --version
           /tmp/cmake/bin/cmake -DBUILD_TESTING=${{matrix.enable_test}} -DBOOST_EXCLUDE_LIBRARIES="$(IFS=';'; echo "${excluded[*]}")" -B "__build_cmake-$version" .
 
