@@ -386,6 +386,11 @@ jobs:
     strategy:
       matrix:
         enable_test: [ON, OFF]
+        cmake_version: [default, 3.8.0, 3.9.0, 3.10.0, 3.11.0, 3.12.0, 3.13.0, 3.14.0, 3.16.0, 3.19.0, 3.31.0, 4.0.0, 4.1.0]
+        exclude:
+          # BoostTestJamfile requires CMake 3.9
+          - cmake_version: 3.8.0
+            enable_test: ON
       fail-fast: false
 
     runs-on: ubuntu-latest
@@ -406,10 +411,11 @@ jobs:
           rm -rf tools/cmake/*
           cp -r $GITHUB_WORKSPACE/* tools/cmake
       - name: Configure each library independently
+        working-directory: ../boost-root
+        if: matrix.cmake_version == 'default'
         run: |
           failed_libs=""
           failed_outputs=()
-          cd ../boost-root
           for cml in libs/*/CMakeLists.txt; do
             lib=$(dirname "${cml#*libs/}")
             echo "====================================================================="
@@ -435,6 +441,58 @@ jobs:
             printf '%s\n' "${failed_outputs[@]}"
             exit 1
           fi
+
+      - name: Cache CMake
+        if: matrix.cmake_version != 'default'
+        id: cache-cmake
+        uses: actions/cache@v4
+        with:
+          path: /tmp/cmake
+          key: ${{ runner.os }}-cmake-${{matrix.cmake_version}}
+
+      - name: Install CMake dependencies
+        if: matrix.cmake_version != 'default'
+        run: sudo apt-get -o Acquire::Retries=3 -y -q --no-install-suggests --no-install-recommends install curl libcurl4-openssl-dev libarchive-dev
+
+      - name: Build CMake
+        if: matrix.cmake_version != 'default' && steps.cache-cmake.outputs.cache-hit != 'true'
+        run: |
+            version=${{matrix.cmake_version}}
+            filename="cmake-$version.tar.gz"
+            cd "$(mktemp -d)"
+            wget https://cmake.org/files/v${version%.*}/$filename
+            tar -xf $filename --strip-components=1
+            flags=(
+              "-DCMAKE_BUILD_TYPE=Release"
+              "-DCMAKE_INSTALL_PREFIX=/tmp/cmake"
+              "-B" "__build"
+              "-Wno-dev"  # Make configuring more silent
+              "-DCMAKE_USE_SYSTEM_CURL=1"  # Avoid failures caused by newer (system) OpenSSL in CMake < 3.10
+              "-DCMAKE_CXX_FLAGS='-include cstdint -include limits'"  # Fix missing includes in CMake < 3.10
+            )
+            cmake "${flags[@]}" .
+            cmake --build __build -- -j 3
+            cmake --build __build --target install
+
+      - name: Configure Boost with CMake ${{matrix.cmake_version}}
+        working-directory: ../boost-root
+        if: matrix.cmake_version != 'default'
+        run: |
+          version_greater_equal() { printf '%s\n' "$2" "$1" | sort --check=quiet --version-sort; }
+          excluded=()
+          for cml in "$PWD"/libs/*/CMakeLists.txt "$PWD"/libs/numeric/*/CMakeLists.txt; do
+            lib=$(dirname "${cml#*libs/}")
+            if minimal_cmake_version=$(grep "cmake_minimum_required" "$cml" | grep -Eo '[0-9]\.[0-9]+' | head -1); then
+              version_greater_equal ${{matrix.cmake_version}} "$minimal_cmake_version" || excluded+=("$lib")
+            else
+              echo "Minimum required CMake version not found in $cml for library $lib"
+            fi
+          done
+          # Libraries that don't declare their correct minimal required CMake version or where dependencies require higher version
+          version_greater_equal ${{matrix.cmake_version}} 3.12.0 || excluded+=("msm")
+          version_greater_equal ${{matrix.cmake_version}} 3.14.0 || excluded+=("pfr" "mysql")  # mysql depends on pfr
+          /tmp/cmake/bin/cmake --version
+          /tmp/cmake/bin/cmake -DBUILD_TESTING=${{matrix.enable_test}} -DBOOST_EXCLUDE_LIBRARIES="$(IFS=';'; echo "${excluded[*]}")" -B "__build_cmake-$version" .
 
   BoostTest:
     strategy:
