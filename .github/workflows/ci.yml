@@ -489,7 +489,6 @@ jobs:
             fi
           done
           # Libraries that don't declare their correct minimal required CMake version or where dependencies require higher version
-          version_greater_equal ${{matrix.cmake_version}} 3.10.0 || excluded+=("gil")
           version_greater_equal ${{matrix.cmake_version}} 3.12.0 || excluded+=("msm")
           version_greater_equal ${{matrix.cmake_version}} 3.14.0 || excluded+=("pfr" "mysql")  # mysql depends on pfr
           /tmp/cmake/bin/cmake --version
