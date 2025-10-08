@@ -1,4 +1,5 @@
 # Copyright 2019-2023 Peter Dimov
+# Copyright 2025 Braden Ganetsky
 # Distributed under the Boost Software License, Version 1.0.
 # See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt
 
@@ -510,11 +511,11 @@ function(boost_install_target)
 
 endfunction()
 
-# boost_install([VERSION version] [TARGETS targets...] [HEADER_DIRECTORY directory])
+# boost_install([VERSION version] [TARGETS targets...] [HEADER_DIRECTORY directory] [EXTRA_DIRECTORY directory])
 
 function(boost_install)
 
-  cmake_parse_arguments(_ "" "VERSION;HEADER_DIRECTORY" "TARGETS" ${ARGN})
+  cmake_parse_arguments(_ "" "VERSION;HEADER_DIRECTORY;EXTRA_DIRECTORY" "TARGETS" ${ARGN})
 
   if(NOT __VERSION)
 
@@ -542,6 +543,17 @@ function(boost_install)
 
     get_filename_component(__HEADER_DIRECTORY "${__HEADER_DIRECTORY}" ABSOLUTE)
     install(DIRECTORY "${__HEADER_DIRECTORY}/" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+
+  endif()
+
+  if(__EXTRA_DIRECTORY AND NOT BOOST_SKIP_INSTALL_RULES AND NOT CMAKE_SKIP_INSTALL_RULES)
+
+    # Extract the library name from the path, one component up from the extra directory
+    get_filename_component(libname "${__EXTRA_DIRECTORY}" DIRECTORY)
+    get_filename_component(libname "${libname}" NAME)
+
+    get_filename_component(__EXTRA_DIRECTORY "${__EXTRA_DIRECTORY}" ABSOLUTE)
+    install(DIRECTORY "${__EXTRA_DIRECTORY}/" DESTINATION "${CMAKE_INSTALL_DATADIR}/boost-${__VERSION}/${libname}")
 
   endif()
 
