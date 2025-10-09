@@ -1,4 +1,4 @@
-name: CI
+name: Boost CI
 
 on:
   workflow_dispatch:
