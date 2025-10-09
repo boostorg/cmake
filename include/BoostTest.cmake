@@ -15,7 +15,7 @@ set(BOOST_TEST_PREFIX "")
 
 # Include guard
 
-if(NOT CMAKE_VERSION VERSION_LESS 3.10)
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.10)
   include_guard()
 endif()
 
@@ -214,20 +214,25 @@ function(boost_test)
 
   elseif(__TYPE STREQUAL "link-fail")
 
-    add_library(compile-${__NAME} OBJECT EXCLUDE_FROM_ALL ${BOOST_TEST_SOURCES})
-    target_link_libraries(compile-${__NAME} ${BOOST_TEST_LINK_LIBRARIES})
-    target_compile_definitions(compile-${__NAME} PRIVATE ${BOOST_TEST_COMPILE_DEFINITIONS})
-    target_compile_options(compile-${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
-    target_compile_features(compile-${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
-    target_include_directories(compile-${__NAME} PRIVATE ${BOOST_TEST_INCLUDE_DIRECTORIES})
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.12) # OBJECT libraries can link targets only since CMake 3.12
+      add_library(compile-${__NAME} OBJECT EXCLUDE_FROM_ALL ${BOOST_TEST_SOURCES})
+      target_link_libraries(compile-${__NAME} ${BOOST_TEST_LINK_LIBRARIES})
+      target_compile_definitions(compile-${__NAME} PRIVATE ${BOOST_TEST_COMPILE_DEFINITIONS})
+      target_compile_options(compile-${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
+      target_compile_features(compile-${__NAME} PRIVATE ${BOOST_TEST_COMPILE_FEATURES})
+      target_include_directories(compile-${__NAME} PRIVATE ${BOOST_TEST_INCLUDE_DIRECTORIES})
 
-    add_dependencies(tests compile-${__NAME})
+      add_dependencies(tests compile-${__NAME})
 
-    if("${__NAME}" MATCHES "quick")
-      add_dependencies(tests-quick compile-${__NAME})
+      if("${__NAME}" MATCHES "quick")
+        add_dependencies(tests-quick compile-${__NAME})
+      endif()
+
+      add_executable(${__NAME} EXCLUDE_FROM_ALL $<TARGET_OBJECTS:compile-${__NAME}>)
+    else()
+      # Pre-CMake 3.12 this is basically a compile-fail-OR-link-fail test
+      add_executable(${__NAME} EXCLUDE_FROM_ALL ${BOOST_TEST_SOURCES})
     endif()
-
-    add_executable(${__NAME} EXCLUDE_FROM_ALL $<TARGET_OBJECTS:compile-${__NAME}>)
     target_link_libraries(${__NAME} ${BOOST_TEST_LINK_LIBRARIES})
     target_compile_definitions(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_DEFINITIONS})
     target_compile_options(${__NAME} PRIVATE ${BOOST_TEST_COMPILE_OPTIONS})
