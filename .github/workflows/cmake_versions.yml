@@ -7,6 +7,16 @@ on:
       - master
       - develop
       - feature/**
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Boost branch to run for'
+        required: false
+        default: 'auto'
+        options:
+          - auto
+          - master
+          - develop
 
 jobs:
   posix:
@@ -24,8 +34,13 @@ jobs:
         run: |
           REF=${GITHUB_BASE_REF:-$GITHUB_REF}
           REF=${REF#refs/heads/}
-          echo REF: $REF
-          BOOST_BRANCH=develop && [ "$REF" == "master" ] && BOOST_BRANCH=master || true
+          BOOST_BRANCH="${{inputs.branch}}"
+          if [[ -z $BOOST_BRANCH ]]; then
+              REF=${GITHUB_BASE_REF:-$GITHUB_REF}
+              REF=${REF#refs/heads/}
+              echo REF: $REF
+              [[ "$REF" == "master" ]] && BOOST_BRANCH=master || BOOST_BRANCH=develop
+          fi
           echo BOOST_BRANCH: $BOOST_BRANCH
           cd ..
           git clone -b $BOOST_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
