@@ -556,7 +556,7 @@ jobs:
           cd ../boost-root/tools/cmake/test/boost_test
           mkdir __build__ && cd __build__
           cmake -DBoost_VERBOSE=ON ..
-          cmake --build . --target tests -j 3
+          cmake --build . --target tests
           ctest --output-on-failure --no-tests=error -j 3
 
   BoostFetch:
