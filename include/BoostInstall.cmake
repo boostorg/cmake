@@ -215,12 +215,44 @@ function(__boost_install_update_include_directory lib incdir prop)
 
 endfunction()
 
+function(__boost_install_update_natvis lib extradir extrainstalldir)
+
+  if(NOT TARGET "${lib}" OR NOT lib MATCHES "^boost_(.*)$")
+    return()
+  endif()
+
+  get_target_property(sources ${lib} INTERFACE_SOURCES)
+  if(NOT sources)
+    return()
+  endif()
+
+  foreach(src IN LISTS sources)
+
+    get_filename_component(dir "${src}" DIRECTORY)
+    get_filename_component(extension "${src}" EXT)
+
+    if("${dir}" STREQUAL "${extradir}" AND "${extension}" STREQUAL ".natvis")
+
+      get_target_property(modified_sources ${lib} INTERFACE_SOURCES)
+      list(REMOVE_ITEM modified_sources "${src}")
+      set_target_properties(${lib} PROPERTIES INTERFACE_SOURCES "${modified_sources}")
+
+      # Add this .natvis file to the INTERFACE_SOURCES target property, prefixed properly.
+      get_filename_component(natvis_file "${src}" NAME)
+      target_sources("${lib}" INTERFACE $<BUILD_INTERFACE:${src}> $<INSTALL_INTERFACE:${extrainstalldir}/${natvis_file}>)
+
+    endif()
+
+  endforeach()
+
+endfunction()
+
 # Installs a single target
-# boost_install_target(TARGET target VERSION version [HEADER_DIRECTORY directory])
+# boost_install_target(TARGET target VERSION version [HEADER_DIRECTORY directory] [EXTRA_DIRECTORY directory] [EXTRA_INSTALL_DIRECTORY directory])
 
 function(boost_install_target)
 
-  cmake_parse_arguments(_ "" "TARGET;VERSION;HEADER_DIRECTORY" "" ${ARGN})
+  cmake_parse_arguments(_ "" "TARGET;VERSION;HEADER_DIRECTORY;EXTRA_DIRECTORY;EXTRA_INSTALL_DIRECTORY" "" ${ARGN})
 
   if(NOT __TARGET)
 
@@ -288,6 +320,13 @@ function(boost_install_target)
 
   endif()
 
+  if((NOT __EXTRA_DIRECTORY AND __EXTRA_INSTALL_DIRECTORY) OR (__EXTRA_DIRECTORY AND NOT __EXTRA_INSTALL_DIRECTORY))
+
+    message(SEND_ERROR "boost_install_target: both or neither of EXTRA_DIRECTORY and EXTRA_INSTALL_DIRECTORY must be given.")
+    return()
+
+  endif()
+
   set(CONFIG_INSTALL_DIR "${BOOST_INSTALL_CMAKEDIR}/${LIB}-${__VERSION}")
 
   if(TYPE STREQUAL "SHARED_LIBRARY")
@@ -316,6 +355,10 @@ function(boost_install_target)
 
     if(TYPE STREQUAL "STATIC_LIBRARY" AND NOT CMAKE_VERSION VERSION_LESS 3.15)
       install(FILES "$<TARGET_FILE_DIR:${LIB}>/$<TARGET_FILE_PREFIX:${LIB}>$<TARGET_FILE_BASE_NAME:${LIB}>.pdb" DESTINATION ${CMAKE_INSTALL_LIBDIR} OPTIONAL)
+    endif()
+
+    if(__EXTRA_DIRECTORY AND __EXTRA_INSTALL_DIRECTORY)
+      __boost_install_update_natvis(${LIB} ${__EXTRA_DIRECTORY} ${__EXTRA_INSTALL_DIRECTORY})
     endif()
   endif()
 
@@ -553,13 +596,14 @@ function(boost_install)
     get_filename_component(libname "${libname}" NAME)
 
     get_filename_component(__EXTRA_DIRECTORY "${__EXTRA_DIRECTORY}" ABSOLUTE)
-    install(DIRECTORY "${__EXTRA_DIRECTORY}/" DESTINATION "${CMAKE_INSTALL_DATADIR}/boost-${__VERSION}/${libname}")
+    set(extrainstalldir "${CMAKE_INSTALL_DATADIR}/boost-${__VERSION}/${libname}")
+    install(DIRECTORY "${__EXTRA_DIRECTORY}/" DESTINATION "${extrainstalldir}")
 
   endif()
 
   foreach(target IN LISTS __TARGETS)
 
-    boost_install_target(TARGET ${target} VERSION ${__VERSION} HEADER_DIRECTORY ${__HEADER_DIRECTORY})
+    boost_install_target(TARGET ${target} VERSION ${__VERSION} HEADER_DIRECTORY ${__HEADER_DIRECTORY} EXTRA_DIRECTORY ${__EXTRA_DIRECTORY} EXTRA_INSTALL_DIRECTORY ${extrainstalldir})
 
   endforeach()
 
