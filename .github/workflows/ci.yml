@@ -382,6 +382,77 @@ jobs:
           PATH C:\Boost\bin;%PATH%
           cmake --build . --config Release && ctest --output-on-failure --no-tests=error -j 3 -C Release
 
+  BoostRoot:
+    strategy:
+      fail-fast: false
+      matrix:
+        container:
+          - ubuntu:20.04
+          - ubuntu:22.04
+          - ubuntu:24.04
+          - ubuntu:25.04
+
+        testing: [OFF, ON]
+
+        include:
+          - container: ubuntu:18.04
+            testing: OFF
+            exclude: cobalt;histogram;locale;msm;parser
+          - container: ubuntu:18.04
+            testing: ON
+            exclude: cobalt;histogram;locale;msm;parser;pfr
+
+    container:
+      image: ${{matrix.container}}
+      volumes:
+        - /node20217:/node20217:rw,rshared
+        - ${{ startsWith(matrix.container, 'ubuntu:1') && '/node20217:/__e/node20:ro,rshared' || ' ' }}
+
+    defaults:
+      run:
+        shell: bash
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup container environment
+        if: matrix.container
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update
+          apt-get -y install sudo python3 git g++ curl xz-utils cmake libssl-dev
+
+      - name: Install nodejs20glibc2.17
+        if: ${{ startsWith( matrix.container, 'ubuntu:1' ) }}
+        run: |
+          curl -LO https://archives.boost.io/misc/node/node-v20.9.0-linux-x64-glibc-217.tar.xz
+          tar -xf node-v20.9.0-linux-x64-glibc-217.tar.xz --strip-components 1 -C /node20217
+          ldd /__e/node20/bin/node
+
+      - uses: actions/checkout@v4
+
+      - name: Setup Boost
+        run: |
+          echo GITHUB_BASE_REF: $GITHUB_BASE_REF
+          echo GITHUB_REF: $GITHUB_REF
+          REF=${GITHUB_BASE_REF:-$GITHUB_REF}
+          REF=${REF#refs/heads/}
+          echo REF: $REF
+          BOOST_BRANCH=develop && [ "$REF" == "master" ] && BOOST_BRANCH=master || true
+          echo BOOST_BRANCH: $BOOST_BRANCH
+          cd ..
+          git clone -b $BOOST_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
+          cd boost-root
+          git submodule update --init
+          rm -rf tools/cmake/*
+          cp -r $GITHUB_WORKSPACE/* tools/cmake
+
+      - name: Configure Boost
+        run: |
+          cd ../boost-root
+          mkdir __build__ && cd __build__
+          cmake -DBoost_VERBOSE=ON -DBUILD_TESTING=${{matrix.testing}} -DBOOST_EXCLUDE_LIBRARIES="${{matrix.exclude}}" ..
+
   BoostTest:
     strategy:
       fail-fast: false
@@ -476,10 +547,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install packages
-        if: matrix.install
-        run: sudo apt install ${{matrix.install}}
-
       - name: Setup Boost
         run: |
           echo GITHUB_BASE_REF: $GITHUB_BASE_REF
@@ -570,10 +637,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install packages
-        if: matrix.install
-        run: sudo apt install ${{matrix.install}}
-
       - name: Setup Boost
         run: |
           echo GITHUB_BASE_REF: $GITHUB_BASE_REF
@@ -612,10 +675,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install packages
-        if: matrix.install
-        run: sudo apt install ${{matrix.install}}
 
       - name: Setup Boost
         run: |
