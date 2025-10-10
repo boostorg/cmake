@@ -400,7 +400,7 @@ jobs:
             exclude: cobalt;histogram;locale;msm;parser
           - container: ubuntu:18.04
             testing: ON
-            exclude: cobalt;histogram;locale;msm;parser;pfr
+            exclude: cobalt;histogram;locale;msm;parser;pfr;mysql
 
     container:
       image: ${{matrix.container}}
@@ -451,7 +451,7 @@ jobs:
         run: |
           cd ../boost-root
           mkdir __build__ && cd __build__
-          cmake -DBoost_VERBOSE=ON -DBUILD_TESTING=${{matrix.testing}} -DBOOST_EXCLUDE_LIBRARIES="${{matrix.exclude}}" ..
+          cmake -DBUILD_TESTING=${{matrix.testing}} -DBOOST_EXCLUDE_LIBRARIES="${{matrix.exclude}}" ..
 
   BoostTest:
     strategy:
