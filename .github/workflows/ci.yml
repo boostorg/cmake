@@ -387,10 +387,6 @@ jobs:
       matrix:
         enable_test: [ON, OFF]
         cmake_version: [default, 3.8.0, 3.9.0, 3.10.0, 3.11.0, 3.12.0, 3.13.0, 3.14.0, 3.16.0, 3.19.0, 3.31.0, 4.0.0, 4.1.0]
-        exclude:
-          # BoostTestJamfile requires CMake 3.9
-          - cmake_version: 3.8.0
-            enable_test: ON
       fail-fast: false
 
     runs-on: ubuntu-latest
