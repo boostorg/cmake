@@ -33,8 +33,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup Boost
         run: |
-          REF=${GITHUB_BASE_REF:-$GITHUB_REF}
-          REF=${REF#refs/heads/}
           BOOST_BRANCH="${{inputs.branch}}"
           if [[ -z $BOOST_BRANCH ]]; then
               REF=${GITHUB_BASE_REF:-$GITHUB_REF}
