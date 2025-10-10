@@ -410,11 +410,35 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
   elseif(NOT BOOST_ENABLE_MPI AND __boost_lib IN_LIST __boost_mpi_libs)
 
-    boost_message(DEBUG "Skipping Boost library ${__boost_lib}, BOOST_ENABLE_MPI is OFF")
+    if(__boost_lib IN_LIST BOOST_INCLUDE_LIBRARIES)
+
+      message(SEND_ERROR "Boost library '${__boost_lib}' has been explicitly requested, but BOOST_ENABLE_MPI is OFF. Set BOOST_ENABLE_MPI to ON.")
+
+    elseif(NOT BOOST_INCLUDE_LIBRARIES)
+
+      message(STATUS "Skipping Boost library ${__boost_lib}, BOOST_ENABLE_MPI is OFF")
+
+    else()
+
+      boost_message(DEBUG "Skipping Boost library ${__boost_lib}, BOOST_ENABLE_MPI is OFF")
+
+    endif()
 
   elseif(NOT BOOST_ENABLE_PYTHON AND __boost_lib IN_LIST __boost_python_libs)
 
-    boost_message(DEBUG "Skipping Boost library ${__boost_lib}, BOOST_ENABLE_PYTHON is OFF")
+    if(__boost_lib IN_LIST BOOST_INCLUDE_LIBRARIES)
+
+      message(SEND_ERROR "Boost library '${__boost_lib}' has been explicitly requested, but BOOST_ENABLE_PYTHON is OFF. Set BOOST_ENABLE_PYTHON to ON.")
+
+    elseif(NOT BOOST_INCLUDE_LIBRARIES)
+
+      message(STATUS "Skipping Boost library ${__boost_lib}, BOOST_ENABLE_PYTHON is OFF")
+
+    else()
+
+      boost_message(DEBUG "Skipping Boost library ${__boost_lib}, BOOST_ENABLE_PYTHON is OFF")
+
+    endif()
 
   elseif(NOT BOOST_INCLUDE_LIBRARIES OR __boost_lib IN_LIST BOOST_INCLUDE_LIBRARIES)
 
