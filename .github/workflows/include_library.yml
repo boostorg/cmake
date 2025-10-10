@@ -131,10 +131,10 @@ jobs:
       matrix:
         library:
           - nowide
-          - numeric_conversion
-          - numeric_interval
-          - numeric_odeint
-          - numeric_ublas
+          - numeric/conversion
+          - numeric/interval
+          - numeric/odeint
+          - numeric/ublas
           - optional
           - outcome
           - parameter
