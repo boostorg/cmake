@@ -304,7 +304,9 @@ file(GLOB __boost_libraries RELATIVE "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs" "${
 
 # Check for mistakes in BOOST_INCLUDE_LIBRARIES
 if(BOOST_INCLUDE_LIBRARIES)
+
   set(__boost_any_library_found OFF)
+
   foreach(__boost_included_lib IN LISTS BOOST_INCLUDE_LIBRARIES)
 
     if(NOT "${__boost_included_lib}/CMakeLists.txt" IN_LIST __boost_libraries)
@@ -312,13 +314,19 @@ if(BOOST_INCLUDE_LIBRARIES)
       message(WARNING "Library '${__boost_included_lib}' given in BOOST_INCLUDE_LIBRARIES has not been found.")
 
     else()
+
       set(__boost_any_library_found ON)
+
     endif()
 
   endforeach()
+
   if(NOT __boost_any_library_found)
-    message(FATAL_ERROR "None of the libraries given in BOOST_INCLUDE_LIBRARIES has been found so no libraries would be build. Verify BOOST_INCLUDE_LIBRARIES (${BOOST_INCLUDE_LIBRARIES})")
+
+    message(FATAL_ERROR "None of the libraries given in BOOST_INCLUDE_LIBRARIES has been found so no libraries would be built. Verify BOOST_INCLUDE_LIBRARIES ('${BOOST_INCLUDE_LIBRARIES}')")
+
   endif()
+
 endif()
 
 # Scan for dependencies
