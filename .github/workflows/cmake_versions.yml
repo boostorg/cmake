@@ -34,7 +34,7 @@ jobs:
       - name: Setup Boost
         run: |
           BOOST_BRANCH="${{inputs.branch}}"
-          if [[ -z $BOOST_BRANCH ]]; then
+          if [[ -z $BOOST_BRANCH || $BOOST_BRANCH == "auto" ]]; then
               REF=${GITHUB_BASE_REF:-$GITHUB_REF}
               REF=${REF#refs/heads/}
               echo REF: $REF
