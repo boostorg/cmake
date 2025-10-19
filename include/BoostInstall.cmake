@@ -215,7 +215,7 @@ function(__boost_install_update_include_directory lib incdir prop)
 
 endfunction()
 
-function(__boost_install_update_natvis lib extradir extrainstalldir)
+function(__boost_install_update_extra_sources lib extradir extrainstalldir)
 
   if(NOT TARGET "${lib}" OR NOT lib MATCHES "^boost_(.*)$")
     return()
@@ -229,17 +229,16 @@ function(__boost_install_update_natvis lib extradir extrainstalldir)
   foreach(src IN LISTS sources)
 
     get_filename_component(dir "${src}" DIRECTORY)
-    get_filename_component(extension "${src}" EXT)
 
-    if("${dir}" STREQUAL "${extradir}" AND "${extension}" STREQUAL ".natvis")
+    if("${dir}" STREQUAL "${extradir}")
 
       get_target_property(modified_sources ${lib} INTERFACE_SOURCES)
       list(REMOVE_ITEM modified_sources "${src}")
       set_target_properties(${lib} PROPERTIES INTERFACE_SOURCES "${modified_sources}")
 
-      # Add this .natvis file to the INTERFACE_SOURCES target property, prefixed properly.
-      get_filename_component(natvis_file "${src}" NAME)
-      target_sources("${lib}" INTERFACE $<BUILD_INTERFACE:${src}> $<INSTALL_INTERFACE:${extrainstalldir}/${natvis_file}>)
+      # Add this source file to the INTERFACE_SOURCES target property, prefixed properly.
+      get_filename_component(srcname "${src}" NAME)
+      target_sources("${lib}" INTERFACE $<BUILD_INTERFACE:${src}> $<INSTALL_INTERFACE:${extrainstalldir}/${srcname}>)
 
     endif()
 
@@ -356,10 +355,10 @@ function(boost_install_target)
     if(TYPE STREQUAL "STATIC_LIBRARY" AND NOT CMAKE_VERSION VERSION_LESS 3.15)
       install(FILES "$<TARGET_FILE_DIR:${LIB}>/$<TARGET_FILE_PREFIX:${LIB}>$<TARGET_FILE_BASE_NAME:${LIB}>.pdb" DESTINATION ${CMAKE_INSTALL_LIBDIR} OPTIONAL)
     endif()
+  endif()
 
-    if(__EXTRA_DIRECTORY AND __EXTRA_INSTALL_DIRECTORY)
-      __boost_install_update_natvis(${LIB} ${__EXTRA_DIRECTORY} ${__EXTRA_INSTALL_DIRECTORY})
-    endif()
+  if(__EXTRA_DIRECTORY AND __EXTRA_INSTALL_DIRECTORY)
+    __boost_install_update_extra_sources(${LIB} ${__EXTRA_DIRECTORY} ${__EXTRA_INSTALL_DIRECTORY})
   endif()
 
   install(EXPORT ${LIB}-targets DESTINATION "${CONFIG_INSTALL_DIR}" NAMESPACE Boost:: FILE ${LIB}-targets.cmake)
