@@ -215,13 +215,14 @@ function(__boost_install_update_include_directory lib incdir prop)
 
 endfunction()
 
-function(__boost_install_update_extra_sources lib extradir extrainstalldir)
+function(__boost_install_update_sources lib srcdir instdir)
 
   if(NOT TARGET "${lib}" OR NOT lib MATCHES "^boost_(.*)$")
     return()
   endif()
 
   get_target_property(sources ${lib} INTERFACE_SOURCES)
+
   if(NOT sources)
     return()
   endif()
@@ -230,7 +231,7 @@ function(__boost_install_update_extra_sources lib extradir extrainstalldir)
 
     get_filename_component(dir "${src}" DIRECTORY)
 
-    if("${dir}" STREQUAL "${extradir}")
+    if("${dir}" STREQUAL "${srcdir}")
 
       get_target_property(modified_sources ${lib} INTERFACE_SOURCES)
       list(REMOVE_ITEM modified_sources "${src}")
@@ -238,7 +239,7 @@ function(__boost_install_update_extra_sources lib extradir extrainstalldir)
 
       # Add this source file to the INTERFACE_SOURCES target property, prefixed properly.
       get_filename_component(srcname "${src}" NAME)
-      target_sources("${lib}" INTERFACE $<BUILD_INTERFACE:${src}> $<INSTALL_INTERFACE:${extrainstalldir}/${srcname}>)
+      target_sources("${lib}" INTERFACE $<BUILD_INTERFACE:${src}> $<INSTALL_INTERFACE:${instdir}/${srcname}>)
 
     endif()
 
@@ -358,7 +359,7 @@ function(boost_install_target)
   endif()
 
   if(__EXTRA_DIRECTORY AND __EXTRA_INSTALL_DIRECTORY)
-    __boost_install_update_extra_sources(${LIB} ${__EXTRA_DIRECTORY} ${__EXTRA_INSTALL_DIRECTORY})
+    __boost_install_update_sources(${LIB} ${__EXTRA_DIRECTORY} ${__EXTRA_INSTALL_DIRECTORY})
   endif()
 
   install(EXPORT ${LIB}-targets DESTINATION "${CONFIG_INSTALL_DIR}" NAMESPACE Boost:: FILE ${LIB}-targets.cmake)
