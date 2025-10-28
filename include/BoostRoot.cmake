@@ -248,7 +248,7 @@ function(__boost_scan_dependencies lib var sub_folder)
           if(dep STREQUAL "headers" OR dep STREQUAL "boost" OR dep MATCHES "linking")
             continue()
           endif()
-          if(dep MATCHES "unit_test_framework|prg_exec_monitor|test_exec_monitor")
+          if(dep MATCHES "(included_)?(unit_test_framework|prg_exec_monitor|test_exec_monitor)")
             set(dep "test")
           elseif(dep STREQUAL "numpy")
             set(dep "python")
@@ -407,11 +407,11 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
   if(__boost_lib IN_LIST BOOST_INCOMPATIBLE_LIBRARIES)
 
-    boost_message(DEBUG "Skipping incompatible Boost library ${__boost_lib}")
+    boost_message(DEBUG "Skipping incompatible Boost library '${__boost_lib}'")
 
   elseif(__boost_lib IN_LIST BOOST_EXCLUDE_LIBRARIES)
 
-    boost_message(DEBUG "Skipping excluded Boost library ${__boost_lib}")
+    boost_message(DEBUG "Skipping excluded Boost library '${__boost_lib}'")
 
   elseif(NOT BOOST_ENABLE_MPI AND __boost_lib IN_LIST __boost_mpi_libs)
 
@@ -421,11 +421,11 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
     elseif(NOT BOOST_INCLUDE_LIBRARIES)
 
-      message(STATUS "Skipping Boost library ${__boost_lib}, BOOST_ENABLE_MPI is OFF")
+      message(STATUS "Skipping Boost library '${__boost_lib}', BOOST_ENABLE_MPI is OFF")
 
     else()
 
-      boost_message(DEBUG "Skipping Boost library ${__boost_lib}, BOOST_ENABLE_MPI is OFF")
+      boost_message(DEBUG "Skipping Boost library '${__boost_lib}', BOOST_ENABLE_MPI is OFF")
 
     endif()
 
@@ -437,17 +437,17 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
 
     elseif(NOT BOOST_INCLUDE_LIBRARIES)
 
-      message(STATUS "Skipping Boost library ${__boost_lib}, BOOST_ENABLE_PYTHON is OFF")
+      message(STATUS "Skipping Boost library '${__boost_lib}', BOOST_ENABLE_PYTHON is OFF")
 
     else()
 
-      boost_message(DEBUG "Skipping Boost library ${__boost_lib}, BOOST_ENABLE_PYTHON is OFF")
+      boost_message(DEBUG "Skipping Boost library '${__boost_lib}', BOOST_ENABLE_PYTHON is OFF")
 
     endif()
 
   elseif(NOT BOOST_INCLUDE_LIBRARIES OR __boost_lib IN_LIST BOOST_INCLUDE_LIBRARIES)
 
-    boost_message(VERBOSE "Adding Boost library ${__boost_lib}")
+    boost_message(VERBOSE "Adding Boost library '${__boost_lib}'")
     add_subdirectory(libs/${__boost_lib})
 
     __boost_auto_install(${__boost_lib})
@@ -466,7 +466,7 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
       set(CMAKE_FOLDER "Dependencies")
     endif()
 
-    boost_message(VERBOSE "Adding Boost dependency ${__boost_lib}")
+    boost_message(VERBOSE "Adding Boost dependency '${__boost_lib}'")
     add_subdirectory(libs/${__boost_lib})
 
     __boost_auto_install(${__boost_lib})
@@ -491,7 +491,7 @@ foreach(__boost_lib_cml IN LISTS __boost_libraries)
       set(CMAKE_FOLDER "Test Dependencies")
     endif()
 
-    boost_message(DEBUG "Adding Boost test dependency ${__boost_lib} with EXCLUDE_FROM_ALL")
+    boost_message(DEBUG "Adding Boost test dependency '${__boost_lib}' with EXCLUDE_FROM_ALL")
     add_subdirectory(libs/${__boost_lib} EXCLUDE_FROM_ALL)
 
     set(BUILD_TESTING ${__boost_build_testing})
