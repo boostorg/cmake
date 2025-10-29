@@ -118,7 +118,6 @@ jobs:
             fi
           done
           # Libraries that don't declare their correct minimal required CMake version or where dependencies require higher version
-          version_greater_equal ${{matrix.cmake_version}} 3.12.0 || excluded+=("msm")
-          version_greater_equal ${{matrix.cmake_version}} 3.14.0 || excluded+=("pfr" "mysql")  # mysql depends on pfr
+          # Example: version_greater_equal ${{matrix.cmake_version}} 3.12.0 || excluded+=("name")
           /tmp/cmake/bin/cmake --version
           /tmp/cmake/bin/cmake -DBUILD_TESTING=${{matrix.enable_test}} -DBOOST_EXCLUDE_LIBRARIES="$(IFS=';'; echo "${excluded[*]}")" -B "__build_cmake-$version" .
