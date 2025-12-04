@@ -337,6 +337,16 @@ function(boost_install_target)
     string(APPEND CONFIG_INSTALL_DIR "-static")
   endif()
 
+  get_target_property(INTERFACE_CXX_MODULE_SETS ${LIB} INTERFACE_CXX_MODULE_SETS)
+  if(INTERFACE_CXX_MODULE_SETS)
+    boost_message(DEBUG "boost_install_target: '${__TARGET}' has INTERFACE_CXX_MODULE_SETS=${INTERFACE_CXX_MODULE_SETS}")
+    set(__INSTALL_CXX_MODULES FILE_SET ${INTERFACE_CXX_MODULE_SETS} DESTINATION ${CONFIG_INSTALL_DIR})
+  endif()
+  get_target_property(HEADER_SET ${LIB} HEADER_SET)
+  if(HEADER_SET)
+    boost_message(DEBUG "boost_install_target: '${__TARGET}' has HEADER_SET=${HEADER_SET}")
+  endif()
+
   install(TARGETS ${LIB} EXPORT ${LIB}-targets
     # explicit destination specification required for 3.13, 3.14 no longer needs it
     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
@@ -344,8 +354,16 @@ function(boost_install_target)
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     PRIVATE_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
     PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+    # explicit needed if used starting with cmake v3.28
+    FILE_SET CXX_MODULES DESTINATION ${CONFIG_INSTALL_DIR}
+    ${__INSTALL_CXX_MODULES}
+    CXX_MODULES_BMI DESTINATION ${CONFIG_INSTALL_DIR}/bmi-${CMAKE_CXX_COMPILER_ID}_$<CONFIG>
+    # explicit needed if used starting with cmake v3.23
+    FILE_SET HEADERS
+    FILE_SET ${HEADER_SET}
   )
 
+  # TODO(CK): what is this for?
   export(TARGETS ${LIB} NAMESPACE Boost:: FILE export/${LIB}-targets.cmake)
 
   if(MSVC)
@@ -362,7 +380,9 @@ function(boost_install_target)
     __boost_install_update_sources(${LIB} ${__EXTRA_DIRECTORY} ${__EXTRA_INSTALL_DIRECTORY})
   endif()
 
-  install(EXPORT ${LIB}-targets DESTINATION "${CONFIG_INSTALL_DIR}" NAMESPACE Boost:: FILE ${LIB}-targets.cmake)
+  install(EXPORT ${LIB}-targets DESTINATION "${CONFIG_INSTALL_DIR}" NAMESPACE Boost:: FILE ${LIB}-targets.cmake
+    CXX_MODULES_DIRECTORY .
+  )
 
   set_target_properties(${LIB} PROPERTIES _boost_is_installed ON)
 
