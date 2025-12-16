@@ -337,15 +337,17 @@ function(boost_install_target)
     string(APPEND CONFIG_INSTALL_DIR "-static")
   endif()
 
-  if(NOT CMAKE_VERSION VERSION_LESS 3.28)
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.28)
     get_target_property(INTERFACE_CXX_MODULE_SETS ${LIB} INTERFACE_CXX_MODULE_SETS)
     if(INTERFACE_CXX_MODULE_SETS)
       boost_message(DEBUG "boost_install_target: '${__TARGET}' has INTERFACE_CXX_MODULE_SETS=${INTERFACE_CXX_MODULE_SETS}")
       set(__INSTALL_CXX_MODULES FILE_SET ${INTERFACE_CXX_MODULE_SETS} DESTINATION ${CONFIG_INSTALL_DIR})
+      set(__INSTALL_CXX_MODULES_BMI CXX_MODULES_BMI DESTINATION ${CONFIG_INSTALL_DIR}/bmi-${CMAKE_CXX_COMPILER_ID}_$<CONFIG>)
+      set(__EXPORT_CXX_MODULES_DIRECTORY CXX_MODULES_DIRECTORY .)
     endif()
   endif()
 
-  if(NOT CMAKE_VERSION VERSION_LESS 3.23)
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.23)
     get_target_property(INTERFACE_HEADER_SETS ${LIB} INTERFACE_HEADER_SETS)
     if(INTERFACE_HEADER_SETS)
       boost_message(DEBUG "boost_install_target: '${__TARGET}' has INTERFACE_HEADER_SETS=${INTERFACE_HEADER_SETS}")
@@ -360,13 +362,12 @@ function(boost_install_target)
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     PRIVATE_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
     PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-    # explicit needed if used starting with cmake v3.28
+    # NOTE: explicit needed if used starting with cmake v3.28
     # XXX FILE_SET CXX_MODULES DESTINATION ${CONFIG_INSTALL_DIR}
     ${__INSTALL_CXX_MODULES}
     # Any module files from C++ modules from PUBLIC sources in a file set of type CXX_MODULES will be installed to the given DESTINATION.
-    # FIXME: why does this silently not work here? CK
-    # XXX CXX_MODULES_BMI DESTINATION ${CONFIG_INSTALL_DIR}/bmi-${CMAKE_CXX_COMPILER_ID}_$<CONFIG>
-    # explicit needed if used starting with cmake v3.23
+    ${__INSTALL_CXX_MODULES_BMI}
+    # NOTE: explicit needed if used starting with cmake v3.23
     # XXX FILE_SET HEADERS
     ${__INSTALL_HEADER_SETS}
   )
@@ -389,7 +390,7 @@ function(boost_install_target)
   endif()
 
   install(EXPORT ${LIB}-targets DESTINATION "${CONFIG_INSTALL_DIR}" NAMESPACE Boost:: FILE ${LIB}-targets.cmake
-    # XXX CXX_MODULES_DIRECTORY .
+    ${__EXPORT_CXX_MODULES_DIRECTORY}
   )
 
   set_target_properties(${LIB} PROPERTIES _boost_is_installed ON)
