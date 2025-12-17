@@ -3,7 +3,7 @@
 # Distributed under the Boost Software License, Version 1.0.
 # See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt
 
-if(NOT CMAKE_VERSION VERSION_LESS 3.10)
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.10)
   include_guard()
 endif()
 
@@ -366,7 +366,7 @@ function(boost_install_target)
     # XXX FILE_SET CXX_MODULES DESTINATION ${CONFIG_INSTALL_DIR}
     ${__INSTALL_CXX_MODULES}
     # Any module files from C++ modules from PUBLIC sources in a file set of type CXX_MODULES will be installed to the given DESTINATION.
-    ${__INSTALL_CXX_MODULES_BMI}
+    # TODO(CK) ${__INSTALL_CXX_MODULES_BMI}
     # NOTE: explicit needed if used starting with cmake v3.23
     # XXX FILE_SET HEADERS
     ${__INSTALL_HEADER_SETS}
@@ -380,7 +380,7 @@ function(boost_install_target)
       install(FILES $<TARGET_PDB_FILE:${LIB}> DESTINATION ${CMAKE_INSTALL_BINDIR} OPTIONAL)
     endif()
 
-    if(TYPE STREQUAL "STATIC_LIBRARY" AND NOT CMAKE_VERSION VERSION_LESS 3.15)
+    if(TYPE STREQUAL "STATIC_LIBRARY" AND CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
       install(FILES "$<TARGET_FILE_DIR:${LIB}>/$<TARGET_FILE_PREFIX:${LIB}>$<TARGET_FILE_BASE_NAME:${LIB}>.pdb" DESTINATION ${CMAKE_INSTALL_LIBDIR} OPTIONAL)
     endif()
   endif()
@@ -390,7 +390,7 @@ function(boost_install_target)
   endif()
 
   install(EXPORT ${LIB}-targets DESTINATION "${CONFIG_INSTALL_DIR}" NAMESPACE Boost:: FILE ${LIB}-targets.cmake
-    ${__EXPORT_CXX_MODULES_DIRECTORY}
+      # TODO(CK) ${__EXPORT_CXX_MODULES_DIRECTORY}
   )
 
   set_target_properties(${LIB} PROPERTIES _boost_is_installed ON)
@@ -520,7 +520,7 @@ function(boost_install_target)
 
     # Header-only libraries are architecture-independent
 
-    if(NOT CMAKE_VERSION VERSION_LESS 3.14)
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.14)
 
       write_basic_package_version_file("${CONFIG_VERSION_FILE_NAME}" COMPATIBILITY SameMajorVersion ARCH_INDEPENDENT)
 
