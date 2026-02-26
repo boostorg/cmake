@@ -52,6 +52,7 @@ jobs:
           - 3.31.9
           - 4.0.4
           - 4.1.2
+          - 4.2.3
 
     runs-on: ubuntu-latest
 
