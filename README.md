@@ -125,6 +125,11 @@ or `cmake-gui`:
   Directory in which to install the compiled libraries. Can be relative to
   `CMAKE_INSTALL_PREFIX`. Default `lib`.
 
+* [`CMAKE_INSTALL_DATADIR`](https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html)
+
+  Directory in which to install the data files (e.g. debugger visualizers).
+  Can be relative to `CMAKE_INSTALL_PREFIX`. Default `share`.
+
 * `BOOST_INSTALL_CMAKEDIR`
 
   Directory in which to install the CMake configuration files. Default `lib/cmake`.
@@ -318,6 +323,13 @@ are given below.
   When ON, builds the `boost_stacktrace_windbg_cached` library variant.
   Defaults to ON under Windows when WinDbg support is autodetected and when
   `thread_local` is supported, otherwise OFF.
+
+### Test
+
+* `BOOST_TEST_HEADERS_ONLY`
+
+  When ON, installs only headers required for using the header-only variant of
+  the Unit Test Framework. Defaults to OFF.
 
 ### Thread
 
