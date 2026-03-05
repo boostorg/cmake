@@ -45,7 +45,9 @@ jobs:
             python: ON
             mpi: OFF
           - os: ubuntu-latest
-            shared: ON
+            shared: OFF
+            # shared: ON doesn't work for Range and Xpressive tests
+            # <link>static is forced in test/Jamfile there
             testing: ON
             layout: system
             python: OFF
