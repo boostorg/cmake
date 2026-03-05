@@ -448,13 +448,35 @@ Your best chance is to try to detect misuse and issue an error:
 Headers like `<boost/config.hpp>`, `<boost/assert.hpp>` and `<boost/throw_exception.hpp>`
 use this technique.
 
+### Running the test suite
 
+Running a big part of the library's test suite is critical to guarantee correctness.
+Module support is still clunky under some compilers. It is also easy
+to forget an export macro.
 
+You should run all tests that target the library's public API.
+This way, if you forgot an export, or commented a header in an unintended way, you will know.
 
-* Tests: set(STD_HEADER)
+While testing implementation details is possible, it is more trouble than
+is worth, since functionality itself should be tested already in non-modular builds.
 
- 
-  
+The only change that should be required to your tests is replacing
+the standard library includes by the compatibility headers in Boost.Config.
+You can use `BOOST_USE_MODULES` to ifdef-out tests targeting the private API.
+
+Additionally, you need to enable `import std` in your tests by modifying your `test/CMakeLists.txt`:
+
+```cmake
+# ...
+if(BOOST_USE_MODULES)
+  set(CMAKE_CXX_MODULE_STD ON)
+endif()
+
+# add your tests here
+```
+
+This is required because `CMAKE_CXX_MODULE_STD` doesn't propagate to dependent targets.
+
 
 ## Design decisions
 
