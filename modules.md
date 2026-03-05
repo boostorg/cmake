@@ -314,19 +314,146 @@ export module boost.xyz;
 
 You can also create a small wrapper header to avoid cluttering.
 
+### Creating the compatibility headers
+
+We should now have to go over all our public headers and apply appropriate preprocessor
+magic to make them "compatibility headers". For the sake of simplicity, let's consider
+headers that don't export macros first.
+
+It is useful to think how do we want our headers to behave in different contexts
+(always with `BOOST_USE_MODULES` defined):
+
+1. In non-modular code: translate to `import boost.xyz` and nothing else.
+   An example of this case is the `main.cpp` file of an executable.
+   The global module fragment shares the same characteristics as non-modular code.
+2. In the purview of our own module: leave the header as-is.
+   We need all of our declarations intact so we can export them.
+3. In the purview of other modules: translate to nothing.
+   In modules, `import` needs to happen either in the global module fragment,
+   or immediately after `export module boost.xyz`. This means that we need
+   to disable the import in purviews, or we will generate errors to consumers.
+
+With this scheme in mind, our public headers become:
+
+```cpp
+// include guards omitted
+
+#if defined(BOOST_USE_MODULES) && !defined(BOOST_XYZ_INTERFACE_UNIT)
+
+#ifndef BOOST_IN_MODULE_PURVIEW
+import boost.core;
+#endif
+
+#else
+
+// declarations here
+
+#endif
+```
+
+The idea is that all Boost modules define `BOOST_IN_MODULE_PURVIEW` when their purview
+begins, and we use this to disable the import. If you double-check, we're already
+defining this macro in `boost_xyz.cppm`. `BOOST_XYZ_INTERFACE_UNIT` is only defined
+in `boost_xyz.cppm`, and used to distinguish case 1 in the list above.
+
+### Headers that export macros
+
+If your header exports public macros, the compatibility headers needs to make these available.
+In the simplest case, your macros don't depend on other macros, and this is trivial.
+Consider a `BOOST_XYZ_VERSION` macro:
+
+```cpp
+//
+// boost/xyz/version.hpp
+//
+// include guards omitted
+
+// BOOST_XYZ_VERSION doesn't require including any other header.
+// This header doesn't need any changes.
+#define BOOST_XYZ_VERSION 1_91_0
+
+//
+// boost/xyz/header.hpp
+//
+// include guards omitted
+
+#if defined(BOOST_USE_MODULES) && !defined(BOOST_XYZ_INTERFACE_UNIT)
+
+// This header makes available BOOST_XYZ_VERSION, too
+#include <boost/xyz/version.hpp> // safe to include in purviews
+#ifndef BOOST_IN_MODULE_PURVIEW
+import boost.core;
+#endif
+
+#else
+
+// declarations here
+
+#endif
+
+```
+
+However, there is a big chance that your macros are expressed in terms
+of other macros. If you need a third-party include that might also declare
+C++ entities, your header is no longer suitable to be used in module purviews.
+
+For example, consider this header:
+
+```cpp
+//
+// boost/xyz/config.hpp
+//
+
+#ifndef BOOST_XYZ_CONFIG_HPP
+#define BOOST_XYZ_CONFIG_HPP
+
+#include <cfloat> // LDBL_MANT_DIG and LDBL_MAX_EXP
+
+// BOOST_XYZ_SUPPORTS_LONG_DOUBLE indicates a supported feature, and is a documented macro
+#if LDBL_MANT_DIG == 64 && LDBL_MAX_EXP == 16384
+#  define BOOST_XYZ_SUPPORTS_LONG_DOUBLE
+#endif
+
+#endif
+```
+
+This header is usable as-is in case 1 (non-modular code),
+but can't be used in purviews (case 2 and 3) because any names defined by `<cfloat>`
+would end up attached to your module.
+
+Your best chance is to try to detect misuse and issue an error:
+
+```cpp
+//
+// boost/xyz/config.hpp
+//
+
+// Detect misuse
+#if defined(BOOST_IN_MODULE_PURVIEW) && !defined(BOOST_XYZ_CONFIG_HPP)
+#  error "Please #include <boost/xyz/config.hpp> in your module global fragment"
+#endif
+
+#ifndef BOOST_XYZ_CONFIG_HPP
+#define BOOST_XYZ_CONFIG_HPP
+
+#include <cfloat> // Stays as is - don't replace by the compatibility header!
+
+#if LDBL_MANT_DIG == 64 && LDBL_MAX_EXP == 16384
+#  define BOOST_XYZ_SUPPORTS_LONG_DOUBLE
+#endif
+
+#endif
+```
+
+Headers like `<boost/config.hpp>`, `<boost/assert.hpp>` and `<boost/throw_exception.hpp>`
+use this technique.
+
 
 
 
 * Tests: set(STD_HEADER)
 
-* 
  
-  * In a config header, define a macro BOOST_XYZ_MODULE_EXPORT that expands to either `export` or to nothing,
-    depending on whether `BOOST_USE_MODULES` is defined or not.
-  * Stick `BOOST_XYZ_MODULE_EXPORT` to all public identifiers (footnote: no template specializations)
-    that the library exports.
-  * 
-  
   
 
 ## Design decisions
