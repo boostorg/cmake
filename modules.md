@@ -31,12 +31,13 @@ Non-goals:
 ## User interface
 
 Users need to consume Boost via CMake, enabling module support by
-specifying `-DBOOST_USE_MODULES=1`. Users may either consume Boost
-directly using `add_subdirectory`, or build it first, install it,
-and using `find_package`. (TODO)
+specifying `-DBOOST_USE_MODULES=1`. Boost can be consumed either
+directly using `add_subdirectory`, or loaded with `find_package` after
+building and installing it.
 
 Each Boost library gets its own C++20 module. For example, Boost.Mp11
-can be consumed with `import boost.mp11`. (TODO: exceptions)
+can be consumed with `import boost.mp11`. Libraries that export mainly
+macros, like Boost.Config, remain as headers.
 
 When consuming a Boost distribution built with modules, all public
 Boost headers are translated into their corresponding `import`, plus
@@ -51,10 +52,10 @@ dependencies first. This restriction can probably be lifted, but
 hasn't been researched yet (and dependency order yields better
 build-time performance).
 
-The recommended approach is the "ABI breaking" style (TODO: link): mark all public
+The recommended approach is the [ABI breaking style](https://clang.llvm.org/docs/StandardCPlusPlusModules.html#abi-breaking-style): mark all public
 entities with a `BOOST_XYZ_MODULE_EXPORT` macro that expands to
 `export` when building with modules, then include all public headers
-in the module purview.
+in the module purview. (TODO: link to rationale)
 
 The rest of this section is a step-by-step guide on how to achieve this.
 
@@ -117,7 +118,7 @@ target_link_libraries(boost_xyz
 Module units are translation units, so when using modules, the library
 is no longer an `INTERFACE` library. A small binary is generated containing only
 the module initializer (a function that initializes global variables,
-typically a no-op for header-only libraries) (TODO: expand). The updated CMake code:
+typically a no-op for header-only libraries) (TODO: link to rationale). The updated CMake code:
 
 ```cmake
 if (BOOST_USE_MODULES)
@@ -484,7 +485,7 @@ additional ones described here.
 Most `.cpp` files need to use or implement private functionality not
 exported by the module. For this to work, they need to be part of the
 module. Using the preprocessor doesn't help here (see
-[Design decisions](#design-decisions)).
+[Design decisions](#design-decisions)). (TODO: update this link to the proper place)
 
 We recommend creating a separate file with a different extension for
 each `.cpp` file. For example, given `utils.cpp`, create `utils.cc`:
@@ -573,7 +574,7 @@ Functionality shared by several `.cpp` files is usually placed into
 header files that live within `src/`. These headers are "source-only":
 they don't get installed like the ones under `include/`.
 
-To avoid redefinition errors (see [Design decisions](#design-decisions)),
+To avoid redefinition errors (see [Design decisions](#design-decisions) TODO: proper link),
 wrap these headers into module implementation partition units (partitions
 not marked with `export`). For example, given `base64.hpp`, create
 `base64.cppm`:
@@ -711,26 +712,26 @@ in CMake.
 
 ### Why ABI breaking?
 
-
-(TODO: links)
-
 There are three main approaches to modularizing a library:
 
-* **`export using`**: wrapping declarations in `export using`
+* [`export using`](https://clang.llvm.org/docs/StandardCPlusPlusModules.html#export-using-style):
+  wrapping declarations in `export using`
   statements looks attractive because it's non-intrusive. However,
   it doesn't work in practice. Global module fragment discards cause
   corner cases where entities are silently dropped, changing the meaning
   of the program. For example, if you try to export `asio::awaitable` with this
   approach, `std::coroutine_traits` specializations get discarded, rendering
   the type unusable.
-* **Non-ABI-breaking**: preserves the ability to mix `#include` and
+* [Non-ABI-breaking](https://clang.llvm.org/docs/StandardCPlusPlusModules.html#export-extern-c-style): preserves the ability to mix `#include` and
   `import`. The ABI-breaking approach makes it easier for the compiler
   to diagnose ODR violations, at the cost of not being able to mix
   including and importing.
-* **ABI breaking** (our choice): mark entities with an export macro.
+* [ABI breaking](https://clang.llvm.org/docs/StandardCPlusPlusModules.html#abi-breaking-style) (our choice): mark entities with an export macro.
   Better ODR diagnostics and, in theory, less work for the compiler.
 
 ### Why a static library in CMake?
+
+TODO: add description about initializer symbols
 
 Module units are translation units that produce a (usually tiny)
 binary containing the module initializer. Using `STATIC` simplifies
