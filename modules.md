@@ -655,10 +655,59 @@ target_sources(boost_xyz
 )
 ```
 
+### Workarounds for gcc-15
 
+GCC 15 has [a bug](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=124309)
+that causes errors when explicitly importing the primary module interface
+from partitions.
 
-boost_xyz_interface.cppm that exports the interface, to workaround gcc bugs
+To workaround this problem, we can place all exported functionality
+in a module interface partition, and make the primary interface unit
+a wrapper:
 
+```cpp
+//
+// File: boost_xyz_interface.cppm
+//
+
+// This file has all the contents that boost_interface.cppm used to have,
+// except for the module identifier
+module;
+
+// Global module fragment
+#include <cassert>
+
+export module boost.xyz:interface; // partition
+
+#include <boost/xyz.hpp>
+
+//
+// File: boost_xyz.cppm
+//
+
+// Simply re-export the partition
+export module boost.xyz;
+export import :interface;
+
+//
+// File: base64.cppm
+//
+module;
+
+#include <cassert>
+
+module boost.xyx:base64;
+
+// We've replaced 'import boost.xyz' by this
+import :interface;
+
+// Rest of the file unmodified
+#define BOOST_XYZ_BASE64_PARTITION_UNIT
+#include "base64.hpp"
+```
+
+The new `boost_xyz_interface.cppm` should be placed in the public
+file set in CMake.
 
 ## Design decisions
 
