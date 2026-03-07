@@ -117,8 +117,8 @@ target_link_libraries(boost_xyz
 
 Module units are translation units, so when using modules, the library
 is no longer an `INTERFACE` library. A small binary is generated containing only
-the module initializer (a function that initializes global variables,
-typically a no-op for header-only libraries) (see [Why a static library in CMake?](#why-a-static-library-in-cmake)). The updated CMake code:
+the module initializer (see [Why a static library in CMake?](#why-a-static-library-in-cmake) for more info).
+The updated CMake code:
 
 ```cmake
 if (BOOST_USE_MODULES)
@@ -750,12 +750,16 @@ There are three main approaches to modularizing a library:
 
 ### Why a static library in CMake?
 
-TODO: add description about initializer symbols
-
 Module units are translation units that produce a (usually tiny)
-binary containing the module initializer. Using `STATIC` simplifies
-deployment and avoids the overhead of shared library machinery for
+binary containing the module initializer. This function initializes any
+global variables declared in the module.
+
+Using `STATIC` simplifies deployment and avoids the overhead of shared library machinery for
 what is typically a no-op function.
+
+Libraries may contain symbols if you forgot to add `inline` specifiers
+to your class members. It's advised to check the generated binaries
+to fix these cases.
 
 ### Why can't the preprocessor make `.cpp` files into module units?
 
