@@ -446,6 +446,25 @@ The best approach is to detect misuse and issue an error:
 Headers like `<boost/config.hpp>`, `<boost/assert.hpp>` and
 `<boost/throw_exception.hpp>` use this technique.
 
+### Making member functions inline
+
+Member functions in non-module code are implicitly inline.
+This is no longer true in module code. If you want functions to remain
+inline, you need to mark them explicitly:
+
+```cpp
+// 
+// File: header.hpp
+//
+
+class some_class {
+public:
+  inline some_class() {}
+  inline int get() { return 42; }
+};
+
+```
+
 ### Running the test suite
 
 Running a large part of the library's test suite is critical for
