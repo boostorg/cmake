@@ -477,6 +477,101 @@ endif()
 
 This is required because `CMAKE_CXX_MODULE_STD` doesn't propagate to dependent targets.
 
+## Compiled libraries
+
+Compiled libraries are slightly more involved. All the steps already described apply,
+plus some extra steps described here.
+
+Most `.cpp` files in our library need to either use or implement private functionality
+not exported by the module. For this to work, they need to be made part of the module.
+Using the preprocessor doesn't help here (TODO: link).
+
+We recommend creating a separate file with a different extension for each `.cpp` file
+in your library. For example, given an `utils.cpp` file, you might create an `utils.cc`
+file like the following:
+
+
+```cpp
+// utils.cc
+
+module;
+
+// Place here any includes providing macros required by your cpp file
+#include <cassert>
+#include <cerrno>
+
+// This is a module implementation unit
+module boost.xyz;
+
+// Include any modular dependencies here
+import std;
+import boost.core;
+
+// We're in a purview. Compatibility headers shouldn't generate purviews
+#define BOOST_IN_MODULE_PURVIEW
+
+// Just include the non-modular code
+#include "utils.cpp"
+```
+
+For this to work, you need to make sure that your `.cpp` files
+don't include any third-party names that might get attached to our module.
+You should follow the same procedure as with headers.
+
+Note that, by the rules of C++20 modules, your `.cc` files automatically
+import all the names defined in your primary module interface.
+
+Because module interface units can't be imported, they should be added
+to CMake like regular sources, rather than to the `CXX_MODULES` file set.
+For instance:
+
+```cmake
+# Add the regular translation units
+if (BOOST_USE_MODULES)
+  set(SOURCE_SUFFIX "cc")
+else()
+  set(SOURCE_SUFFIX "cpp")
+endif()
+
+add_library(boost_xyz
+  src/utils.${SOURCE_SUFFIX}
+)
+
+# Now add the module primary interface unit
+if (BOOST_USE_MODULES)
+  target_sources(boost_xyz PUBLIC FILE_SET CXX_MODULES BASE_DIRS modules FILES modules/boost_xyz.cppm)
+  # ...
+endif()
+```
+
+### Guarding detail headers
+
+If your `.cpp` files include any `detail/` headers directly, you need to
+guard these to avoid double definitions. These definitions will be already
+present in the primary module interface, and shouldn't appear again
+in the module implementation units.
+
+The simplest way is to use an approach similar to public headers:
+
+```cpp
+//
+// File boost/xyz/detail/utils.hpp
+//
+
+// Include guards omitted.
+// Make the header a no-op outside the primary module interface
+#if !defined(BOOST_USE_MODULES) || defined(BOOST_XYZ_INTERFACE_UNIT)
+
+// Header contents
+
+#endif
+```
+
+### Source-only headers
+
+
+boost_xyz_interface.cppm that exports the interface, to workaround gcc bugs
+
 
 ## Design decisions
 
@@ -491,9 +586,33 @@ This is required because `CMAKE_CXX_MODULE_STD` doesn't propagate to dependent t
     The cost is not being able to mix include/import.
     TBC: expand this argument.
 * Why using a static library in CMake
+* Why not using the preprocessor to make `.cpp` files module units conditionally.
+  The most straightforward idea would be to write the following:
 
-  Some libraries don't get a module at all (e.g. Boost.Config because it exports only macros). More on this later.
+```cpp
 
-Libraries that only export macros  don't get a module.
+// This DOES NOT WORK, because module; and module boost.xyz; need to be the first
+// declarations in the translation unit
 
+#ifdef BOOST_USE_MODULES
+module;
+#endif
+
+// Global module fragment includes
+#include <cassert>
+#include <cerrno>
+
+#ifdef BOOST_USE_MODULES
+module boost.xyz;
+#endif
+
+// Content of the .cpp file as is today
+#include <boost/xyz/header.hpp>
+
+int boost::xyz::f() { /* ... */ }
+
+```
+
+This doesn't work because the module declarations need to be the first things to happen
+in the translation unit. This limitation probably makes dependency scanning more efficient.
 
