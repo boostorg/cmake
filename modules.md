@@ -55,7 +55,7 @@ build-time performance).
 The recommended approach is the [ABI breaking style](https://clang.llvm.org/docs/StandardCPlusPlusModules.html#abi-breaking-style): mark all public
 entities with a `BOOST_XYZ_MODULE_EXPORT` macro that expands to
 `export` when building with modules, then include all public headers
-in the module purview. (TODO: link to rationale)
+in the module purview (see [Why ABI breaking?](#why-abi-breaking)).
 
 The rest of this section is a step-by-step guide on how to achieve this.
 
@@ -118,7 +118,7 @@ target_link_libraries(boost_xyz
 Module units are translation units, so when using modules, the library
 is no longer an `INTERFACE` library. A small binary is generated containing only
 the module initializer (a function that initializes global variables,
-typically a no-op for header-only libraries) (TODO: link to rationale). The updated CMake code:
+typically a no-op for header-only libraries) (see [Why a static library in CMake?](#why-a-static-library-in-cmake)). The updated CMake code:
 
 ```cmake
 if (BOOST_USE_MODULES)
@@ -504,7 +504,7 @@ additional ones described here.
 Most `.cpp` files need to use or implement private functionality not
 exported by the module. For this to work, they need to be part of the
 module. Using the preprocessor doesn't help here (see
-[Design decisions](#design-decisions)). (TODO: update this link to the proper place)
+[Why can't the preprocessor make `.cpp` files into module units?](#why-cant-the-preprocessor-make-cpp-files-into-module-units)).
 
 We recommend creating a separate file with a different extension for
 each `.cpp` file. For example, given `utils.cpp`, create `utils.cc`:
@@ -593,7 +593,7 @@ Functionality shared by several `.cpp` files is usually placed into
 header files that live within `src/`. These headers are "source-only":
 they don't get installed like the ones under `include/`.
 
-To avoid redefinition errors (see [Design decisions](#design-decisions) TODO: proper link),
+To avoid redefinition errors (see [Why can't source-only headers be used directly?](#why-cant-source-only-headers-be-used-directly)),
 wrap these headers into module implementation partition units (partitions
 not marked with `export`). For example, given `base64.hpp`, create
 `base64.cppm`:
