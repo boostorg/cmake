@@ -492,7 +492,9 @@ file like the following:
 
 
 ```cpp
-// utils.cc
+//
+// File: utils.cc
+//
 
 module;
 
@@ -569,6 +571,91 @@ The simplest way is to use an approach similar to public headers:
 
 ### Source-only headers
 
+Functionality shared by several `.cpp` files is usually placed
+into header files that live within the `src/` directory. These headers
+are "source-only", in the sense that they don't get installed like the ones under the `include/` directory.
+
+To avoid redefinition errors (TODO: link to rationale), we need to wrap these headers into module partition implementation units (partitions not marked with `export`). For example, given the header `base64.hpp`, we can create a `base64.cppm` file with the following contents:
+
+```cpp
+//
+// File: base64.cppm
+//
+module;
+
+// Place any macro-related includes that base64.hpp may need
+#include <cassert>
+
+// This is a partition
+module boost.xyx:base64;
+
+// We need to access all the public and private functionality
+// defined in our headers. Partitions don't import the primary
+// interface unit by default, so this is needed.
+// gcc-15 currently has a bug with this - see later for a workaround 
+import boost.xyz;
+
+// Similar to BOOST_XYZ_INTERFACE_UNIT, used to guard the file
+#define BOOST_XYZ_BASE64_PARTITION_UNIT
+
+#include "base64.hpp"
+```
+
+The header file needs to be guarded so it expands to nothing when
+included in the `.cpp` files:
+
+```cpp
+//
+// File: base64.hpp
+//
+
+// Include guards omitted.
+// Make the header a no-op outside base64.cppm
+#if !defined(BOOST_USE_MODULES) || defined(BOOST_XYZ_BASE64_PARTITION_UNIT)
+
+// Header contents
+
+#endif
+```
+
+Finally, module units can import the partitions. Imagine that `utils.cc`
+includes `base64.hpp` in its code:
+
+```cpp
+//
+// File: utils.cc
+//
+
+module;
+
+// Global module fragment
+
+module boost.xyz;
+
+import :base64; // Import the partition
+import std;
+import boost.core;
+
+// Purview as was before
+#define BOOST_IN_MODULE_PURVIEW
+#include "utils.cpp"
+```
+
+Partition units need to be compiled. Since they can be imported,
+they need to be in a CMake `CXX_MODULES` file set. Because they
+are internal to the library and shouldn't be installed to the user,
+they should be part of a `PRIVATE` file set:
+
+```cmake
+target_sources(boost_xyz
+  PUBLIC FILE_SET CXX_MODULES BASE_DIRS modules FILES
+    modules/boost_xyz.cppm
+  PRIVATE FILE_SET source_headers TYPE CXX_MODULES BASE_DIRS src FILES
+    src/base64.cppm
+)
+```
+
+
 
 boost_xyz_interface.cppm that exports the interface, to workaround gcc bugs
 
@@ -588,6 +675,9 @@ boost_xyz_interface.cppm that exports the interface, to workaround gcc bugs
 * Why using a static library in CMake
 * Why not using the preprocessor to make `.cpp` files module units conditionally.
   The most straightforward idea would be to write the following:
+* Why can't headers be used directly in cpp files?
+  If we include one of these headers into several translation units, we will get redefinition
+  errors. We can't include them in the GMF because they need access to the module private content.
 
 ```cpp
 
