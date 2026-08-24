@@ -303,6 +303,9 @@ macro(__boost_add_header_only lib)
 
 endmacro()
 
+# C++20 modules
+option(BOOST_USE_MODULES "Build Boost as a collection of C++20 modules (unstable)" OFF)
+
 #
 
 file(GLOB __boost_libraries RELATIVE "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs" "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/*/CMakeLists.txt" "${BOOST_SUPERPROJECT_SOURCE_DIR}/libs/numeric/*/CMakeLists.txt")
