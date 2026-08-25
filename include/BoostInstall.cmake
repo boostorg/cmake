@@ -338,12 +338,14 @@ function(boost_install_target)
   endif()
 
   set(__INSTALL_CXX_MODULES)
+  set(__EXPORT_CXX_MODULES_CONFIG_FILES)
   if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.28)
     get_target_property(INTERFACE_CXX_MODULE_SETS ${LIB} INTERFACE_CXX_MODULE_SETS)
     if(INTERFACE_CXX_MODULE_SETS)
       boost_message(DEBUG "boost_install_target: '${__TARGET}' has INTERFACE_CXX_MODULE_SETS=${INTERFACE_CXX_MODULE_SETS}")
       set(extrainstalldir "${CMAKE_INSTALL_DATADIR}/boost-${__VERSION}/${LIB}")
       set(__INSTALL_CXX_MODULES FILE_SET ${INTERFACE_CXX_MODULE_SETS} DESTINATION ${extrainstalldir})
+      set(__EXPORT_CXX_MODULES_CONFIG_FILES CXX_MODULES_DIRECTORY .)
     endif()
   endif()
 
@@ -363,13 +365,13 @@ function(boost_install_target)
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     PRIVATE_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
     PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-    # explicit needed if used starting with cmake v3.28
-    # XXX FILE_SET CXX_MODULES DESTINATION "${CMAKE_INSTALL_DATADIR}"
+    # NOTE: explicit needed if used starting with cmake v3.28!
+    # optional install: FILE_SET CXX_MODULES DESTINATION "${CMAKE_INSTALL_DATADIR}"
     ${__INSTALL_CXX_MODULES}
-    # Any module files from C++ modules from PUBLIC sources in a file set of type CXX_MODULES will be installed to the given DESTINATION.
-    # TODO(CK) ${__INSTALL_CXX_MODULES_BMI}
-    # NOTE: explicit needed if used starting with cmake v3.23
-    # XXX FILE_SET HEADERS
+    # NOTE: explicit needed if used starting with cmake v3.23!
+    # Any module files from C++ modules from PUBLIC sources in a file set
+    # of type CXX_MODULES will be installed to the given DESTINATION.
+    # optional install: FILE_SET HEADERS
     ${__INSTALL_HEADER_SETS}
   )
 
@@ -391,7 +393,9 @@ function(boost_install_target)
   endif()
 
   install(EXPORT ${LIB}-targets DESTINATION "${CONFIG_INSTALL_DIR}" NAMESPACE Boost:: FILE ${LIB}-targets.cmake
-    CXX_MODULES_DIRECTORY .
+    # NOTE: explicit needed if used starting with cmake v3.28!
+    # optional install config packages for: FILE_SET CXX_MODULES
+    ${__EXPORT_CXX_MODULES_CONFIG_FILES}
   )
 
   set_target_properties(${LIB} PROPERTIES _boost_is_installed ON)
