@@ -171,7 +171,7 @@ jobs:
     runs-on: ${{matrix.os}}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install packages
         if: matrix.install
@@ -321,7 +321,7 @@ jobs:
         shell: cmd
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Boost
         run: |
@@ -393,23 +393,11 @@ jobs:
           - ubuntu:20.04
           - ubuntu:22.04
           - ubuntu:24.04
-          - ubuntu:25.04
+          - ubuntu:26.04
 
         testing: [OFF, ON]
 
-        include:
-          - container: ubuntu:18.04
-            testing: OFF
-            exclude: cobalt;histogram;locale;msm;parser
-          - container: ubuntu:18.04
-            testing: ON
-            exclude: cobalt;histogram;locale;msm;parser;pfr;mysql
-
-    container:
-      image: ${{matrix.container}}
-      volumes:
-        - /node20217:/node20217:rw,rshared
-        - ${{ startsWith(matrix.container, 'ubuntu:1') && '/node20217:/__e/node20:ro,rshared' || ' ' }}
+    container: ${{matrix.container}}
 
     defaults:
       run:
@@ -423,16 +411,9 @@ jobs:
         run: |
           export DEBIAN_FRONTEND=noninteractive
           apt-get update
-          apt-get -y install sudo python3 git g++ curl xz-utils cmake libssl-dev
+          apt-get -y install sudo python3 git g++ cmake libssl-dev
 
-      - name: Install nodejs20glibc2.17
-        if: ${{ startsWith( matrix.container, 'ubuntu:1' ) }}
-        run: |
-          curl -LO https://archives.boost.io/misc/node/node-v20.9.0-linux-x64-glibc-217.tar.xz
-          tar -xf node-v20.9.0-linux-x64-glibc-217.tar.xz --strip-components 1 -C /node20217
-          ldd /__e/node20/bin/node
-
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Boost
         run: |
@@ -461,18 +442,12 @@ jobs:
       fail-fast: false
       matrix:
         container:
-          - ubuntu:16.04
-          - ubuntu:18.04
           - ubuntu:20.04
           - ubuntu:22.04
           - ubuntu:24.04
-          - ubuntu:25.04
+          - ubuntu:26.04
 
-    container:
-      image: ${{matrix.container}}
-      volumes:
-        - /node20217:/node20217:rw,rshared
-        - ${{ startsWith(matrix.container, 'ubuntu:1') && '/node20217:/__e/node20:ro,rshared' || ' ' }}
+    container: ${{matrix.container}}
 
     defaults:
       run:
@@ -486,16 +461,9 @@ jobs:
         run: |
           export DEBIAN_FRONTEND=noninteractive
           apt-get update
-          apt-get -y install sudo python3 git g++ curl xz-utils cmake
+          apt-get -y install sudo python3 git g++ cmake
 
-      - name: Install nodejs20glibc2.17
-        if: ${{ startsWith( matrix.container, 'ubuntu:1' ) }}
-        run: |
-          curl -LO https://archives.boost.io/misc/node/node-v20.9.0-linux-x64-glibc-217.tar.xz
-          tar -xf node-v20.9.0-linux-x64-glibc-217.tar.xz --strip-components 1 -C /node20217
-          ldd /__e/node20/bin/node
-
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Boost
         run: |
@@ -528,7 +496,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Test BoostFetch
         run: |
@@ -542,13 +510,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-22.04, ubuntu-24.04, macos-14, macos-15, macos-26 ]
+        os: [ ubuntu-22.04, ubuntu-24.04, ubuntu-26.04, macos-14, macos-15, macos-26 ]
         shared: [ ON, OFF ]
 
     runs-on: ${{matrix.os}}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Boost
         run: |
@@ -625,6 +593,9 @@ jobs:
           - os: ubuntu-24.04
             include: timer
             shared: ON
+          - os: ubuntu-26.04
+            include: timer
+            shared: ON
           - os: macos-14
             include: timer
             shared: ON
@@ -638,7 +609,7 @@ jobs:
     runs-on: ${{matrix.os}}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Boost
         run: |
@@ -671,13 +642,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-22.04, ubuntu-24.04, macos-14, macos-15, macos-26 ]
+        os: [ ubuntu-22.04, ubuntu-24.04, ubuntu-26.04, macos-14, macos-15, macos-26 ]
         shared: [ ON, OFF ]
 
     runs-on: ${{matrix.os}}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Boost
         run: |
@@ -718,7 +689,7 @@ jobs:
     runs-on: ${{matrix.os}}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Boost
         run: |
