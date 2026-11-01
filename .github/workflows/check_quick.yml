@@ -21,11 +21,7 @@ jobs:
           - ubuntu:26.04
         shared: [ ON, OFF ]
 
-    container:
-      image: ${{matrix.container}}
-      volumes:
-        - /node20217:/node20217:rw,rshared
-        - ${{ startsWith(matrix.container, 'ubuntu:1') && '/node20217:/__e/node20:ro,rshared' || ' ' }}
+    container: ${{matrix.container}}
 
     defaults:
       run:
