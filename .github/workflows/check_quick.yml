@@ -18,8 +18,7 @@ jobs:
           - ubuntu:20.04
           - ubuntu:22.04
           - ubuntu:24.04
-          - ubuntu:25.04
-          - ubuntu:25.10
+          - ubuntu:26.04
         shared: [ ON, OFF ]
 
     container:
@@ -40,16 +39,9 @@ jobs:
         run: |
           export DEBIAN_FRONTEND=noninteractive
           apt-get update
-          apt-get -y install sudo python3 git g++ curl xz-utils cmake libssl-dev
+          apt-get -y install sudo python3 git g++ cmake libssl-dev
 
-      - name: Install nodejs20glibc2.17
-        if: ${{ startsWith( matrix.container, 'ubuntu:1' ) }}
-        run: |
-          curl -LO https://archives.boost.io/misc/node/node-v20.9.0-linux-x64-glibc-217.tar.xz
-          tar -xf node-v20.9.0-linux-x64-glibc-217.tar.xz --strip-components 1 -C /node20217
-          ldd /__e/node20/bin/node
-
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Boost
         run: |
@@ -92,7 +84,7 @@ jobs:
         shell: cmd
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Boost
         run: |
