@@ -24,6 +24,12 @@ endif()
 
 set(__boost_incompatible_libraries "")
 
+# Sub-projects should use ${BOOST_CONFIGURE_DEPENDS} in place of CONFIGURE_DEPENDS
+# so that projects consuming Boost through add_subdirectory don't incur the cost
+# of GLOB on every build.
+
+set(BOOST_CONFIGURE_DEPENDS "")
+
 # Define cache variables if root project
 
 if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR)
@@ -99,15 +105,15 @@ if(CMAKE_SOURCE_DIR STREQUAL Boost_SOURCE_DIR)
 
   option(CMAKE_VISIBILITY_INLINES_HIDDEN "Inline function have hidden visibility" ON)
 
-  # Sub-projects should use BOOST_CONFIGURE_DEPENDS in place of CONFIGURE_DEPENDS
-  # so that projects consuming boost through add_subdirectory don't incur the cost
-  # of GLOB on every build. 
-
-  set(BOOST_CONFIGURE_DEPENDS CONFIGURE_DEPENDS)
-
   # Enable IDE folders for Visual Studio
 
   set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+  # Enable CONFIGURE_DEPENDS for globs when root project
+
+  if(NOT CMAKE_VERSION VERSION_LESS 3.12)
+    set(BOOST_CONFIGURE_DEPENDS "CONFIGURE_DEPENDS")
+  endif()
 
 else()
 
