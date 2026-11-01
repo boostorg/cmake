@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Setup Boost
         run: |
           BOOST_BRANCH="${{inputs.branch}}"
@@ -77,7 +77,7 @@ jobs:
 
       - name: Cache CMake
         id: cache-cmake
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: /tmp/cmake
           key: ${{ runner.os }}-cmake-${{matrix.cmake_version}}
