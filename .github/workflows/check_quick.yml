@@ -10,15 +10,11 @@ on:
     tags: ['**']
 
 jobs:
-  posix:
+  linux:
     strategy:
       fail-fast: false
       matrix:
-        container:
-          - ubuntu:20.04
-          - ubuntu:22.04
-          - ubuntu:24.04
-          - ubuntu:26.04
+        container: [ ubuntu:20.04, ubuntu:22.04, ubuntu:24.04, ubuntu:26.04 ]
         shared: [ ON, OFF ]
 
     container: ${{matrix.container}}
@@ -37,6 +33,45 @@ jobs:
           apt-get update
           apt-get -y install sudo python3 git g++ cmake libssl-dev
 
+      - uses: actions/checkout@v7
+
+      - name: Setup Boost
+        run: |
+          echo GITHUB_BASE_REF: $GITHUB_BASE_REF
+          echo GITHUB_REF: $GITHUB_REF
+          REF=${GITHUB_BASE_REF:-$GITHUB_REF}
+          REF=${REF#refs/heads/}
+          echo REF: $REF
+          BOOST_BRANCH=develop && [ "$REF" == "master" ] && BOOST_BRANCH=master || true
+          echo BOOST_BRANCH: $BOOST_BRANCH
+          cd ..
+          git clone -b $BOOST_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
+          cd boost-root
+          git submodule update --init --jobs 3
+          rm -rf tools/cmake/*
+          cp -r $GITHUB_WORKSPACE/* tools/cmake
+
+      - name: Configure Boost
+        run: |
+          cd ../boost-root
+          mkdir __build__ && cd __build__
+          cmake -DBUILD_TESTING=ON -DBUILD_SHARED_LIBS=${{matrix.shared}} ..
+
+      - name: Test Boost
+        run: |
+          cd ../boost-root/__build__
+          cmake --build . --target check-quick
+
+  macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ macos-15, macos-26 ]
+        shared: [ ON, OFF ]
+
+    runs-on: ${{matrix.os}}
+
+    steps:
       - uses: actions/checkout@v7
 
       - name: Setup Boost
