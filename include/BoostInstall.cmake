@@ -337,6 +337,12 @@ function(boost_install_target)
     string(APPEND CONFIG_INSTALL_DIR "-static")
   endif()
 
+  # C++20 modules supported since CMake 3.28
+  set(__BOOST_INSTALL_FILE_SET_ARGS)
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.28)
+    set(__BOOST_INSTALL_FILE_SET_ARGS FILE_SET CXX_MODULES DESTINATION "${CMAKE_INSTALL_DATADIR}")
+  endif()
+
   install(TARGETS ${LIB} EXPORT ${LIB}-targets
     # explicit destination specification required for 3.13, 3.14 no longer needs it
     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
@@ -344,6 +350,7 @@ function(boost_install_target)
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     PRIVATE_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
     PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+    ${__BOOST_INSTALL_FILE_SET_ARGS}
   )
 
   export(TARGETS ${LIB} NAMESPACE Boost:: FILE export/${LIB}-targets.cmake)
